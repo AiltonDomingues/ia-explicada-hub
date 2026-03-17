@@ -7,6 +7,7 @@ export interface Artigo {
   tags: string[];
   autor: string;
   tempoLeitura: string;
+  link: string;
 }
 
 export const artigos: Artigo[] = [
@@ -19,6 +20,7 @@ export const artigos: Artigo[] = [
     tags: ["automação", "indústria", "futuro", "trabalho"],
     autor: "Dr. Maria Silva",
     tempoLeitura: "8 min",
+    link: "#",
   },
   {
     id: 2,
@@ -28,6 +30,7 @@ export const artigos: Artigo[] = [
     tags: ["ética", "responsabilidade", "desenvolvimento", "sociedade"],
     autor: "Prof. João Santos",
     tempoLeitura: "12 min",
+    link: "#",
   },
   {
     id: 3,
@@ -38,6 +41,7 @@ export const artigos: Artigo[] = [
     tags: ["medicina", "diagnóstico", "machine learning", "saúde"],
     autor: "Dra. Ana Costa",
     tempoLeitura: "10 min",
+    link: "#",
   },
   {
     id: 4,
@@ -47,6 +51,7 @@ export const artigos: Artigo[] = [
     tags: ["redes neurais", "deep learning", "algoritmos", "tutorial"],
     autor: "Carlos Lima",
     tempoLeitura: "15 min",
+    link: "#",
   },
   {
     id: 5,
@@ -57,6 +62,7 @@ export const artigos: Artigo[] = [
     tags: ["NLP", "transformers", "chatbots", "linguagem"],
     autor: "Prof. Elena Rodriguez",
     tempoLeitura: "11 min",
+    link: "#",
   },
   {
     id: 6,
@@ -66,5 +72,6 @@ export const artigos: Artigo[] = [
     tags: ["computer vision", "AR", "veículos autônomos", "reconhecimento"],
     autor: "Dr. Rafael Mendes",
     tempoLeitura: "13 min",
+    link: "#",
   },
 ];

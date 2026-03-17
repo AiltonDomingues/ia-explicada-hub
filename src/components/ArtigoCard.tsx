@@ -1,5 +1,4 @@
 import { Clock, Tag, User } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { Artigo } from "@/data/artigos";
 
 interface ArtigoCardProps {
@@ -40,12 +39,14 @@ const ArtigoCard = ({ artigo }: ArtigoCardProps) => (
       </span>
     </div>
 
-    <Link
-      to={`/artigos/${artigo.id}`}
+    <a
+      href={artigo.link}
+      target="_blank"
+      rel="noopener noreferrer"
       className="block text-center py-2 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
     >
       Ler Artigo Completo
-    </Link>
+    </a>
   </div>
 );
 

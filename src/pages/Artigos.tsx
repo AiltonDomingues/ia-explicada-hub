@@ -27,7 +27,7 @@ const ArtigosPage = () => {
   const filtered = useMemo(() => {
     return artigos.filter((a) => {
       const matchSearch = a.titulo.toLowerCase().includes(search.toLowerCase()) ||
-        a.descricao.toLowerCase().includes(search.toLowerCase()) ||
+        a.resumo.toLowerCase().includes(search.toLowerCase()) ||
         a.autor.toLowerCase().includes(search.toLowerCase());
       const matchCat = categoria === "Todas as Categorias" || a.categoria === categoria;
       return matchSearch && matchCat;

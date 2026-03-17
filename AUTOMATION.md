@@ -28,22 +28,31 @@ Fetches breaking AI news from Brazilian tech sites **every day at 9:00 AM UTC** 
 Fetches in-depth AI articles and tutorials **every Sunday at 10:00 AM UTC** (7:00 AM Brasilia).
 
 ### Article Sources
-- **Towards Data Science** (Medium) - English data science articles
-- **Medium AI** - English AI content
-- **Dev.to** - English developer articles
-- **Tecnoblog** - Portuguese tech articles
+- **arXiv AI** (cs.AI) - Academic AI papers and preprints
+- **arXiv Machine Learning** (cs.LG) - Academic ML papers and preprints
+- **Google AI Research** - Research blog from Google AI teams
+- **DeepMind** - Research blog from Google DeepMind
+- **Berkeley AI Research (BAIR)** - UC Berkeley AI lab blog
+- **Towards Data Science** (Medium) - Data science tutorials and articles
+- **Medium AI** - AI-focused content on Medium
+- **Distill** - Machine learning research explanations (highly visual)
+- **Tecnoblog** - Portuguese tech and AI articles
 
 ### Features
-- Filters for AI-relevant content only
-- Supports both English and Portuguese
-- Extracts author, reading time, categories
-- Smart tag detection
-- Validates content quality (min 50 chars description)
+- **Academic Focus**: Filters out news/announcements, prioritizes tutorials, guides, research papers
+- **Quality Filters**: 
+  - Requires substantial content (min 200 chars)
+  - Must contain deep content indicators (tutorial, research, analysis, implementation, etc.)
+  - Rejects breaking news and product announcements
+- **AI-Relevance**: Only imports content explicitly about AI/ML
+- **Bilingual**: Supports both English and Portuguese
+- **Smart Extraction**: Author, reading time, categories, tags
+- **Duplicate Prevention**: Checks existing articles by link
 
 ### Schedule
 - **Frequency**: Weekly (Sundays)
 - **Time**: 10:00 AM UTC (7:00 AM Brasilia)
-- **Articles per run**: ~5-15 quality articles
+- **Articles per run**: ~5-15 quality academic articles
 - **Workflow**: `.github/workflows/fetch-articles.yml`
 - **Script**: `scripts/fetch-articles.js`
 
@@ -167,9 +176,17 @@ const RSS_FEEDS = [
     source: 'Your Blog',
     language: 'pt' // or 'en'
   },
+  // Examples of academic sources:
+  // arXiv: https://arxiv.org/rss/cs.AI (AI)
+  // arXiv: https://arxiv.org/rss/cs.LG (Machine Learning)
   // ... add more
 ];
 ```
+
+**Academic Quality Filters**: The article fetcher automatically filters for deep/academic content. To adjust:
+- Edit `isDeepContent()` function to add/remove academic indicators
+- Edit `newsIndicators` array to filter out news/announcements
+- Change minimum content length (currently 200 chars) on line ~292
 
 ### Change Article Limits
 

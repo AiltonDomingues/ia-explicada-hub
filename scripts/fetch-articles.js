@@ -3,6 +3,33 @@ const { createClient } = require('@supabase/supabase-js');
 
 // RSS Feeds for in-depth AI articles (English + Portuguese)
 const RSS_FEEDS = [
+  // Academic/Research Sources
+  {
+    url: 'https://arxiv.org/rss/cs.AI',
+    source: 'arXiv AI',
+    language: 'en'
+  },
+  {
+    url: 'https://arxiv.org/rss/cs.LG',
+    source: 'arXiv Machine Learning',
+    language: 'en'
+  },
+  {
+    url: 'https://blog.research.google/feeds/posts/default',
+    source: 'Google AI Research',
+    language: 'en'
+  },
+  {
+    url: 'https://deepmind.google/blog/rss/',
+    source: 'DeepMind',
+    language: 'en'
+  },
+  {
+    url: 'https://bair.berkeley.edu/blog/feed.xml',
+    source: 'Berkeley AI Research',
+    language: 'en'
+  },
+  // Technical Content Platforms
   {
     url: 'https://medium.com/feed/towards-data-science',
     source: 'Towards Data Science',
@@ -14,10 +41,11 @@ const RSS_FEEDS = [
     language: 'en'
   },
   {
-    url: 'https://dev.to/feed/tag/ai',
-    source: 'Dev.to',
+    url: 'https://distill.pub/rss.xml',
+    source: 'Distill (ML Research Explanations)',
     language: 'en'
   },
+  // Portuguese Academic/Technical
   {
     url: 'https://tecnoblog.net/feed/',
     source: 'Tecnoblog',
@@ -250,6 +278,39 @@ function isAIRelevant(title, content) {
   return aiTerms.some(term => text.includes(term));
 }
 
+// Filter for deep/academic content (not news)
+function isDeepContent(title, content) {
+  const text = `${title} ${content}`.toLowerCase();
+  
+  // Reject if looks like news/announcement
+  const newsIndicators = [
+    'breaking', 'anunciou', 'anuncia', 'lançou', 'lança', 'launches',
+    'releases', 'apresenta', 'announces', 'unveils', 'revela',
+    'novo modelo', 'new model', 'just released', 'acaba de',
+    'agora disponível', 'now available', 'hoje', 'ontem', 'esta semana'
+  ];
+  
+  if (newsIndicators.some(term => text.includes(term))) {
+    return false;
+  }
+  
+  // Require academic/deep content indicators
+  const deepIndicators = [
+    'tutorial', 'guide', 'how to', 'como fazer', 'passo a passo',
+    'research', 'pesquisa', 'study', 'estudo', 'analysis', 'análise',
+    'paper', 'artigo científico', 'comprehensive', 'completo',
+    'deep dive', 'mergulho profundo', 'understanding', 'entendendo',
+    'introduction to', 'introdução', 'explained', 'explicado',
+    'implementation', 'implementação', 'architecture', 'arquitetura',
+    'matemática', 'mathematical', 'theory', 'teoria',
+    'framework', 'técnica', 'technique', 'methodology', 'metodologia',
+    'case study', 'estudo de caso', 'best practices', 'melhores práticas'
+  ];
+  
+  // Must have at least one deep content indicator
+  return deepIndicators.some(term => text.includes(term));
+}
+
 // Fetch articles from a single RSS feed
 async function fetchFeedArticles(feed) {
   try {
@@ -272,10 +333,17 @@ async function fetchFeedArticles(feed) {
         continue;
       }
       
+      // Filter for deep/academic content (not news)
+      if (!isDeepContent(item.title, content)) {
+        console.log(`  [SKIP] Looks like news/announcement: ${item.title}`);
+        continue;
+      }
+      
       const descricao = createSummary(content, 250);
       
-      if (!descricao || descricao.length < 50) {
-        console.log(`  [SKIP] No proper description: ${item.title}`);
+      // Require substantial content (at least 200 chars for academic quality)
+      if (!descricao || descricao.length < 200) {
+        console.log(`  [SKIP] Content too short: ${item.title}`);
         continue;
       }
       
