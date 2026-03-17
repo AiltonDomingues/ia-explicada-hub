@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 180 70% 45%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 180 70% 45%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 180 70% 45%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 180 70% 45%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 180 70% 45%;
+
+    /* Custom tokens */
+    --hero-gradient: linear-gradient(135deg, hsl(180 70% 96%) 0%, hsl(210 40% 96%) 50%, hsl(180 70% 94%) 100%);
+    --card-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.05);
+    --card-shadow-hover: 0 0 0 1px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.08);
+    --nav-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+    text-wrap: balance;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  .hero-gradient-bg {
+    background: var(--hero-gradient);
+  }
+
+  .card-base {
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .card-base:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-4px);
+  }
+
+  .font-mono-meta {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
