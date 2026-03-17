@@ -32,7 +32,6 @@ Fetches in-depth AI articles and tutorials **every Sunday at 10:00 AM UTC** (7:0
 - **Medium AI** - English AI content
 - **Dev.to** - English developer articles
 - **Tecnoblog** - Portuguese tech articles
-- **Alura** - Portuguese tutorials
 
 ### Features
 - Filters for AI-relevant content only

@@ -34,6 +34,9 @@ const AdminArtigos = () => {
     titulo: "",
     autor: "",
     resumo: "",
+    descricao: "",
+    categoria: "",
+    tempo_leitura: "",
     data: "",
     tags: "",
     link: "",
@@ -112,6 +115,9 @@ const AdminArtigos = () => {
       titulo: "",
       autor: "",
       resumo: "",
+      descricao: "",
+      categoria: "",
+      tempo_leitura: "",
       data: "",
       tags: "",
       link: "",
@@ -172,6 +178,41 @@ const AdminArtigos = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, resumo: e.target.value })
                   }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="descricao">Descrição</Label>
+                <Textarea
+                  id="descricao"
+                  value={formData.descricao}
+                  onChange={(e) =>
+                    setFormData({ ...formData, descricao: e.target.value })
+                  }
+                  placeholder="Descrição completa do artigo (opcional)"
+                />
+              </div>
+              <div>
+                <Label htmlFor="categoria">Categoria</Label>
+                <Input
+                  id="categoria"
+                  value={formData.categoria}
+                  onChange={(e) =>
+                    setFormData({ ...formData, categoria: e.target.value })
+                  }
+                  placeholder="Ex: Machine Learning, NLP, Tutorial"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="tempo_leitura">Tempo de Leitura</Label>
+                <Input
+                  id="tempo_leitura"
+                  value={formData.tempo_leitura}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tempo_leitura: e.target.value })
+                  }
+                  placeholder="Ex: 5 min"
                   required
                 />
               </div>

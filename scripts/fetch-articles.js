@@ -22,11 +22,6 @@ const RSS_FEEDS = [
     url: 'https://tecnoblog.net/feed/',
     source: 'Tecnoblog',
     language: 'pt'
-  },
-  {
-    url: 'https://www.alura.com.br/artigos/feed.xml',
-    source: 'Alura',
-    language: 'pt'
   }
 ];
 
@@ -295,6 +290,7 @@ async function fetchFeedArticles(feed) {
       const article = {
         titulo: item.title,
         autor: extractAuthor(item),
+        resumo: descricao,
         descricao: descricao,
         categoria: detectCategory(item.title, content),
         data: item.pubDate ? new Date(item.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],

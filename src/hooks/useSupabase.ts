@@ -39,8 +39,8 @@ export const useArtigos = () => {
       return data.map((artigo: any) => ({
         ...artigo,
         descricao: artigo.descricao || artigo.resumo || '',
-        tempoLeitura: artigo.tempo_leitura || artigo.tempoLeitura || '5 min',
-        categoria: artigo.categoria || 'Geral',
+        tempoLeitura: artigo.tempo_leitura || '5 min',
+        categoria: artigo.categoria || 'Inteligência Artificial',
       }));
     },
   });

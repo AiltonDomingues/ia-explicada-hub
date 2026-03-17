@@ -27,11 +27,13 @@ export type Artigo = {
   id: string;
   titulo: string;
   autor: string;
+  resumo: string;
   descricao: string;
   categoria: string;
   data: string;
   tags: string[];
-  tempoLeitura: string;
+  tempo_leitura: string;
+  tempoLeitura?: string; // Computed alias
   link: string;
   destaque?: boolean;
   created_at?: string;
