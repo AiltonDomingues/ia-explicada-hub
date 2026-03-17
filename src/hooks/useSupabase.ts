@@ -34,7 +34,14 @@ export const useArtigos = () => {
         .order('data', { ascending: false });
       
       if (error) throw error;
-      return data as Artigo[];
+      
+      // Map database fields to component format
+      return data.map((artigo: any) => ({
+        ...artigo,
+        descricao: artigo.descricao || artigo.resumo || '',
+        tempoLeitura: artigo.tempo_leitura || artigo.tempoLeitura || '5 min',
+        categoria: artigo.categoria || 'Geral',
+      }));
     },
   });
 };
@@ -50,7 +57,16 @@ export const useCursos = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Curso[];
+      
+      // Map database fields to component format
+      return data.map((curso: any) => ({
+        ...curso,
+        autor: curso.autor || curso.instrutor || 'Autor',
+        plataforma: curso.plataforma || 'Online',
+        estudantes: curso.estudantes || '0',
+        nota: curso.nota || '0',
+        avaliacoes: curso.avaliacoes || '0',
+      }));
     },
   });
 };
@@ -66,7 +82,14 @@ export const useMateriais = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Material[];
+      
+      // Map database fields to component format
+      return data.map((material: any) => ({
+        ...material,
+        categoria: material.categoria || 'Geral',
+        tamanho: material.tamanho || '0 MB',
+        downloads: material.downloads || '0',
+      }));
     },
   });
 };

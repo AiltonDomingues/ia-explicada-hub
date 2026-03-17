@@ -27,22 +27,30 @@ export type Artigo = {
   id: string;
   titulo: string;
   autor: string;
-  resumo: string;
+  descricao: string;
+  categoria: string;
   data: string;
   tags: string[];
+  tempoLeitura: string;
   link: string;
+  destaque?: boolean;
   created_at?: string;
 };
 
 export type Curso = {
   id: string;
   titulo: string;
-  instrutor: string;
+  autor: string;
   descricao: string;
   nivel: string;
+  plataforma: string;
   duracao: string;
+  estudantes: string;
+  nota: string;
+  avaliacoes: string;
   preco: string;
   link: string;
+  destaque?: boolean;
   created_at?: string;
 };
 
@@ -50,8 +58,11 @@ export type Material = {
   id: string;
   titulo: string;
   tipo: string;
+  categoria: string;
   descricao: string;
-  autor: string;
-  link: string;
+  tamanho: string;
+  downloads: string;
+  autor?: string;
+  link?: string;
   created_at?: string;
 };
