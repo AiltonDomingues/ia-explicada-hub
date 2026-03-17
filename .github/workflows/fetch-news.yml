@@ -1,0 +1,43 @@
+name: Fetch AI News Daily
+
+on:
+  schedule:
+    # Runs every day at 9:00 AM UTC (6:00 AM Brasilia time)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Fetch and import AI news
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          cd scripts
+          node fetch-news.js
+
+      - name: Commit results (optional log)
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          echo "News fetch completed at $(date)" >> .github/fetch-log.txt
+          git add .github/fetch-log.txt || true
+          git commit -m "Update news fetch log" || true
+          git push || true
