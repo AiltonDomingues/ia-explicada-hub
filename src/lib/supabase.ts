@@ -28,7 +28,6 @@ export type Artigo = {
   titulo: string;
   autor: string;
   resumo: string;
-  descricao: string;
   categoria: string;
   data: string;
   tags: string[];

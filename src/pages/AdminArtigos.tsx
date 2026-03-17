@@ -34,7 +34,6 @@ const AdminArtigos = () => {
     titulo: "",
     autor: "",
     resumo: "",
-    descricao: "",
     categoria: "",
     tempo_leitura: "",
     data: "",
@@ -115,7 +114,6 @@ const AdminArtigos = () => {
       titulo: "",
       autor: "",
       resumo: "",
-      descricao: "",
       categoria: "",
       tempo_leitura: "",
       data: "",
@@ -178,18 +176,8 @@ const AdminArtigos = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, resumo: e.target.value })
                   }
+                  placeholder="Sumário sobre o que o artigo trata"
                   required
-                />
-              </div>
-              <div>
-                <Label htmlFor="descricao">Descrição</Label>
-                <Textarea
-                  id="descricao"
-                  value={formData.descricao}
-                  onChange={(e) =>
-                    setFormData({ ...formData, descricao: e.target.value })
-                  }
-                  placeholder="Descrição completa do artigo (opcional)"
                 />
               </div>
               <div>

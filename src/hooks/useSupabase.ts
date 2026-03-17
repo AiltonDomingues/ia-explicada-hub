@@ -38,7 +38,6 @@ export const useArtigos = () => {
       // Map database fields to component format
       return data.map((artigo: any) => ({
         ...artigo,
-        descricao: artigo.descricao || artigo.resumo || '',
         tempoLeitura: artigo.tempo_leitura || '5 min',
         categoria: artigo.categoria || 'Inteligência Artificial',
       }));

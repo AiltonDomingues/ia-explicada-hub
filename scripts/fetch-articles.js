@@ -290,8 +290,7 @@ async function fetchFeedArticles(feed) {
       const article = {
         titulo: item.title,
         autor: extractAuthor(item),
-        resumo: descricao,
-        descricao: descricao,
+        resumo: descricao || 'Artigo sobre inteligência artificial',
         categoria: detectCategory(item.title, content),
         data: item.pubDate ? new Date(item.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         tags: tags,

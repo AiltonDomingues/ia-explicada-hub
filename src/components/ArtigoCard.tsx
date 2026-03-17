@@ -20,7 +20,7 @@ const ArtigoCard = ({ artigo }: ArtigoCardProps) => (
     </div>
 
     <h3 className="text-lg font-semibold leading-snug mb-2">{artigo.titulo}</h3>
-    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{artigo.descricao}</p>
+    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{artigo.resumo}</p>
 
     <div className="flex flex-wrap gap-1.5 mb-4">
       <Tag className="w-3.5 h-3.5 text-muted-foreground mt-0.5" />
