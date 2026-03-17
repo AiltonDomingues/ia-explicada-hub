@@ -1,31 +1,31 @@
 const Parser = require('rss-parser');
 const { createClient } = require('@supabase/supabase-js');
 
-// RSS Feeds from major tech news sites focused on AI
+// RSS Feeds from Brazilian tech news sites focused on AI
 const RSS_FEEDS = [
   {
-    url: 'https://techcrunch.com/tag/artificial-intelligence/feed/',
-    source: 'TechCrunch'
+    url: 'https://olhardigital.com.br/categoria/internet-e-redes-sociais/feed/',
+    source: 'Olhar Digital'
   },
   {
-    url: 'https://venturebeat.com/category/ai/feed/',
-    source: 'VentureBeat'
+    url: 'https://canaltech.com.br/rss/',
+    source: 'Canaltech'
   },
   {
-    url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
-    source: 'The Verge'
+    url: 'https://www.tecmundo.com.br/rss',
+    source: 'TecMundo'
   },
   {
-    url: 'https://arstechnica.com/tag/artificial-intelligence/feed/',
-    source: 'Ars Technica'
+    url: 'https://tecnoblog.net/feed/',
+    source: 'Tecnoblog'
   },
   {
-    url: 'https://www.wired.com/feed/tag/ai/latest/rss',
-    source: 'WIRED'
+    url: 'https://startupi.com.br/feed/',
+    source: 'Startupi'
   },
   {
-    url: 'https://www.artificialintelligence-news.com/feed/',
-    source: 'AI News'
+    url: 'https://meiobit.com/feed/',
+    source: 'Meio Bit'
   }
 ];
 
@@ -97,54 +97,54 @@ function createSummary(text, maxLength = 200) {
   return sentences[0] + '.';
 }
 
-// Detect category based on content
+// Detect category based on content (Portuguese + English keywords)
 function detectCategory(title, content) {
   const text = `${title} ${content}`.toLowerCase();
   
   // Category patterns with priority (first match wins)
   const categories = [
     {
-      pattern: /launch|release|unveil|announce|debut|introduces|launches|released/i,
+      pattern: /lançamento|lança|lançou|anuncia|anunciou|apresenta|apresentou|divulga|launch|release|unveil|announce|debut/i,
       category: 'Lançamentos'
     },
     {
-      pattern: /funding|investment|raised|valuation|acqui|ipo|billion|million.*raised/i,
+      pattern: /investimento|investiu|capta|captou|rodada|financiamento|aporte|valuation|funding|investment|raised|ipo/i,
       category: 'Investimento'
     },
     {
-      pattern: /research|study|paper|breakthrough|discovery|scientist|university/i,
+      pattern: /pesquisa|estudo|estuda|científico|descoberta|universidade|research|study|paper|breakthrough|discovery|scientist/i,
       category: 'Pesquisa'
     },
     {
-      pattern: /regulation|policy|law|government|congress|senate|eu|privacy|gdpr/i,
+      pattern: /regulação|regulamenta|lei|governo|congresso|senado|privacidade|lgpd|regulation|policy|law|government|privacy|gdpr/i,
       category: 'Regulação'
     },
     {
-      pattern: /ethics|bias|safety|risk|danger|concern|controversy|害/i,
+      pattern: /ética|ético|viés|segurança|risco|perigo|preocupação|controvérsia|ethics|bias|safety|risk|danger|concern/i,
       category: 'Ética'
     },
     {
-      pattern: /robot|autonomous|self-driving|drone|hardware|chip|processor/i,
+      pattern: /robô|robótica|autônomo|autônoma|drone|chip|processador|hardware|robot|autonomous|self-driving|processor/i,
       category: 'Robótica'
     },
     {
-      pattern: /startup|company|business|enterprise|corporate|google|microsoft|meta|apple/i,
+      pattern: /startup|empresa|negócio|corporativo|google|microsoft|meta|apple|amazon|company|business|enterprise/i,
       category: 'Empresas'
     },
     {
-      pattern: /gpt|chatgpt|claude|gemini|llm|language model|generative/i,
+      pattern: /gpt|chatgpt|claude|gemini|llm|modelo de linguagem|generativa|generativo|language model|generative/i,
       category: 'Inteligência Artificial'
     },
     {
-      pattern: /machine learning|deep learning|neural network|algorithm|model|training/i,
+      pattern: /aprendizado de máquina|aprendizado profundo|rede neural|algoritmo|treinamento|machine learning|deep learning|neural network/i,
       category: 'Machine Learning'
     },
     {
-      pattern: /image|video|art|creative|design|midjourney|dall-e|stable diffusion/i,
+      pattern: /imagem|vídeo|arte|criativa|criativo|design|midjourney|dall-e|stable diffusion|image|video|art|creative/i,
       category: 'IA Criativa'
     },
     {
-      pattern: /developer|code|programming|api|tool|framework|sdk/i,
+      pattern: /desenvolvedor|código|programação|api|ferramenta|framework|sdk|developer|code|programming|tool/i,
       category: 'Ferramentas'
     }
   ];
@@ -181,31 +181,31 @@ function extractTags(title, content, feedSource) {
     'sora': 'Sora'
   };
   
-  // Technologies & Concepts
+  // Technologies & Concepts (Portuguese + English)
   const techKeywords = {
-    'llm|large language model': 'LLM',
-    'machine learning|ml': 'Machine Learning',
-    'deep learning': 'Deep Learning',
-    'neural network': 'Neural Networks',
+    'llm|large language model|modelo de linguagem': 'LLM',
+    'machine learning|ml|aprendizado de máquina': 'Machine Learning',
+    'deep learning|aprendizado profundo': 'Deep Learning',
+    'neural network|rede neural|redes neurais': 'Neural Networks',
     'transformer': 'Transformers',
-    'generative ai|gen ai': 'IA Generativa',
-    'computer vision': 'Visão Computacional',
-    'nlp|natural language': 'NLP',
+    'generative ai|gen ai|ia generativa|generativa': 'IA Generativa',
+    'computer vision|visão computacional': 'Visão Computacional',
+    'nlp|natural language|processamento de linguagem': 'NLP',
     'multimodal': 'Multimodal',
-    'agi|artificial general': 'AGI',
-    'reinforcement learning': 'RL',
-    'robotics|robot': 'Robótica',
-    'autonomous': 'Autônomo'
+    'agi|artificial general|inteligência artificial geral': 'AGI',
+    'reinforcement learning|aprendizado por reforço': 'RL',
+    'robotics|robot|robótica|robô': 'Robótica',
+    'autonomous|autônomo|autônoma': 'Autônomo'
   };
   
-  // Actions & Events
+  // Actions & Events (Portuguese + English)
   const actionKeywords = {
-    'launch|release|unveil|announce|debut': 'Lançamento',
-    'funding|investment|raised|valuation': 'Investimento',
-    'partnership|partner|collaboration': 'Parcerias',
-    'research|study|paper': 'Pesquisa',
-    'regulation|policy|law': 'Regulação',
-    'ethics|bias|safety': 'Ética'
+    'launch|release|lançamento|lança|apresenta': 'Lançamento',
+    'funding|investment|investimento|aporte|capta': 'Investimento',
+    'partnership|parceria|colaboração|collaboration': 'Parcerias',
+    'research|study|pesquisa|estudo': 'Pesquisa',
+    'regulation|policy|regulação|lei|regulamenta': 'Regulação',
+    'ethics|bias|safety|ética|viés|segurança': 'Ética'
   };
   
   const allKeywords = { ...aiKeywords, ...techKeywords, ...actionKeywords };
