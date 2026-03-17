@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import MaterialCard from "@/components/MaterialCard";
 import { materiais as materiaisHardcoded } from "@/data/materiais";
@@ -108,6 +109,7 @@ const MateriaisPage = () => {
           ))}
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

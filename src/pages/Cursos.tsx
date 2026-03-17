@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import CursoCard from "@/components/CursoCard";
 import { cursos as cursosHardcoded } from "@/data/cursos";
@@ -108,6 +109,7 @@ const CursosPage = () => {
           ))}
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

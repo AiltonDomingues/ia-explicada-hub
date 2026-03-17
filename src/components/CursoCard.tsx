@@ -1,4 +1,4 @@
-import { Clock, Users, Star } from "lucide-react";
+import { Clock, Star } from "lucide-react";
 import type { Curso } from "@/data/cursos";
 
 interface CursoCardProps {
@@ -25,15 +25,12 @@ const CursoCard = ({ curso }: CursoCardProps) => (
     <p className="text-xs text-muted-foreground mb-2">Por {curso.autor}</p>
     <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{curso.descricao}</p>
 
-    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-3">
+    <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
       <span className="flex items-center gap-1">
         <Clock className="w-3.5 h-3.5" /> {curso.duracao}
       </span>
       <span className="flex items-center gap-1">
-        <Users className="w-3.5 h-3.5" /> {curso.estudantes} estudantes
-      </span>
-      <span className="flex items-center gap-1 col-span-2">
-        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {curso.nota} ({curso.avaliacoes} avaliações)
+        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {curso.nota}
       </span>
     </div>
 

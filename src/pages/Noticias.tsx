@@ -2,9 +2,9 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import NoticiaCard from "@/components/NoticiaCard";
-import { noticias as noticiasHardcoded } from "@/data/noticias";
 import { useNoticias } from "@/hooks/useSupabase";
 import {
   Select,
@@ -17,8 +17,8 @@ import {
 import { containerVariants, itemVariants } from "@/lib/animations";
 
 const NoticiasPage = () => {
-  const { data: noticiasData } = useNoticias();
-  const noticias = noticiasData && noticiasData.length > 0 ? noticiasData : noticiasHardcoded;
+  const { data: noticiasData = [] } = useNoticias();
+  const noticias = noticiasData;
   
   const categorias = ["Todas as Categorias", ...Array.from(new Set(noticias.map((n) => n.categoria)))];
   const [search, setSearch] = useState("");
@@ -86,6 +86,7 @@ const NoticiasPage = () => {
           ))}
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -398,7 +398,7 @@ async function main() {
   
   if (allArticles.length === 0) {
     console.log('[COMPLETE] No new articles to import.');
-    return;
+    process.exit(0);
   }
   
   // Insert into Supabase
@@ -414,6 +414,7 @@ async function main() {
   
   console.log(`[DB] Successfully imported ${allArticles.length} new articles`);
   console.log('\n[COMPLETE] Articles fetch completed');
+  process.exit(0);
 }
 
 // Run

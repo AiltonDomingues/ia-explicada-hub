@@ -2,12 +2,11 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import NoticiaCard from "@/components/NoticiaCard";
 import ArtigoCard from "@/components/ArtigoCard";
 import CursoCard from "@/components/CursoCard";
 import MaterialCard from "@/components/MaterialCard";
-import { noticias as noticiasHardcoded } from "@/data/noticias";
-import { artigos as artigosHardcoded } from "@/data/artigos";
 import { cursos as cursosHardcoded } from "@/data/cursos";
 import { materiais as materiaisHardcoded } from "@/data/materiais";
 import { Youtube, Linkedin, Instagram, Twitter } from "lucide-react";
@@ -39,15 +38,16 @@ const SectionHeader = ({ title, highlight, subtitle, linkTo, linkLabel }: {
 );
 
 const Index = () => {
-  // Fetch data from Supabase with fallback to hardcoded data
-  const { data: noticiasData } = useNoticias();
-  const { data: artigosData } = useArtigos();
+  // Fetch data from Supabase
+  const { data: noticiasData = [] } = useNoticias();
+  const { data: artigosData = [] } = useArtigos();
   const { data: cursosData } = useCursos();
   const { data: materiaisData } = useMateriais();
 
-  // Use Supabase data if available, otherwise use hardcoded data
-  const noticias = noticiasData && noticiasData.length > 0 ? noticiasData : noticiasHardcoded;
-  const artigos = artigosData && artigosData.length > 0 ? artigosData : artigosHardcoded;
+  // Use Supabase data (notícias e artigos são populados pelos workflows)
+  const noticias = noticiasData;
+  const artigos = artigosData;
+  // Cursos e materiais ainda usam fallback hardcoded
   const cursos = cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded;
   const materiais = materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded;
 
@@ -224,12 +224,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
-          <p>© 2024 IA Explicada. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

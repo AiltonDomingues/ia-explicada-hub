@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Youtube, Linkedin, Instagram, Twitter, ExternalLink, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 
 const socialPlatforms = [
@@ -76,6 +77,7 @@ const RedesSociaisPage = () => {
           </p>
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

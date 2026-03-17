@@ -2,9 +2,9 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import ArtigoCard from "@/components/ArtigoCard";
-import { artigos as artigosHardcoded } from "@/data/artigos";
 import { useArtigos } from "@/hooks/useSupabase";
 import {
   Select,
@@ -17,8 +17,8 @@ import {
 import { containerVariants, itemVariants } from "@/lib/animations";
 
 const ArtigosPage = () => {
-  const { data: artigosData } = useArtigos();
-  const artigos = artigosData && artigosData.length > 0 ? artigosData : artigosHardcoded;
+  const { data: artigosData = [] } = useArtigos();
+  const artigos = artigosData;
   
   const categorias = ["Todas as Categorias", ...Array.from(new Set(artigos.map((a) => a.categoria)))];
   const [search, setSearch] = useState("");
@@ -87,6 +87,7 @@ const ArtigosPage = () => {
           ))}
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

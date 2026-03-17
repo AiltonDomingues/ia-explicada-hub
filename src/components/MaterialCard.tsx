@@ -1,4 +1,4 @@
-import { FileText, Video, Code, BookOpen, Database, Download } from "lucide-react";
+import { FileText, Video, Code, BookOpen, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Material } from "@/data/materiais";
 
@@ -35,22 +35,16 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
 
       <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{material.descricao}</p>
 
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+      <div className="flex items-center text-xs text-muted-foreground mb-3">
         <span>Tamanho: {material.tamanho}</span>
-        <span>{material.downloads} downloads</span>
       </div>
 
-      <div className="flex gap-2">
-        <Link
-          to={`/materiais/${material.id}`}
-          className="flex-1 block text-center py-2 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
-        >
-          Ver Material
-        </Link>
-        <button className="p-2 rounded-lg bg-primary text-card hover:bg-primary/90 transition-colors">
-          <Download className="w-4 h-4" />
-        </button>
-      </div>
+      <Link
+        to={`/materiais/${material.id}`}
+        className="block text-center py-2 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
+      >
+        Ver Material
+      </Link>
     </div>
   );
 };

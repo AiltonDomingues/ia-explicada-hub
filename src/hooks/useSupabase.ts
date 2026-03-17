@@ -62,9 +62,7 @@ export const useCursos = () => {
         ...curso,
         autor: curso.autor || curso.instrutor || 'Autor',
         plataforma: curso.plataforma || 'Online',
-        estudantes: curso.estudantes || '0',
         nota: curso.nota || '0',
-        avaliacoes: curso.avaliacoes || '0',
       }));
     },
   });
@@ -87,7 +85,6 @@ export const useMateriais = () => {
         ...material,
         categoria: material.categoria || 'Geral',
         tamanho: material.tamanho || '0 MB',
-        downloads: material.downloads || '0',
       }));
     },
   });

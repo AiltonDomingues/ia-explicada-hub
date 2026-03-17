@@ -5,7 +5,6 @@ export interface Material {
   titulo: string;
   descricao: string;
   tamanho: string;
-  downloads: string;
 }
 
 export const materiais: Material[] = [
@@ -16,7 +15,6 @@ export const materiais: Material[] = [
     titulo: "Guia Completo de Redes Neurais",
     descricao: "Documento abrangente sobre arquiteturas, treinamento e implementação de redes neurais artificiais com exemplos práticos.",
     tamanho: "2.3 MB",
-    downloads: "3,247",
   },
   {
     id: 2,
@@ -25,7 +23,6 @@ export const materiais: Material[] = [
     titulo: "Tutorial: Criando Chatbots com LangChain",
     descricao: "Vídeo-aula completa mostrando como desenvolver chatbots inteligentes passo a passo usando LangChain e Python.",
     tamanho: "45 min",
-    downloads: "1,892",
   },
   {
     id: 3,
@@ -34,7 +31,6 @@ export const materiais: Material[] = [
     titulo: "Código: Classificador de Imagens",
     descricao: "Implementação completa de um classificador de imagens usando PyTorch com código totalmente comentado e datasets de exemplo.",
     tamanho: "512 KB",
-    downloads: "2,156",
   },
   {
     id: 4,
@@ -43,7 +39,6 @@ export const materiais: Material[] = [
     titulo: "E-book: IA na Medicina",
     descricao: "Livro digital explorando aplicações práticas de IA no diagnóstico médico, tratamento personalizado e pesquisa farmacológica.",
     tamanho: "15.7 MB",
-    downloads: "4,321",
   },
   {
     id: 5,
@@ -52,7 +47,6 @@ export const materiais: Material[] = [
     titulo: "Dataset: Análise de Sentimentos",
     descricao: "Conjunto de dados pré-processado para treinamento de modelos de análise de sentimentos em português.",
     tamanho: "125 MB",
-    downloads: "1,567",
   },
   {
     id: 6,
@@ -61,7 +55,6 @@ export const materiais: Material[] = [
     titulo: "Cheat Sheet: Algoritmos de ML",
     descricao: "Guia de referência rápida com os principais algoritmos de machine learning, quando usar e como implementar.",
     tamanho: "856 KB",
-    downloads: "2,890",
   },
   {
     id: 7,
@@ -70,7 +63,6 @@ export const materiais: Material[] = [
     titulo: "Template: API REST para IA",
     descricao: "Template completo para criar APIs REST que servem modelos de IA usando FastAPI e Docker.",
     tamanho: "1.2 MB",
-    downloads: "987",
   },
   {
     id: 8,
@@ -79,6 +71,5 @@ export const materiais: Material[] = [
     titulo: "Webinar: Tendências em IA 2024",
     descricao: "Gravação completa do webinar sobre as principais tendências e inovações em inteligência artificial para 2024.",
     tamanho: "1h 30min",
-    downloads: "1,445",
   },
 ];

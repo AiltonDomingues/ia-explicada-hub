@@ -7,9 +7,7 @@ export interface Curso {
   autor: string;
   descricao: string;
   duracao: string;
-  estudantes: string;
   nota: string;
-  avaliacoes: string;
   preco: string;
   link: string;
 }
@@ -24,9 +22,7 @@ export const cursos: Curso[] = [
     autor: "Rodrigo da Silva Ferreira Caneppele",
     descricao: "Desenvolva uma aplicação Java integrada com a API da OpenAI utilizando bibliotecas Java e boas práticas de engenharia de prompts.",
     duracao: "10h",
-    estudantes: "3,391",
     nota: "9.3",
-    avaliacoes: "3391",
     preco: "R$ 19,90",
     link: "https://www.alura.com.br/curso-online-gpt-java-integre-aplicacao-openai",
   },
@@ -39,9 +35,7 @@ export const cursos: Curso[] = [
     autor: "Guilherme Silveira",
     descricao: "Utilize LangChain e Python para criar agentes inteligentes que executam tarefas e automatizam a tomada de decisão.",
     duracao: "8h",
-    estudantes: "2,306",
     nota: "9.3",
-    avaliacoes: "2306",
     preco: "R$ 79,90",
     link: "https://www.alura.com.br/curso-online-langchain-desenvolva-agentes-inteligencia-artificial",
   },
@@ -54,9 +48,7 @@ export const cursos: Curso[] = [
     autor: "Fernando Amaral",
     descricao: "Machine Learning, Deep Learning, LLMs, IA Generativa, Redes Neurais, NLP e Agentes, tudo em um único curso completo!",
     duracao: "32.5h",
-    estudantes: "32,437",
     nota: "4.6",
-    avaliacoes: "32437",
     preco: "R$ 59,90",
     link: "https://www.udemy.com/course/inteligencia-artificial-e-machine-learning/",
   },
@@ -69,9 +61,7 @@ export const cursos: Curso[] = [
     autor: "Carlos Antônio",
     descricao: "Aprenda processamento de imagens e visão computacional usando OpenCV e Python.",
     duracao: "12h",
-    estudantes: "2,567",
     nota: "8.9",
-    avaliacoes: "2567",
     preco: "R$ 49,90",
     link: "https://www.udemy.com/computer-vision-opencv",
   },
@@ -83,9 +73,7 @@ export const cursos: Curso[] = [
     autor: "Dr. Maria Fernanda",
     descricao: "Processamento de linguagem natural usando modelos transformer estado da arte como BERT e GPT.",
     duracao: "20h",
-    estudantes: "1,234",
     nota: "9.5",
-    avaliacoes: "1234",
     preco: "R$ 149,90",
     link: "https://www.edx.org/nlp-transformers",
   },
@@ -97,9 +85,7 @@ export const cursos: Curso[] = [
     autor: "Ana Paula Gomes",
     descricao: "Domine o framework PyTorch criando redes neurais desde o básico até arquiteturas avançadas.",
     duracao: "15h",
-    estudantes: "1,890",
     nota: "9.1",
-    avaliacoes: "1890",
     preco: "R$ 89,90",
     link: "https://www.coursera.org/pytorch-deep-learning",
   },
