@@ -89,3 +89,21 @@ export const useMateriais = () => {
     },
   });
 };
+
+// Fetch Conceitos
+export const useConceitos = () => {
+  return useQuery({
+    queryKey: ['conceitos'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('conceitos')
+        .select('*')
+        .order('area', { ascending: true })
+        .order('ordem', { ascending: true });
+      
+      if (error) throw error;
+      
+      return data;
+    },
+  });
+};

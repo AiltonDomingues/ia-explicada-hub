@@ -1,14 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { Newspaper, FileText, GraduationCap, FolderOpen, Share2, Home, Menu, X } from "lucide-react";
+import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Home, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const navItems = [
   { to: "/noticias", label: "Notícias", icon: Newspaper },
   { to: "/artigos", label: "Artigos", icon: FileText },
   { to: "/cursos", label: "Cursos", icon: GraduationCap },
   { to: "/materiais", label: "Materiais", icon: FolderOpen },
-  { to: "/redes-sociais", label: "Redes Sociais", icon: Share2 },
+  { to: "/conceitos", label: "Conceitos", icon: Book },
 ];
 
 const Navbar = () => {
@@ -25,8 +26,10 @@ const Navbar = () => {
               <Home className="w-5 h-5 text-primary" />
             </Link>
 
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop nav with search */}
+            <div className="hidden md:flex items-center gap-2">
+              <GlobalSearch />
+              
               {navItems.map((item) => {
                 const isActive = location.pathname === item.to;
                 return (
@@ -88,6 +91,9 @@ const Navbar = () => {
 
             {/* Menu items */}
             <div className="flex flex-col p-4">
+              {/* Search button - Mobile */}
+              <GlobalSearch variant="menu-item" />
+              
               {navItems.map((item) => {
                 const isActive = location.pathname === item.to;
                 return (

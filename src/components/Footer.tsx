@@ -9,7 +9,7 @@ const Footer = () => {
     { name: "Artigos", path: "/artigos" },
     { name: "Cursos", path: "/cursos" },
     { name: "Materiais", path: "/materiais" },
-    { name: "Redes Sociais", path: "/redes-sociais" },
+    { name: "Conceitos", path: "/conceitos" },
   ];
 
   const socialLinks = [

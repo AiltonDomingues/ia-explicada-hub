@@ -101,51 +101,62 @@ function createSummary(text, maxLength = 200) {
 function detectCategory(title, content) {
   const text = `${title} ${content}`.toLowerCase();
   
-  // Category patterns with priority (first match wins)
+  // Category patterns with priority (most specific first)
   const categories = [
+    // Specific technical categories first
     {
-      pattern: /lançamento|lança|lançou|anuncia|anunciou|apresenta|apresentou|divulga|launch|release|unveil|announce|debut/i,
-      category: 'Lançamentos'
+      pattern: /gpt|chatgpt|claude|gemini|llm|modelo de linguagem|generativa|generativo|language model|generative ai|ia generativa/i,
+      category: 'IA Generativa'
     },
     {
-      pattern: /investimento|investiu|capta|captou|rodada|financiamento|aporte|valuation|funding|investment|raised|ipo/i,
-      category: 'Investimento'
-    },
-    {
-      pattern: /pesquisa|estudo|estuda|científico|descoberta|universidade|research|study|paper|breakthrough|discovery|scientist/i,
-      category: 'Pesquisa'
-    },
-    {
-      pattern: /regulação|regulamenta|lei|governo|congresso|senado|privacidade|lgpd|regulation|policy|law|government|privacy|gdpr/i,
-      category: 'Regulação'
-    },
-    {
-      pattern: /ética|ético|viés|segurança|risco|perigo|preocupação|controvérsia|ethics|bias|safety|risk|danger|concern/i,
-      category: 'Ética'
-    },
-    {
-      pattern: /robô|robótica|autônomo|autônoma|drone|chip|processador|hardware|robot|autonomous|self-driving|processor/i,
-      category: 'Robótica'
-    },
-    {
-      pattern: /startup|empresa|negócio|corporativo|google|microsoft|meta|apple|amazon|company|business|enterprise/i,
-      category: 'Empresas'
-    },
-    {
-      pattern: /gpt|chatgpt|claude|gemini|llm|modelo de linguagem|generativa|generativo|language model|generative/i,
-      category: 'Inteligência Artificial'
-    },
-    {
-      pattern: /aprendizado de máquina|aprendizado profundo|rede neural|algoritmo|treinamento|machine learning|deep learning|neural network/i,
+      pattern: /aprendizado de máquina|aprendizado profundo|rede neural|algoritmo de ia|treinamento de modelo|machine learning|deep learning|neural network|model training/i,
       category: 'Machine Learning'
     },
     {
-      pattern: /imagem|vídeo|arte|criativa|criativo|design|midjourney|dall-e|stable diffusion|image|video|art|creative/i,
-      category: 'IA Criativa'
+      pattern: /visão computacional|reconhecimento facial|processamento de imagem|computer vision|image recognition|facial recognition/i,
+      category: 'Visão Computacional'
     },
     {
-      pattern: /desenvolvedor|código|programação|api|ferramenta|framework|sdk|developer|code|programming|tool/i,
-      category: 'Ferramentas'
+      pattern: /robô|robótica|autônomo|autônoma|drone|veículo autônomo|robot|robotics|autonomous|self-driving/i,
+      category: 'Robótica'
+    },
+    {
+      pattern: /(pesquisa|estudo|científico|descoberta|universidade|artigo científico|research|study|paper|breakthrough|discovery|scientist).{0,100}(ia|ai|inteligência artificial|artificial intelligence)/i,
+      category: 'Pesquisa'
+    },
+    {
+      pattern: /regulação|regulamenta|lei sobre ia|governo.*ia|congresso|senado|lgpd|regulation.*ai|policy|law.*ai|government.*ai|privacy.*ai|gdpr/i,
+      category: 'Regulação'
+    },
+    {
+      pattern: /(ética|ético|viés|segurança da ia|risco.*ia|perigo.*ia|preocupação.*ia|controvérsia.*ia|ethics|bias|ai safety|ai risk|ai danger|ai concern).{0,100}(ia|ai|inteligência artificial)/i,
+      category: 'Ética & Segurança'
+    },
+    {
+      pattern: /investimento em ia|investiu.*ia|capta.*startup|rodada.*investimento|financiamento.*ia|aporte|valuation|funding.*ai|investment.*ai|raised.*startup/i,
+      category: 'Investimento'
+    },
+    // Product launches - more specific, requires product/service context
+    {
+      pattern: /(lança|lançou|anuncia|anunciou|apresenta|apresentou|divulga|launch|release|unveil|announce|debut).{0,50}(nova ia|novo modelo|nova ferramenta|novo recurso|novo produto|nova versão|new ai|new model|new tool|new feature|new product|new version)/i,
+      category: 'Lançamentos'
+    },
+    {
+      pattern: /(startup|empresa de ia|gigante tech|google|microsoft|meta|openai|anthropic|apple|amazon|nvidia).{0,100}(ia|ai|inteligência artificial)/i,
+      category: 'Empresas & Startups'
+    },
+    {
+      pattern: /desenvolvedor|código.*ia|programação.*ia|api.*ia|ferramenta.*dev|framework.*ia|sdk|biblioteca|developer|code.*ai|programming.*ai|ai api|ai tool/i,
+      category: 'Ferramentas & Dev'
+    },
+    {
+      pattern: /imagem.*ia|vídeo.*ia|arte.*ia|criativa|criativo|design.*ia|geração.*imagem|midjourney|dall-e|stable diffusion|ai art|ai image|ai video|ai creative/i,
+      category: 'IA Criativa'
+    },
+    // General tech/society news about AI
+    {
+      pattern: /tribunal.*ia|confiscado|proibido|banido|polêmica|escândalo|fraude|trapaça|crime|court.*ai|banned|prohibited|controversy|scandal|fraud/i,
+      category: 'Tecnologia & Sociedade'
     }
   ];
   
@@ -232,6 +243,41 @@ function calculateReadingTime(content) {
   return `${minutes} min`;
 }
 
+// Check if content is AI-relevant
+function isAIRelevant(title, content) {
+  const text = `${title} ${content}`.toLowerCase();
+  
+  // AI/ML terms that should be present
+  const aiTerms = [
+    // Core AI terms
+    'inteligência artificial', 'artificial intelligence', 'ia generativa',
+    'machine learning', 'aprendizado de máquina', 'ml',
+    'deep learning', 'aprendizado profundo',
+    'neural network', 'rede neural', 'redes neurais',
+    // AI models/technologies
+    'gpt', 'chatgpt', 'claude', 'gemini', 'llm', 'gpt-4', 'gpt-5',
+    'modelo de linguagem', 'language model',
+    'transformer', 'bert', 'stable diffusion', 'midjourney', 'dall-e',
+    // AI domains
+    'computer vision', 'visão computacional',
+    'nlp', 'processamento de linguagem natural', 'natural language processing',
+    'data science', 'ciência de dados',
+    'robótica', 'robotics', 'robô',
+    // Technical terms
+    'algoritmo de ia', 'ai algorithm', 'modelo de ia', 'ai model',
+    'treinamento de modelo', 'model training', 'fine-tuning',
+    'inference', 'inferência',
+    // Companies/platforms
+    'openai', 'anthropic', 'google ai', 'deepmind', 'nvidia ai',
+    // Applications
+    'ia criativa', 'generative ai', 'ai generativa',
+    'automação inteligente', 'intelligent automation',
+    'assistente virtual', 'virtual assistant', 'chatbot'
+  ];
+  
+  return aiTerms.some(term => text.includes(term));
+}
+
 // Check if article already exists
 async function articleExists(link) {
   const { data, error } = await supabase
@@ -258,6 +304,13 @@ async function fetchFeedNews(feed) {
       }
       
       const content = item.contentSnippet || item.content || item.summary || '';
+      
+      // Filter for AI-relevant content
+      if (!isAIRelevant(item.title, content)) {
+        console.log(`  [SKIP] Not AI-relevant: ${item.title}`);
+        continue;
+      }
+      
       const descricao = createSummary(content, 200);
       
       if (!descricao || descricao.length < 30) continue; // Skip if no proper description
@@ -284,6 +337,30 @@ async function fetchFeedNews(feed) {
   }
 }
 
+// Clean old news (older than 2 days)
+async function cleanOldNews() {
+  try {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    const cutoffDate = twoDaysAgo.toISOString().split('T')[0];
+    
+    console.log(`[CLEANUP] Deleting news older than ${cutoffDate}...`);
+    
+    const { data, error } = await supabase
+      .from('noticias')
+      .delete()
+      .lt('data', cutoffDate);
+    
+    if (error) {
+      console.error('[CLEANUP] Error deleting old news:', error);
+    } else {
+      console.log('[CLEANUP] Old news deleted successfully');
+    }
+  } catch (error) {
+    console.error('[CLEANUP] Failed to clean old news:', error.message);
+  }
+}
+
 // Main function
 async function main() {
   console.log('[STARTUP] AI News Fetcher started\n');
@@ -291,6 +368,10 @@ async function main() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables');
   }
+  
+  // Clean old news first
+  await cleanOldNews();
+  console.log('');
   
   let allArticles = [];
   

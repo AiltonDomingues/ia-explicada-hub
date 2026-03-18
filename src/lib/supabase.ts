@@ -64,3 +64,15 @@ export type Material = {
   link?: string;
   created_at?: string;
 };
+
+export type Conceito = {
+  id: string;
+  titulo: string;
+  area: string;
+  conteudo: string;
+  slug: string;
+  tags: string[];
+  ordem: number;
+  created_at?: string;
+  updated_at?: string;
+};

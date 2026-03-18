@@ -126,47 +126,73 @@ function createSummary(text, maxLength = 250) {
 function detectCategory(title, content) {
   const text = `${title} ${content}`.toLowerCase();
   
-  // Category patterns with priority (first match wins)
+  // Category patterns with priority (most specific first)
   const categories = [
+    // Educational content
     {
-      pattern: /tutorial|how to|guide|como fazer|passo a passo|aprenda|learn/i,
+      pattern: /tutorial|how to|guide|guia|como fazer|passo a passo|aprenda|learn|walkthrough|hands-on/i,
       category: 'Tutorial'
     },
+    // Specific AI domains
     {
-      pattern: /deep learning|aprendizado profundo|neural network|rede neural/i,
-      category: 'Deep Learning'
+      pattern: /nlp|processamento de linguagem|natural language|chatbot|conversational|gpt|llm|modelo de linguagem|language model|transformer/i,
+      category: 'NLP & LLMs'
     },
     {
-      pattern: /nlp|processamento de linguagem|natural language|chatbot|gpt|llm/i,
-      category: 'NLP'
-    },
-    {
-      pattern: /computer vision|visão computacional|image|imagem|reconhecimento|recognition/i,
+      pattern: /computer vision|visão computacional|image recognition|reconhecimento de imagem|object detection|detecção de objeto|segmentation|segmentação/i,
       category: 'Visão Computacional'
     },
     {
-      pattern: /machine learning|aprendizado de máquina|algoritmo|algorithm|modelo|model/i,
+      pattern: /deep learning|aprendizado profundo|neural network|rede neural|convolutional|recurrent|lstm|gru|attention/i,
+      category: 'Deep Learning'
+    },
+    {
+      pattern: /reinforcement learning|aprendizado por reforço|q-learning|policy gradient|reward|agent learning/i,
+      category: 'Aprendizado por Reforço'
+    },
+    {
+      pattern: /generative ai|ia generativa|gan|vae|diffusion model|modelo generativo|stable diffusion|midjourney|dall-e/i,
+      category: 'IA Generativa'
+    },
+    // Core ML topics
+    {
+      pattern: /machine learning|aprendizado de máquina|supervised learning|unsupervised|classification|regression|clustering/i,
       category: 'Machine Learning'
     },
     {
-      pattern: /ética|ethics|viés|bias|responsável|responsible|fair/i,
-      category: 'Ética'
+      pattern: /ética em ia|ai ethics|viés|bias|fairness|justiça|responsible ai|ia responsável|explicabilidade|explainability|interpretability/i,
+      category: 'Ética & IA Responsável'
+    },
+    // Technical implementation
+    {
+      pattern: /python.*ml|tensorflow|pytorch|keras|scikit-learn|hugging face|jax|implementation|implementação/i,
+      category: 'Programação & Frameworks'
     },
     {
-      pattern: /python|tensorflow|pytorch|keras|scikit/i,
-      category: 'Programação'
-    },
-    {
-      pattern: /data science|ciência de dados|análise|analysis/i,
+      pattern: /data science|ciência de dados|análise de dados|data analysis|feature engineering|data preparation/i,
       category: 'Ciência de Dados'
     },
     {
-      pattern: /robotics|robótica|robô|autonomous|autônomo/i,
+      pattern: /mlops|model deployment|produção|production|serving|inference|otimização de modelo|model optimization/i,
+      category: 'MLOps & Produção'
+    },
+    // Application domains
+    {
+      pattern: /robotics|robótica|robô|autonomous system|sistema autônomo|drone|manipulation|navegação autônoma/i,
       category: 'Robótica'
     },
     {
-      pattern: /business|negócio|enterprise|empresarial/i,
-      category: 'Aplicações'
+      pattern: /healthcare|saúde|medical ai|diagnóstico|medical imaging|drug discovery|descoberta de drogas/i,
+      category: 'IA na Saúde'
+    },
+    {
+      pattern: /business|negócio|enterprise|empresarial|aplicação comercial|commercial application|industry/i,
+      category: 'Aplicações Empresariais'
+    },
+    // Research
+    {
+      pattern: /research paper|artigo científico|paper review|análise de paper|pesquisa|estudo|experiment|experimento/i,
+      category: 'Pesquisa'
     }
   ];
   
@@ -261,18 +287,38 @@ async function articleExists(link) {
 function isAIRelevant(title, content) {
   const text = `${title} ${content}`.toLowerCase();
   
+  // AI/ML terms that should be present for academic articles
   const aiTerms = [
+    // Core AI terms
     'artificial intelligence', 'inteligência artificial',
-    'machine learning', 'aprendizado de máquina',
+    'machine learning', 'aprendizado de máquina', 'ml model',
     'deep learning', 'aprendizado profundo',
-    'neural network', 'rede neural',
-    'gpt', 'chatgpt', 'llm',
+    'neural network', 'rede neural', 'redes neurais',
+    // AI models/architectures
+    'gpt', 'chatgpt', 'claude', 'gemini', 'llm', 'transformer',
+    'language model', 'modelo de linguagem',
+    'bert', 'gpt-4', 'llama', 'mistral',
+    'diffusion model', 'stable diffusion', 'gan', 'vae',
+    // AI domains
     'computer vision', 'visão computacional',
-    'nlp', 'processamento de linguagem',
+    'nlp', 'natural language processing', 'processamento de linguagem',
+    'reinforcement learning', 'aprendizado por reforço',
+    'supervised learning', 'unsupervised learning',
+    // Technical components
     'data science', 'ciência de dados',
-    'algoritmo', 'algorithm',
-    'modelo', 'model',
-    'treinamento', 'training'
+    'neural architecture', 'arquitetura neural',
+    'convolutional', 'recurrent', 'attention mechanism',
+    'backpropagation', 'gradient descent',
+    'model training', 'treinamento de modelo',
+    'fine-tuning', 'transfer learning',
+    'hyperparameter', 'embedding',
+    // Research context
+    'ai research', 'pesquisa em ia',
+    'ai algorithm', 'algoritmo de ia',
+    'ai system', 'sistema de ia',
+    // Robotics/automation
+    'robotics', 'robótica', 'autonomous system',
+    'robot learning', 'manipulation'
   ];
   
   return aiTerms.some(term => text.includes(term));
@@ -377,7 +423,29 @@ async function fetchFeedArticles(feed) {
     return [];
   }
 }
-
+// Clean old articles (older than 2 weeks)
+async function cleanOldArticles() {
+  try {
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const cutoffDate = twoWeeksAgo.toISOString().split('T')[0];
+    
+    console.log(`[CLEANUP] Deleting articles older than ${cutoffDate}...`);
+    
+    const { data, error } = await supabase
+      .from('artigos')
+      .delete()
+      .lt('data', cutoffDate);
+    
+    if (error) {
+      console.error('[CLEANUP] Error deleting old articles:', error);
+    } else {
+      console.log('[CLEANUP] Old articles deleted successfully');
+    }
+  } catch (error) {
+    console.error('[CLEANUP] Failed to clean old articles:', error.message);
+  }
+}
 // Main function
 async function main() {
   console.log('[STARTUP] AI Articles Fetcher started\n');
@@ -385,6 +453,10 @@ async function main() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables');
   }
+  
+  // Clean old articles first
+  await cleanOldArticles();
+  console.log('');
   
   let allArticles = [];
   

@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Home, Newspaper, FileText, GraduationCap, FolderOpen, LogOut } from "lucide-react";
+import { Home, Newspaper, FileText, GraduationCap, FolderOpen, Book, LogOut } from "lucide-react";
 
 const AdminLayout = () => {
   const { user, signOut } = useAuth();
@@ -18,6 +18,7 @@ const AdminLayout = () => {
     { to: "/admin/artigos", label: "Artigos", icon: FileText },
     { to: "/admin/cursos", label: "Cursos", icon: GraduationCap },
     { to: "/admin/materiais", label: "Materiais", icon: FolderOpen },
+    { to: "/admin/conceitos", label: "Conceitos", icon: Book },
   ];
 
   return (
