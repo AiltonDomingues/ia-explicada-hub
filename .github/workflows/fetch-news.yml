@@ -21,17 +21,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          cd scripts
-          npm install
+        run: npm install
 
       - name: Fetch and import AI news
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: |
-          cd scripts
-          node fetch-news.js
+        run: node scripts/fetch-news.js
 
       - name: Commit results (optional log)
         run: |
