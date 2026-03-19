@@ -47,6 +47,7 @@ const AdminMateriais = () => {
     link: "",
     tamanho: "",
     nivel: "",
+    categoria: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,6 +120,7 @@ const AdminMateriais = () => {
       link: "",
       tamanho: "0 MB",
       nivel: "Iniciante",
+      categoria: "",
     });
   };
 
@@ -244,6 +246,32 @@ const AdminMateriais = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label htmlFor="categoria">Categoria <span className="text-muted-foreground text-xs">(opcional)</span></Label>
+                <Select
+                  value={formData.categoria || "none"}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, categoria: value === "none" ? "" : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="z-[300]">
+                    <SelectItem value="none">Sem categoria</SelectItem>
+                    <SelectItem value="Machine Learning">Machine Learning</SelectItem>
+                    <SelectItem value="Deep Learning">Deep Learning</SelectItem>
+                    <SelectItem value="LLMs">LLMs</SelectItem>
+                    <SelectItem value="NLP">NLP</SelectItem>
+                    <SelectItem value="Computer Vision">Computer Vision</SelectItem>
+                    <SelectItem value="IA Generativa">IA Generativa</SelectItem>
+                    <SelectItem value="IA Geral">IA Geral</SelectItem>
+                    <SelectItem value="Ferramentas">Ferramentas</SelectItem>
+                    <SelectItem value="Programação">Programação</SelectItem>
+                    <SelectItem value="Dados">Dados</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button
                   type="button"
@@ -279,6 +307,7 @@ const AdminMateriais = () => {
               <TableRow>
                 <TableHead>Título</TableHead>
                 <TableHead>Tipo</TableHead>
+                <TableHead>Categoria</TableHead>
                 <TableHead>Nível</TableHead>
                 <TableHead>Tamanho</TableHead>
                 <TableHead>Autor</TableHead>
@@ -292,6 +321,15 @@ const AdminMateriais = () => {
                     {material.titulo}
                   </TableCell>
                   <TableCell>{material.tipo}</TableCell>
+                  <TableCell>
+                    {material.categoria ? (
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
+                        {material.categoria}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/50">—</span>
+                    )}
+                  </TableCell>
                   <TableCell>{material.nivel}</TableCell>
                   <TableCell>{material.tamanho}</TableCell>
                   <TableCell>{material.autor}</TableCell>

@@ -5,6 +5,7 @@ export interface Material {
   titulo: string;
   descricao: string;
   tamanho: string;
+  categoria?: string;
 }
 
 export const materiais: Material[] = [];
