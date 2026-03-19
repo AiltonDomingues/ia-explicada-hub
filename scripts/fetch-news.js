@@ -286,7 +286,18 @@ async function fetchFeedNews(feed) {
     const feedData = await parser.parseURL(feed.url);
     const articles = [];
     
-    for (const item of feedData.items.slice(0, 5)) { // Get top 5 articles
+    // Calculate cutoff date (2 days ago)
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    
+    for (const item of feedData.items) { // Get ALL articles (no limit)
+      // Check article date - skip if older than 2 days
+      const articleDate = item.pubDate ? new Date(item.pubDate) : new Date();
+      if (articleDate < twoDaysAgo) {
+        console.log(`  [SKIP] Too old (${articleDate.toLocaleDateString()}): ${item.title}`);
+        continue;
+      }
+      
       // Check if already exists
       if (await articleExists(item.link)) {
         console.log(`  [SKIP] Article exists: ${item.title}`);
