@@ -9,8 +9,8 @@ const MIN_YEAR = new Date().getFullYear() - 5; // articles from last 5 years
 const MAX_ARTICLES = 30;
 
 const SEARCH_TOPICS = [
-  { query: 'AI', label: 'IA', categoria: 'Inteligência Artificial', limit: 15 },
-  { query: 'Machine Learning', label: 'ML', categoria: 'Machine Learning', limit: 15 }
+  { query: 'artificial intelligence', label: 'IA', categoria: 'Inteligência Artificial', limit: 15 },
+  { query: 'machine learning', label: 'ML', categoria: 'Machine Learning', limit: 15 }
 ];
 
 // Initialize Supabase client with service key (bypasses RLS)
@@ -290,11 +290,11 @@ async function articleExists(link) {
 async function fetchSemanticScholarPapers(topic) {
   const { query, label, categoria, limit } = topic;
   const encodedQuery = encodeURIComponent(query);
-  // sort=relevance matches https://www.semanticscholar.org/search?sort=relevance
-  // Fetch 5x the limit so we have enough candidates after year/abstract filtering
-  const url = `${SS_API_BASE}/paper/search?query=${encodedQuery}&fields=${SS_FIELDS}&sort=relevance&limit=${limit * 5}`;
+  // Use bulk endpoint: supports sort=citationCount:desc and server-side year filtering
+  // This is the recommended endpoint for fetching quantities of papers per SS docs
+  const url = `${SS_API_BASE}/paper/search/bulk?query=${encodedQuery}&fields=${SS_FIELDS}&sort=citationCount:desc&year=${MIN_YEAR}-&fieldsOfStudy=Computer%20Science`;
 
-  console.log(`[FETCH] Searching Semantic Scholar: "${query}"...`);
+  console.log(`[FETCH] Searching Semantic Scholar (bulk): "${query}"...`);
 
   const result = await httpGetWithRetry(url);
 
@@ -303,15 +303,13 @@ async function fetchSemanticScholarPapers(topic) {
     return [];
   }
 
-  // Filter: must have abstract, be within last 5 years
+  // Year is already filtered server-side; only filter for abstract presence
   const filtered = result.data.filter(paper =>
-    paper.year && paper.year >= MIN_YEAR &&
     paper.abstract && paper.abstract.length >= 100 &&
     paper.title
   );
 
-  // API already returns by relevance; preserve that order
-  console.log(`[FETCH] ${result.data.length} results -> ${filtered.length} from last 5 years with abstracts`);
+  console.log(`[FETCH] ${result.data.length} results -> ${filtered.length} with abstracts (sorted by citations desc)`);
 
   const candidates = filtered.slice(0, limit);
 
@@ -406,8 +404,11 @@ async function main() {
     console.log(`[TOPIC] ${topic.label}: ${newPapers.length} new articles\n`);
     allNewArticles = allNewArticles.concat(newPapers);
 
-    // Rate limit between API calls
-    await new Promise(r => setTimeout(r, 1000));
+    // Wait between topics to respect Semantic Scholar rate limits (unauthenticated: ~1 req/5s)
+    if (SEARCH_TOPICS.indexOf(topic) < SEARCH_TOPICS.length - 1) {
+      console.log('[API] Waiting 15s before next topic to respect rate limits...');
+      await new Promise(r => setTimeout(r, 15000));
+    }
   }
 
   console.log(`[SUMMARY] Total new articles: ${allNewArticles.length}`);
