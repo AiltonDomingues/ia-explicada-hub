@@ -9,8 +9,8 @@ const MIN_YEAR = new Date().getFullYear() - 5; // articles from last 5 years
 const MAX_ARTICLES = 30;
 
 const SEARCH_TOPICS = [
-  { query: 'artificial intelligence', label: 'IA', categoria: 'Inteligência Artificial', limit: 15 },
-  { query: 'machine learning', label: 'ML', categoria: 'Machine Learning', limit: 15 }
+  { query: 'AI', label: 'IA', categoria: 'Inteligência Artificial', limit: 15 },
+  { query: 'Machine Learning', label: 'ML', categoria: 'Machine Learning', limit: 15 }
 ];
 
 // Initialize Supabase client with service key (bypasses RLS)
@@ -242,15 +242,16 @@ async function articleExists(link) {
 async function fetchSemanticScholarPapers(topic) {
   const { query, label, categoria, limit } = topic;
   const encodedQuery = encodeURIComponent(query);
-  // Fetch 3x the limit to have enough after year filtering; sort by citation count for relevance
-  const url = `${SS_API_BASE}/paper/search?query=${encodedQuery}&fields=${SS_FIELDS}&limit=${limit * 3}&sort=citationCount:desc`;
+  // sort=relevance matches https://www.semanticscholar.org/search?sort=relevance
+  // Fetch 5x the limit so we have enough candidates after year/abstract filtering
+  const url = `${SS_API_BASE}/paper/search?query=${encodedQuery}&fields=${SS_FIELDS}&sort=relevance&limit=${limit * 5}`;
 
   console.log(`[FETCH] Searching Semantic Scholar: "${query}"...`);
 
   const result = await httpGet(url);
 
   if (!result.data || result.data.length === 0) {
-    console.error(`[ERROR] No results from Semantic Scholar for "${query}"`);
+    console.error(`[ERROR] No results from Semantic Scholar for "${query}" | API response: ${JSON.stringify(result).substring(0, 200)}`);
     return [];
   }
 
@@ -261,6 +262,7 @@ async function fetchSemanticScholarPapers(topic) {
     paper.title
   );
 
+  // API already returns by relevance; preserve that order
   console.log(`[FETCH] ${result.data.length} results -> ${filtered.length} from last 5 years with abstracts`);
 
   return filtered.slice(0, limit).map(paper => {
