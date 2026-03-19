@@ -27,7 +27,9 @@ const parser = new Parser({
       ['media:content', 'media'],
       ['media:thumbnail', 'mediaThumbnail'],
       ['enclosure', 'enclosure'],
-      ['content:encoded', 'contentEncoded']
+      ['content:encoded', 'contentEncoded'],
+      ['description', 'description'],
+      ['media:group', 'mediaGroup']
     ]
   }
 });
@@ -36,33 +38,107 @@ const parser = new Parser({
 function extractImageUrl(item) {
   // Try different RSS image formats
   
-  // 1. media:content (most common)
-  if (item.media && item.media.$ && item.media.$.url) {
-    return item.media.$.url;
+  // 1. media:content (most common format)
+  if (item.media) {
+    // media:content with $ attribute
+    if (item.media.$ && item.media.$.url) {
+      console.log(`  [IMAGE] Found via media:content.$`);
+      return item.media.$.url;
+    }
+    // media:content as direct url
+    if (typeof item.media === 'string') {
+      console.log(`  [IMAGE] Found via media:content (string)`);
+      return item.media;
+    }
+    // media:content as array
+    if (Array.isArray(item.media) && item.media[0]) {
+      if (item.media[0].$ && item.media[0].$.url) {
+        console.log(`  [IMAGE] Found via media:content[0].$`);
+        return item.media[0].$.url;
+      }
+      if (item.media[0].url) {
+        console.log(`  [IMAGE] Found via media:content[0].url`);
+        return item.media[0].url;
+      }
+    }
+    // media:content with url property
+    if (item.media.url) {
+      console.log(`  [IMAGE] Found via media.url`);
+      return item.media.url;
+    }
   }
   
-  // 2. media:thumbnail
-  if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
-    return item.mediaThumbnail.$.url;
+  // 2. media:group (alternative media format)
+  if (item.mediaGroup) {
+    if (item.mediaGroup['media:content']) {
+      const mediaContent = item.mediaGroup['media:content'];
+      if (Array.isArray(mediaContent) && mediaContent[0] && mediaContent[0].$ && mediaContent[0].$.url) {
+        console.log(`  [IMAGE] Found via mediaGroup`);
+        return mediaContent[0].$.url;
+      }
+    }
   }
   
-  // 3. enclosure (podcasts/RSS 2.0)
-  if (item.enclosure && item.enclosure.url && item.enclosure.type?.startsWith('image/')) {
-    return item.enclosure.url;
+  // 3. media:thumbnail
+  if (item.mediaThumbnail) {
+    if (item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
+      console.log(`  [IMAGE] Found via media:thumbnail`);
+      return item.mediaThumbnail.$.url;
+    }
+    if (item.mediaThumbnail.url) {
+      console.log(`  [IMAGE] Found via media:thumbnail.url`);
+      return item.mediaThumbnail.url;
+    }
   }
   
-  // 4. Look for <img> in content
-  const content = item.contentEncoded || item.content || '';
-  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch && imgMatch[1]) {
-    return imgMatch[1];
+  // 4. enclosure (podcasts/RSS 2.0)
+  if (item.enclosure) {
+    if (item.enclosure.url && item.enclosure.type?.startsWith('image/')) {
+      console.log(`  [IMAGE] Found via enclosure`);
+      return item.enclosure.url;
+    }
+    // Sometimes enclosure doesn't have type
+    if (item.enclosure.url && /\.(jpg|jpeg|png|gif|webp)$/i.test(item.enclosure.url)) {
+      console.log(`  [IMAGE] Found via enclosure (no type)`);
+      return item.enclosure.url;
+    }
   }
   
-  // 5. itunes:image (some RSS feeds)
+  // 5. Look for <img> in content:encoded
+  if (item.contentEncoded) {
+    const imgMatch = item.contentEncoded.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      console.log(`  [IMAGE] Found via <img> in content:encoded`);
+      return imgMatch[1];
+    }
+  }
+  
+  // 6. Look for <img> in description
+  if (item.description) {
+    const imgMatch = item.description.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      console.log(`  [IMAGE] Found via <img> in description`);
+      return imgMatch[1];
+    }
+  }
+  
+  // 7. Look for <img> in content
+  if (item.content) {
+    const imgMatch = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      console.log(`  [IMAGE] Found via <img> in content`);
+      return imgMatch[1];
+    }
+  }
+  
+  // 8. itunes:image (some RSS feeds)
   if (item.itunes && item.itunes.image) {
+    console.log(`  [IMAGE] Found via itunes:image`);
     return item.itunes.image;
   }
   
+  // No image found
+  console.log(`  [IMAGE] No image found for: ${item.title?.substring(0, 50)}...`);
   return null;
 }
 
