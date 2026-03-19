@@ -43,6 +43,7 @@ const AdminEventos = () => {
     titulo: "",
     descricao: "",
     data: "",
+    data_fim: "",
     local: "",
     tipo: "Conferência",
     nivel: "todos",
@@ -56,7 +57,7 @@ const AdminEventos = () => {
 
     try {
       const { id, ...rest } = formData;
-      const data = { ...rest, nivel: rest.nivel === "todos" ? null : rest.nivel };
+      const data = { ...rest, nivel: rest.nivel === "todos" ? null : rest.nivel, data_fim: rest.data_fim || null };
 
       let result;
       if (id) {
@@ -95,6 +96,7 @@ const AdminEventos = () => {
       titulo: evento.titulo,
       descricao: evento.descricao,
       data: evento.data,
+      data_fim: evento.data_fim || "",
       local: evento.local,
       tipo: evento.tipo,
       nivel: evento.nivel || "todos",
@@ -133,6 +135,7 @@ const AdminEventos = () => {
       titulo: "",
       descricao: "",
       data: "",
+      data_fim: "",
       local: "",
       tipo: "Conferência",
       nivel: "todos",
@@ -142,13 +145,35 @@ const AdminEventos = () => {
     });
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
-    });
+  const parseDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDateRange = (dataInicio: string, dataFim?: string | null) => {
+    const start = parseDate(dataInicio);
+    const opts: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+
+    if (!dataFim) {
+      return start.toLocaleDateString('pt-BR', opts);
+    }
+
+    const end = parseDate(dataFim);
+    const d1 = start.getDate();
+    const d2 = end.getDate();
+    const m1 = start.getMonth();
+    const m2 = end.getMonth();
+    const y1 = start.getFullYear();
+    const y2 = end.getFullYear();
+
+    if (m1 === m2 && y1 === y2) {
+      const monthYear = start.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+      return `${d1}-${d2} ${monthYear}`;
+    }
+
+    const startStr = start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    const endStr = end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return `${startStr} - ${endStr}`;
   };
 
   return (
@@ -203,7 +228,7 @@ const AdminEventos = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="data">Data *</Label>
+                  <Label htmlFor="data">Data Início *</Label>
                   <Input
                     id="data"
                     type="date"
@@ -216,17 +241,30 @@ const AdminEventos = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="local">Local *</Label>
+                  <Label htmlFor="data_fim">Data Fim <span className="text-muted-foreground text-xs">(opcional)</span></Label>
                   <Input
-                    id="local"
-                    value={formData.local}
+                    id="data_fim"
+                    type="date"
+                    value={formData.data_fim}
+                    min={formData.data}
                     onChange={(e) =>
-                      setFormData({ ...formData, local: e.target.value })
+                      setFormData({ ...formData, data_fim: e.target.value })
                     }
-                    placeholder="São Paulo, SP ou Online"
-                    required
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="local">Local *</Label>
+                <Input
+                  id="local"
+                  value={formData.local}
+                  onChange={(e) =>
+                    setFormData({ ...formData, local: e.target.value })
+                  }
+                  placeholder="São Paulo, SP ou Online"
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -377,7 +415,7 @@ const AdminEventos = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{formatDate(evento.data)}</TableCell>
+                    <TableCell>{formatDateRange(evento.data, evento.data_fim)}</TableCell>
                     <TableCell>{evento.local}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
@@ -385,9 +423,13 @@ const AdminEventos = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground">
-                        {evento.nivel}
-                      </span>
+                      {evento.nivel ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground">
+                          {evento.nivel}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/50">Todos os níveis</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

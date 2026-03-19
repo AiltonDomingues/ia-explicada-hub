@@ -2,6 +2,7 @@ export interface Evento {
   id: string;
   titulo: string;
   data: string;
+  data_fim?: string;
   local: string;
   tipo: string;
   descricao: string;

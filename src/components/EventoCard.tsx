@@ -39,13 +39,32 @@ const getNivelStyles = (nivel: string) => {
   };
 };
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR', { 
-    day: '2-digit', 
-    month: 'long', 
-    year: 'numeric' 
-  });
+const parseDate = (dateString: string) => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const formatDateRange = (dataInicio: string, dataFim?: string | null) => {
+  const start = parseDate(dataInicio);
+
+  if (!dataFim) {
+    return start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  const end = parseDate(dataFim);
+  const m1 = start.getMonth();
+  const m2 = end.getMonth();
+  const y1 = start.getFullYear();
+  const y2 = end.getFullYear();
+
+  if (m1 === m2 && y1 === y2) {
+    const monthYear = start.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    return `${start.getDate()} a ${end.getDate()} de ${monthYear}`;
+  }
+
+  const startStr = start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+  const endStr = end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  return `${startStr} a ${endStr}`;
 };
 
 export default function EventoCard({ evento }: EventoCardProps) {
@@ -82,7 +101,7 @@ export default function EventoCard({ evento }: EventoCardProps) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            <span>{formatDate(evento.data)}</span>
+            <span>{formatDateRange(evento.data, evento.data_fim)}</span>
           </div>
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
