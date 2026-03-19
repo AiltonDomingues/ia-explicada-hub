@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Parser = require('rss-parser');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -22,6 +23,12 @@ const supabase = createClient(
 // Initialize RSS parser
 const parser = new Parser({
   timeout: 10000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+  },
+  requestOptions: {
+    rejectUnauthorized: false // Accept self-signed certificates
+  },
   customFields: {
     item: [
       ['media:content', 'media'],
