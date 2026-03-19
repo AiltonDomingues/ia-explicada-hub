@@ -22,15 +22,34 @@ const supabase = createClient(
 // HTTP GET helper (returns parsed JSON)
 function httpGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'ia-explicada-hub/1.0', 'Accept': 'application/json' } }, (res) => {
+    const headers = { 'User-Agent': 'ia-explicada-hub/1.0', 'Accept': 'application/json' };
+    if (process.env.SS_API_KEY) headers['x-api-key'] = process.env.SS_API_KEY;
+    https.get(url, { headers }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
         catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); }
       });
     }).on('error', reject);
   });
+}
+
+// HTTP GET with retry on 429 (exponential backoff)
+async function httpGetWithRetry(url, maxRetries = 5) {
+  let delay = 10000; // start at 10s
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const { status, body } = await httpGet(url);
+    if (status === 200) return body;
+    if (status === 429) {
+      console.log(`[API] Rate limited (429). Waiting ${delay / 1000}s before retry ${attempt}/${maxRetries}...`);
+      await new Promise(r => setTimeout(r, delay));
+      delay *= 2; // double the wait each time
+    } else {
+      throw new Error(`Unexpected status ${status}: ${JSON.stringify(body).substring(0, 200)}`);
+    }
+  }
+  throw new Error('Max retries reached after 429 responses');
 }
 
 // Extract clean text from HTML
@@ -176,9 +195,9 @@ async function translateToPortuguese(text) {
   const encoded = encodeURIComponent(truncated);
   const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|pt-BR`;
   try {
-    const result = await httpGet(url);
-    if (result.responseStatus === 200 && result.responseData && result.responseData.translatedText) {
-      return result.responseData.translatedText;
+    const { body } = await httpGet(url);
+    if (body.responseStatus === 200 && body.responseData && body.responseData.translatedText) {
+      return body.responseData.translatedText;
     }
   } catch (e) {
     console.error(`[TRANSLATE] Error translating: ${e.message}`);
@@ -277,7 +296,7 @@ async function fetchSemanticScholarPapers(topic) {
 
   console.log(`[FETCH] Searching Semantic Scholar: "${query}"...`);
 
-  const result = await httpGet(url);
+  const result = await httpGetWithRetry(url);
 
   if (!result.data || result.data.length === 0) {
     console.error(`[ERROR] No results from Semantic Scholar for "${query}" | API response: ${JSON.stringify(result).substring(0, 200)}`);
