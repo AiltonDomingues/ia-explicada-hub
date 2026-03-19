@@ -47,10 +47,14 @@ const parser = new Parser({
 async function fetchImageFromUrl(url) {
   return new Promise((resolve) => {
     const client = url.startsWith('https') ? https : http;
-    const timeout = 8000; // 8 second timeout
+    
+    // Manual timeout using Promise
+    const timeoutId = setTimeout(() => {
+      console.log(`    [SCRAPE] Timeout after 5s`);
+      resolve(null);
+    }, 5000);
     
     const options = {
-      timeout,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
@@ -59,30 +63,39 @@ async function fetchImageFromUrl(url) {
     
     const req = client.get(url, options, (res) => {
       let html = '';
+      let resolved = false;
       
       // Only process if successful response
       if (res.statusCode !== 200) {
         console.log(`    [SCRAPE] HTTP ${res.statusCode} - skipping`);
-        resolve(null);
+        clearTimeout(timeoutId);
+        if (!resolved) {
+          resolved = true;
+          resolve(null);
+        }
         return;
       }
       
       res.on('data', (chunk) => {
         html += chunk;
-        // Stop early if we have enough content (first 150KB should have meta tags)
-        if (html.length > 150000) {
+        // Stop early if we have enough content (first 100KB should have meta tags)
+        if (html.length > 100000) {
           res.destroy();
         }
       });
       
       res.on('end', () => {
+        clearTimeout(timeoutId);
+        if (resolved) return;
+        resolved = true;
+        
         // Try Open Graph image first (best quality)
         let match = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
         if (!match) {
           match = html.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:image["']/i);
         }
         if (match && match[1]) {
-          console.log(`    [SCRAPE] Found og:image: ${match[1].substring(0, 60)}...`);
+          console.log(`    [SCRAPE] Found og:image`);
           resolve(match[1]);
           return;
         }
@@ -98,7 +111,7 @@ async function fetchImageFromUrl(url) {
           return;
         }
         
-        // Try WordPress featured image (common pattern)
+        // Try WordPress featured image
         match = html.match(/<meta\s+property=["']og:image:secure_url["']\s+content=["']([^"']+)["']/i);
         if (match && match[1]) {
           console.log(`    [SCRAPE] Found og:image:secure_url`);
@@ -106,37 +119,48 @@ async function fetchImageFromUrl(url) {
           return;
         }
         
-        // Try first <img> tag with class containing "feature", "header", "main", "hero"
-        match = html.match(/<img[^>]*class=["'][^"']*(?:feature|header|main|hero|wp-post)[^"']*["'][^>]+src=["']([^"']+)["']/i);
+        // Try first <img> with featured class
+        match = html.match(/<img[^>]*class=["'][^"']*(?:feature|header|hero|wp-post)[^"']*["'][^>]+src=["']([^"']+)["']/i);
         if (!match) {
-          match = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*class=["'][^"']*(?:feature|header|main|hero|wp-post)[^"']*["']/i);
+          match = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*class=["'][^"']*(?:feature|header|hero)[^"']*["']/i);
         }
-        if (match && match[1] && !match[1].includes('logo') && !match[1].includes('icon')) {
-          console.log(`    [SCRAPE] Found featured img tag`);
+        if (match && match[1] && !match[1].includes('logo')) {
+          console.log(`    [SCRAPE] Found featured img`);
           resolve(match[1]);
           return;
         }
         
-        // Try any <img> tag (excluding logos, icons, small images)
+        // Try any img tag
         match = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
-        if (match && match[1] && !match[1].includes('logo') && !match[1].includes('icon') && !match[1].includes('avatar')) {
-          console.log(`    [SCRAPE] Found first img tag`);
+        if (match && match[1] && !match[1].includes('logo') && !match[1].includes('icon')) {
+          console.log(`    [SCRAPE] Found img tag`);
           resolve(match[1]);
           return;
         }
         
-        console.log(`    [SCRAPE] No images in HTML (${html.length} bytes)`);
+        console.log(`    [SCRAPE] No images found`);
         resolve(null);
+      });
+      
+      res.on('error', () => {
+        clearTimeout(timeoutId);
+        if (!resolved) {
+          resolved = true;
+          resolve(null);
+        }
       });
     });
     
     req.on('error', (err) => {
       console.log(`    [SCRAPE] Error: ${err.message}`);
+      clearTimeout(timeoutId);
       resolve(null);
     });
-    req.on('timeout', () => {
-      console.log(`    [SCRAPE] Timeout after 8s`);
+    
+    req.setTimeout(5000, () => {
+      console.log(`    [SCRAPE] Request timeout`);
       req.destroy();
+      clearTimeout(timeoutId);
       resolve(null);
     });
   });
