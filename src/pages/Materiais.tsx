@@ -25,10 +25,12 @@ const MateriaisPage = () => {
   
   const niveis = ["Todos os Níveis", ...Array.from(new Set(materiais.map((m) => m.nivel)))];
   const tipos = ["Todos os Tipos", ...Array.from(new Set(materiais.map((m) => m.tipo)))];
+  const categorias = ["Todas as Categorias", ...Array.from(new Set(materiais.map((m) => m.categoria).filter(Boolean)))];
   const especialidades = ["Todas as Especialidades", ...Array.from(new Set(creators.map((c) => c.especialidade)))];
   const [search, setSearch] = useState("");
   const [nivel, setNivel] = useState("Todos os Níveis");
   const [tipo, setTipo] = useState("Todos os Tipos");
+  const [categoria, setCategoria] = useState("Todas as Categorias");
   const [especialidade, setEspecialidade] = useState("Todas as Especialidades");
 
   const filtered = useMemo(() => {
@@ -37,9 +39,10 @@ const MateriaisPage = () => {
         m.descricao.toLowerCase().includes(search.toLowerCase());
       const matchNivel = nivel === "Todos os Níveis" || m.nivel === nivel;
       const matchTipo = tipo === "Todos os Tipos" || m.tipo === tipo;
-      return matchSearch && matchNivel && matchTipo;
+      const matchCategoria = categoria === "Todas as Categorias" || m.categoria === categoria;
+      return matchSearch && matchNivel && matchTipo && matchCategoria;
     });
-  }, [search, nivel, tipo]);
+  }, [search, nivel, tipo, categoria]);
 
   const filteredCreators = useMemo(() => {
     return creators.filter((c) => {
@@ -92,6 +95,18 @@ const MateriaisPage = () => {
                 {tipos.map((t) => (
                   <SelectItem key={t} value={t}>
                     {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={categoria} onValueChange={setCategoria}>
+              <SelectTrigger className="w-[220px] bg-card border-border">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {categorias.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
                   </SelectItem>
                 ))}
               </SelectContent>
