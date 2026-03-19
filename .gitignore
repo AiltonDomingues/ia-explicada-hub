@@ -12,6 +12,27 @@ dist
 dist-ssr
 *.local
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Sensitive documentation
+ADMIN_SETUP.md
+README_ADMIN.md
+sql_updates.md
+AUTOMATION.md
+*_PRIVATE.md
+*_SECRET.md
+notes.md
+NOTES.md
+
+# Database backups
+*.sql
+*.db
+*.sqlite
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

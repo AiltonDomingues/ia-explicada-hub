@@ -10,6 +10,8 @@ const Footer = () => {
     { name: "Cursos", path: "/cursos" },
     { name: "Materiais", path: "/materiais" },
     { name: "Conceitos", path: "/conceitos" },
+    { name: "Eventos", path: "/eventos" },
+    { name: "Sobre", path: "/sobre" },
   ];
 
   const socialLinks = [

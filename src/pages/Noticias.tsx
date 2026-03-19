@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import NoticiaCard from "@/components/NoticiaCard";
 import { useNoticias } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,7 @@ import {
 import { containerVariants, itemVariants } from "@/lib/animations";
 
 const NoticiasPage = () => {
+  usePageTitle("Notícias");
   const { data: noticiasData = [] } = useNoticias();
   const noticias = noticiasData;
   
@@ -87,6 +90,7 @@ const NoticiasPage = () => {
         </motion.div>
       </div>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

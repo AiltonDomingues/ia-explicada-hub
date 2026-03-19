@@ -57,7 +57,7 @@ export type Material = {
   id: string;
   titulo: string;
   tipo: string;
-  categoria: string;
+  nivel: string;
   descricao: string;
   tamanho: string;
   autor?: string;
@@ -73,6 +73,34 @@ export type Conceito = {
   slug: string;
   tags: string[];
   ordem: number;
+  nivel?: string;
   created_at?: string;
   updated_at?: string;
+};
+
+export type Evento = {
+  id: string;
+  titulo: string;
+  data: string;
+  local: string;
+  tipo: string;
+  descricao: string;
+  banner: string;
+  link?: string;
+  organizador?: string;
+  nivel?: string;
+  created_at?: string;
+};
+
+export type Creator = {
+  id: string;
+  nome: string;
+  descricao: string;
+  avatar: string;
+  especialidade: string;
+  plataforma: string;
+  link: string;
+  seguidores?: string;
+  destaque: boolean;
+  created_at?: string;
 };

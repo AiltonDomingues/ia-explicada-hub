@@ -1,8 +1,10 @@
 import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Database, GitBranch, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
 import { useNoticias, useArtigos, useCursos, useMateriais, useConceitos } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useGitHubWorkflows } from "@/hooks/useGitHub";
 
 const AdminDashboard = () => {
+  usePageTitle("Admin - Dashboard");
   const { data: noticias } = useNoticias();
   const { data: artigos } = useArtigos();
   const { data: cursos } = useCursos();

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import type { Noticia, Artigo, Curso, Material } from '@/lib/supabase';
+import type { Noticia, Artigo, Curso, Material, Creator } from '@/lib/supabase';
 
 // Fetch Notícias
 export const useNoticias = () => {
@@ -83,7 +83,7 @@ export const useMateriais = () => {
       // Map database fields to component format
       return data.map((material: any) => ({
         ...material,
-        categoria: material.categoria || 'Geral',
+        nivel: material.nivel || 'Iniciante',
         tamanho: material.tamanho || '0 MB',
       }));
     },
@@ -103,7 +103,50 @@ export const useConceitos = () => {
       
       if (error) throw error;
       
-      return data;
+      // Map database fields to component format
+      return data.map((conceito: any) => ({
+        ...conceito,
+        nivel: conceito.nivel || 'Intermediário',
+      }));
+    },
+  });
+};
+
+// Fetch Eventos
+export const useEventos = () => {
+  return useQuery({
+    queryKey: ['eventos'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('eventos')
+        .select('*')
+        .order('data', { ascending: true });
+      
+      if (error) throw error;
+      
+      // Map database fields to component format
+      return data.map((evento: any) => ({
+        ...evento,
+        nivel: evento.nivel || 'Intermediário',
+      }));
+    },
+  });
+};
+
+// Fetch Creators
+export const useCreators = () => {
+  return useQuery({
+    queryKey: ['creators'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('creators')
+        .select('*')
+        .order('destaque', { ascending: false })
+        .order('nome', { ascending: true });
+      
+      if (error) throw error;
+      
+      return data as Creator[];
     },
   });
 };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMateriais } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AdminMateriais = () => {
+  usePageTitle("Admin - Materiais");
   const { data: materiais = [], isLoading } = useMateriais();
   const queryClient = useQueryClient();
   const { toast } = useToast();

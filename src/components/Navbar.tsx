@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Home, Menu, X } from "lucide-react";
+import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Home, Menu, X, Info, Calendar } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import GlobalSearch from "@/components/GlobalSearch";
@@ -10,6 +10,8 @@ const navItems = [
   { to: "/cursos", label: "Cursos", icon: GraduationCap },
   { to: "/materiais", label: "Materiais", icon: FolderOpen },
   { to: "/conceitos", label: "Conceitos", icon: Book },
+  { to: "/eventos", label: "Eventos", icon: Calendar },
+  { to: "/sobre", label: "Sobre", icon: Info },
 ];
 
 const Navbar = () => {

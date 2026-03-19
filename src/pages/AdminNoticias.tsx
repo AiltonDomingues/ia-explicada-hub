@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNoticias } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AdminNoticias = () => {
+  usePageTitle("Admin - Notícias");
   const { data: noticias = [], isLoading } = useNoticias();
   const queryClient = useQueryClient();
   const { toast } = useToast();

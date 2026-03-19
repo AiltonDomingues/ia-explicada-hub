@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import ArtigoCard from "@/components/ArtigoCard";
 import { useArtigos } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,7 @@ import {
 import { containerVariants, itemVariants } from "@/lib/animations";
 
 const ArtigosPage = () => {
+  usePageTitle("Artigos");
   const { data: artigosData = [] } = useArtigos();
   const artigos = artigosData;
   
@@ -88,6 +91,7 @@ const ArtigosPage = () => {
         </motion.div>
       </div>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

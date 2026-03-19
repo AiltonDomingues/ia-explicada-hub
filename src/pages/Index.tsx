@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import NoticiaCard from "@/components/NoticiaCard";
 import ArtigoCard from "@/components/ArtigoCard";
 import CursoCard from "@/components/CursoCard";
@@ -11,6 +12,7 @@ import { cursos as cursosHardcoded } from "@/data/cursos";
 import { materiais as materiaisHardcoded } from "@/data/materiais";
 import { Youtube, Linkedin, Instagram, Twitter } from "lucide-react";
 import { useNoticias, useArtigos, useCursos, useMateriais } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 import { containerVariants, itemVariants } from "@/lib/animations";
 
@@ -225,6 +227,7 @@ const Index = () => {
       </section>
 
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

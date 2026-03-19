@@ -9,6 +9,8 @@ import Artigos from "./pages/Artigos.tsx";
 import Cursos from "./pages/Cursos.tsx";
 import Materiais from "./pages/Materiais.tsx";
 import Conceitos from "./pages/Conceitos.tsx";
+import Eventos from "./pages/Eventos.tsx";
+import Sobre from "./pages/Sobre.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminLayout from "./pages/AdminLayout.tsx";
@@ -18,6 +20,8 @@ import AdminArtigos from "./pages/AdminArtigos.tsx";
 import AdminCursos from "./pages/AdminCursos.tsx";
 import AdminMateriais from "./pages/AdminMateriais.tsx";
 import AdminConceitos from "./pages/AdminConceitos.tsx";
+import AdminEventos from "./pages/AdminEventos.tsx";
+import AdminCreators from "./pages/AdminCreators.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
 const queryClient = new QueryClient();
@@ -35,8 +39,9 @@ const App = () => (
           <Route path="/cursos" element={<Cursos />} />
           <Route path="/materiais" element={<Materiais />} />
           <Route path="/conceitos" element={<Conceitos />} />
+          <Route path="/eventos" element={<Eventos />} />
+          <Route path="/sobre" element={<Sobre />} />
           
-          {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"
@@ -52,6 +57,8 @@ const App = () => (
             <Route path="cursos" element={<AdminCursos />} />
             <Route path="materiais" element={<AdminMateriais />} />
             <Route path="conceitos" element={<AdminConceitos />} />
+            <Route path="eventos" element={<AdminEventos />} />
+            <Route path="creators" element={<AdminCreators />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

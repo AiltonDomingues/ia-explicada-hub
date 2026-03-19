@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useArtigos } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AdminArtigos = () => {
+  usePageTitle("Admin - Artigos");
   const { data: artigos = [], isLoading } = useArtigos();
   const queryClient = useQueryClient();
   const { toast } = useToast();

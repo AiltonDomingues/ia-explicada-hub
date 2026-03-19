@@ -1,24 +1,73 @@
 import { useState, useMemo } from "react";
-import { Book, ChevronRight, Search } from "lucide-react";
+import { Book, ChevronRight, Search, Map, ArrowDown } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import RoadmapCard from "@/components/RoadmapCard";
 import { useConceitos } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { Conceito } from "@/lib/supabase";
+import { roadmaps } from "@/data/roadmaps";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
+const getNivelStyles = (nivel: string) => {
+  const nivelLower = nivel.toLowerCase();
+  
+  if (nivelLower.includes("iniciante") || nivelLower.includes("básico") || nivelLower.includes("beginner")) {
+    return {
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-600 dark:text-emerald-400",
+      border: "border-emerald-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("intermediário") || nivelLower.includes("intermediario") || nivelLower.includes("intermediate")) {
+    return {
+      bg: "bg-amber-500/10",
+      text: "text-amber-600 dark:text-amber-400",
+      border: "border-amber-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("avançado") || nivelLower.includes("avancado") || nivelLower.includes("advanced")) {
+    return {
+      bg: "bg-purple-500/10",
+      text: "text-purple-600 dark:text-purple-400",
+      border: "border-purple-500/20"
+    };
+  }
+  
+  return {
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/20"
+  };
+};
+
 const ConceitosPage = () => {
+  usePageTitle("Conceitos");
   const { data: conceitos = [], isLoading } = useConceitos();
   const [searchQuery, setSearchQuery] = useState("");
+  const [nivelFilter, setNivelFilter] = useState("Todos os Níveis");
   const [selectedConceito, setSelectedConceito] = useState<Conceito | null>(null);
+
+  const niveis = ["Todos os Níveis", ...Array.from(new Set(conceitos.filter(c => c.nivel).map(c => c.nivel!)))];
 
   // Agrupar conceitos por área
   const conceitosPorArea = useMemo(() => {
@@ -34,20 +83,24 @@ const ConceitosPage = () => {
     return grupos;
   }, [conceitos]);
 
-  // Filtrar conceitos por busca
+  // Filtrar conceitos por busca e nível
   const conceitosFiltrados = useMemo(() => {
-    if (!searchQuery.trim()) return conceitosPorArea;
-
     const query = searchQuery.toLowerCase();
     const filtrados: Record<string, Conceito[]> = {};
 
     Object.entries(conceitosPorArea).forEach(([area, conceitosArea]) => {
       const matches = conceitosArea.filter(
-        (c) =>
-          c.titulo.toLowerCase().includes(query) ||
-          c.area.toLowerCase().includes(query) ||
-          c.conteudo.toLowerCase().includes(query) ||
-          c.tags.some((tag) => tag.toLowerCase().includes(query))
+        (c) => {
+          const matchSearch = !searchQuery.trim() || 
+            c.titulo.toLowerCase().includes(query) ||
+            c.area.toLowerCase().includes(query) ||
+            c.conteudo.toLowerCase().includes(query) ||
+            c.tags.some((tag) => tag.toLowerCase().includes(query));
+          
+          const matchNivel = nivelFilter === "Todos os Níveis" || c.nivel === nivelFilter;
+          
+          return matchSearch && matchNivel;
+        }
       );
 
       if (matches.length > 0) {
@@ -56,7 +109,7 @@ const ConceitosPage = () => {
     });
 
     return filtrados;
-  }, [conceitosPorArea, searchQuery]);
+  }, [conceitosPorArea, searchQuery, nivelFilter]);
 
   const areas = Object.keys(conceitosFiltrados).sort();
 
@@ -68,6 +121,53 @@ const ConceitosPage = () => {
         highlight="IA & ML"
         subtitle="Explore conceitos fundamentais de Inteligência Artificial e Machine Learning organizados por área de conhecimento"
       />
+
+      {/* Busca e Filtros */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Buscar conceitos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+            <Select value={nivelFilter} onValueChange={setNivelFilter}>
+              <SelectTrigger className="w-[220px] bg-card border-border">
+                <SelectValue placeholder="Nível" />
+              </SelectTrigger>
+              <SelectContent>
+                {niveis.map((n) => (
+                  <SelectItem key={n} value={n}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={() => {
+              const roadmapsSection = document.getElementById('roadmaps');
+              if (roadmapsSection) {
+                roadmapsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            variant="outline"
+            className="w-full sm:w-auto whitespace-nowrap"
+          >
+            <Map className="mr-2 h-4 w-4" />
+            Ver Roadmaps
+            <ArrowDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Encontrados <span className="text-primary font-bold">{Object.values(conceitosFiltrados).flat().length}</span> conceitos
+        </p>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {isLoading ? (
@@ -86,20 +186,6 @@ const ConceitosPage = () => {
             {/* Sidebar - Lista de conceitos */}
             <div className="lg:col-span-1">
               <div className="sticky top-20">
-                {/* Busca */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Buscar conceitos..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
                 {/* Áreas e Conceitos */}
                 <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
                   <Accordion type="multiple" defaultValue={areas} className="w-full">
@@ -144,7 +230,17 @@ const ConceitosPage = () => {
                 <div className="bg-card border border-border rounded-lg shadow-sm p-6">
                   {/* Header do conceito */}
                   <div className="mb-6 border-b border-border pb-4">
-                    <Badge className="mb-2">{selectedConceito.area}</Badge>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <Badge className="bg-primary/10 text-primary border-primary/20">{selectedConceito.area}</Badge>
+                      {selectedConceito.nivel && (() => {
+                        const nivelStyles = getNivelStyles(selectedConceito.nivel);
+                        return (
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono-meta font-semibold uppercase tracking-wider border ${nivelStyles.bg} ${nivelStyles.text} ${nivelStyles.border}`}>
+                            {selectedConceito.nivel}
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <h1 className="text-3xl font-bold text-foreground">
                       {selectedConceito.titulo}
                     </h1>
@@ -175,7 +271,31 @@ const ConceitosPage = () => {
         )}
       </div>
 
+      {/* Seção de Roadmaps */}
+      <div id="roadmaps" className="bg-muted/30 border-y border-border py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Map className="w-8 h-8 text-primary" />
+              <h2 className="text-3xl font-bold">
+                Roadmaps de <span className="text-primary">Aprendizado</span>
+              </h2>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Guias estruturados para sua jornada em IA. Siga o caminho do iniciante ao avançado em cada área
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {roadmaps.map((roadmap) => (
+              <RoadmapCard key={roadmap.id} roadmap={roadmap} />
+            ))}
+          </div>
+        </div>
+      </div>
+
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

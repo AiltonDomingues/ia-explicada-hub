@@ -10,20 +10,57 @@ const tipoIcons: Record<string, React.ElementType> = {
   Dataset: Database,
 };
 
+const getNivelStyles = (nivel: string) => {
+  const nivelLower = nivel.toLowerCase();
+  
+  if (nivelLower.includes("iniciante") || nivelLower.includes("básico") || nivelLower.includes("beginner")) {
+    return {
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-600 dark:text-emerald-400",
+      border: "border-emerald-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("intermediário") || nivelLower.includes("intermediario") || nivelLower.includes("intermediate")) {
+    return {
+      bg: "bg-amber-500/10",
+      text: "text-amber-600 dark:text-amber-400",
+      border: "border-amber-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("avançado") || nivelLower.includes("avancado") || nivelLower.includes("advanced")) {
+    return {
+      bg: "bg-purple-500/10",
+      text: "text-purple-600 dark:text-purple-400",
+      border: "border-purple-500/20"
+    };
+  }
+  
+  return {
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/20"
+  };
+};
+
 interface MaterialCardProps {
   material: Material;
 }
 
 const MaterialCard = ({ material }: MaterialCardProps) => {
   const Icon = tipoIcons[material.tipo] || FileText;
+  const nivelStyles = getNivelStyles(material.nivel);
 
   return (
     <div className="card-base rounded-2xl bg-card p-5 flex flex-col h-full">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <span className="font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">
           {material.tipo}
         </span>
-        <span className="text-xs text-primary font-medium">{material.categoria}</span>
+        <span className={`font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md ${nivelStyles.bg} ${nivelStyles.text} font-medium border ${nivelStyles.border}`}>
+          {material.nivel}
+        </span>
       </div>
 
       <div className="flex items-start gap-3 mb-3">

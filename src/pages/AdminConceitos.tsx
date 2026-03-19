@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Eye, Save, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useConceitos } from "@/hooks/useSupabase";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { Conceito } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +44,42 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
+const getNivelStyles = (nivel: string) => {
+  const nivelLower = nivel.toLowerCase();
+  
+  if (nivelLower.includes("iniciante") || nivelLower.includes("básico") || nivelLower.includes("beginner")) {
+    return {
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-600 dark:text-emerald-400",
+      border: "border-emerald-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("intermediário") || nivelLower.includes("intermediario") || nivelLower.includes("intermediate")) {
+    return {
+      bg: "bg-amber-500/10",
+      text: "text-amber-600 dark:text-amber-400",
+      border: "border-amber-500/20"
+    };
+  }
+  
+  if (nivelLower.includes("avançado") || nivelLower.includes("avancado") || nivelLower.includes("advanced")) {
+    return {
+      bg: "bg-purple-500/10",
+      text: "text-purple-600 dark:text-purple-400",
+      border: "border-purple-500/20"
+    };
+  }
+  
+  return {
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/20"
+  };
+};
+
 const AdminConceitos = () => {
+  usePageTitle("Admin - Conceitos");
   const { data: conceitos = [], isLoading } = useConceitos();
   const queryClient = useQueryClient();
 
@@ -51,6 +94,7 @@ const AdminConceitos = () => {
     conteudo: "",
     tags: "",
     ordem: 0,
+    nivel: "Intermediário",
   });
 
   // Mutation para criar/atualizar conceito
@@ -69,6 +113,7 @@ const AdminConceitos = () => {
         slug,
         tags: tagsArray,
         ordem: data.ordem,
+        nivel: data.nivel,
         updated_at: new Date().toISOString(),
       };
 
@@ -132,6 +177,7 @@ const AdminConceitos = () => {
       conteudo: "",
       tags: "",
       ordem: 0,
+      nivel: "Intermediário",
     });
     setEditingConceito(null);
   };
@@ -144,6 +190,7 @@ const AdminConceitos = () => {
       conteudo: conceito.conteudo,
       tags: conceito.tags.join(", "),
       ordem: conceito.ordem,
+      nivel: conceito.nivel || "Intermediário",
     });
     setIsDialogOpen(true);
   };
@@ -222,6 +269,14 @@ const AdminConceitos = () => {
                               {tag}
                             </Badge>
                           ))}
+                          {conceito.nivel && (
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
+                            >
+                              {conceito.nivel}
+                            </Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             Ordem: {conceito.ordem}
                           </span>
@@ -306,6 +361,23 @@ const AdminConceitos = () => {
                   placeholder="0"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nivel">Nível de Dificuldade</Label>
+              <Select
+                value={formData.nivel}
+                onValueChange={(value) => setFormData({ ...formData, nivel: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Iniciante">Iniciante</SelectItem>
+                  <SelectItem value="Intermediário">Intermediário</SelectItem>
+                  <SelectItem value="Avançado">Avançado</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Tabs defaultValue="edit" className="w-full">
