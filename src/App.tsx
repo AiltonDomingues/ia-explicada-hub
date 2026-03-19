@@ -23,6 +23,7 @@ import AdminConceitos from "./pages/AdminConceitos.tsx";
 import AdminEventos from "./pages/AdminEventos.tsx";
 import AdminCreators from "./pages/AdminCreators.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import ScrollToTopOnMount from "./components/ScrollToTopOnMount.tsx";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTopOnMount />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/noticias" element={<Noticias />} />

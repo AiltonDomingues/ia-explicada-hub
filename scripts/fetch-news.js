@@ -568,14 +568,14 @@ async function fetchFeedNews(feed) {
     const feedData = await parser.parseURL(feed.url);
     const articles = [];
     
-    // Calculate cutoff date (2 days ago)
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    // Calculate cutoff date (5 days ago)
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
     
     for (const item of feedData.items) { // Get ALL articles (no limit)
-      // Check article date - skip if older than 2 days
+      // Check article date - skip if older than 5 days
       const articleDate = item.pubDate ? new Date(item.pubDate) : new Date();
-      if (articleDate < twoDaysAgo) {
+      if (articleDate < fiveDaysAgo) {
         console.log(`  [SKIP] Too old (${articleDate.toLocaleDateString()}): ${item.title}`);
         continue;
       }
@@ -623,12 +623,12 @@ async function fetchFeedNews(feed) {
   }
 }
 
-// Clean old news (older than 2 days)
+// Clean old news (older than 5 days)
 async function cleanOldNews() {
   try {
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    const cutoffDate = twoDaysAgo.toISOString().split('T')[0];
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+    const cutoffDate = fiveDaysAgo.toISOString().split('T')[0];
     
     console.log(`[CLEANUP] Deleting news older than ${cutoffDate}...`);
     
