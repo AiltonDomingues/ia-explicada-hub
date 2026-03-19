@@ -1,56 +1,16 @@
-const Parser = require('rss-parser');
+const https = require('https');
 const { createClient } = require('@supabase/supabase-js');
 
-// RSS Feeds for in-depth AI articles (English + Portuguese)
-const RSS_FEEDS = [
-  // Academic/Research Sources
-  {
-    url: 'https://arxiv.org/rss/cs.AI',
-    source: 'arXiv AI',
-    language: 'en'
-  },
-  {
-    url: 'https://arxiv.org/rss/cs.LG',
-    source: 'arXiv Machine Learning',
-    language: 'en'
-  },
-  {
-    url: 'https://blog.research.google/feeds/posts/default',
-    source: 'Google AI Research',
-    language: 'en'
-  },
-  {
-    url: 'https://deepmind.google/blog/rss/',
-    source: 'DeepMind',
-    language: 'en'
-  },
-  {
-    url: 'https://bair.berkeley.edu/blog/feed.xml',
-    source: 'Berkeley AI Research',
-    language: 'en'
-  },
-  // Technical Content Platforms
-  {
-    url: 'https://medium.com/feed/towards-data-science',
-    source: 'Towards Data Science',
-    language: 'en'
-  },
-  {
-    url: 'https://medium.com/feed/tag/artificial-intelligence',
-    source: 'Medium AI',
-    language: 'en'
-  },
-  {
-    url: 'https://distill.pub/rss.xml',
-    source: 'Distill (ML Research Explanations)',
-    language: 'en'
-  },
-  // Portuguese Academic/Technical
-  {
-    url: 'https://tecnoblog.net/feed/',
-    source: 'Tecnoblog',
-    language: 'pt'
-  }
+// Semantic Scholar API config
+const SS_API_BASE = 'https://api.semanticscholar.org/graph/v1';
+const SS_FIELDS = 'title,abstract,year,authors,url,publicationDate,citationCount,openAccessPdf';
+
+const MIN_YEAR = new Date().getFullYear() - 5; // articles from last 5 years
+const MAX_ARTICLES = 30;
+
+const SEARCH_TOPICS = [
+  { query: 'artificial intelligence', label: 'IA', categoria: 'Inteligência Artificial', limit: 15 },
+  { query: 'machine learning', label: 'ML', categoria: 'Machine Learning', limit: 15 }
 ];
 
 // Initialize Supabase client with service key (bypasses RLS)
@@ -59,17 +19,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Initialize RSS parser
-const parser = new Parser({
-  timeout: 10000,
-  customFields: {
-    item: [
-      ['dc:creator', 'creator'],
-      ['media:content', 'media'],
-      ['content:encoded', 'contentEncoded']
-    ]
-  }
-});
+// HTTP GET helper (returns parsed JSON)
+function httpGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'ia-explicada-hub/1.0', 'Accept': 'application/json' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); }
+      });
+    }).on('error', reject);
+  });
+}
 
 // Extract clean text from HTML
 function stripHtml(html) {
@@ -259,20 +221,13 @@ function extractTags(title, content) {
   return [...new Set(tags)].slice(0, 6);
 }
 
-// Calculate reading time based on content length
-function calculateReadingTime(content) {
-  const wordsPerMinute = 200;
-  const words = stripHtml(content).split(/\s+/).length;
-  const minutes = Math.ceil(words / wordsPerMinute);
-  return `${Math.max(minutes, 1)} min`;
+// Extract author names from Semantic Scholar authors array
+function extractAuthor(authors) {
+  if (!authors || authors.length === 0) return 'Autores Desconhecidos';
+  return authors.slice(0, 3).map(a => a.name).join(', ') + (authors.length > 3 ? ' et al.' : '');
 }
 
-// Extract author name
-function extractAuthor(item) {
-  return item.creator || item['dc:creator'] || item.author || 'Autor Desconhecido';
-}
-
-// Check if article already exists
+// Check if article already exists by link
 async function articleExists(link) {
   const { data, error } = await supabase
     .from('artigos')
@@ -283,209 +238,137 @@ async function articleExists(link) {
   return !!data;
 }
 
-// Filter for AI-relevant content
-function isAIRelevant(title, content) {
-  const text = `${title} ${content}`.toLowerCase();
-  
-  // AI/ML terms that should be present for academic articles
-  const aiTerms = [
-    // Core AI terms
-    'artificial intelligence', 'inteligência artificial',
-    'machine learning', 'aprendizado de máquina', 'ml model',
-    'deep learning', 'aprendizado profundo',
-    'neural network', 'rede neural', 'redes neurais',
-    // AI models/architectures
-    'gpt', 'chatgpt', 'claude', 'gemini', 'llm', 'transformer',
-    'language model', 'modelo de linguagem',
-    'bert', 'gpt-4', 'llama', 'mistral',
-    'diffusion model', 'stable diffusion', 'gan', 'vae',
-    // AI domains
-    'computer vision', 'visão computacional',
-    'nlp', 'natural language processing', 'processamento de linguagem',
-    'reinforcement learning', 'aprendizado por reforço',
-    'supervised learning', 'unsupervised learning',
-    // Technical components
-    'data science', 'ciência de dados',
-    'neural architecture', 'arquitetura neural',
-    'convolutional', 'recurrent', 'attention mechanism',
-    'backpropagation', 'gradient descent',
-    'model training', 'treinamento de modelo',
-    'fine-tuning', 'transfer learning',
-    'hyperparameter', 'embedding',
-    // Research context
-    'ai research', 'pesquisa em ia',
-    'ai algorithm', 'algoritmo de ia',
-    'ai system', 'sistema de ia',
-    // Robotics/automation
-    'robotics', 'robótica', 'autonomous system',
-    'robot learning', 'manipulation'
-  ];
-  
-  return aiTerms.some(term => text.includes(term));
-}
+// Fetch papers from Semantic Scholar API for a given topic
+async function fetchSemanticScholarPapers(topic) {
+  const { query, label, categoria, limit } = topic;
+  const encodedQuery = encodeURIComponent(query);
+  // Fetch 3x the limit to have enough after year filtering; sort by citation count for relevance
+  const url = `${SS_API_BASE}/paper/search?query=${encodedQuery}&fields=${SS_FIELDS}&limit=${limit * 3}&sort=citationCount:desc`;
 
-// Filter for deep/academic content (not news)
-function isDeepContent(title, content) {
-  const text = `${title} ${content}`.toLowerCase();
-  
-  // Reject if looks like news/announcement
-  const newsIndicators = [
-    'breaking', 'anunciou', 'anuncia', 'lançou', 'lança', 'launches',
-    'releases', 'apresenta', 'announces', 'unveils', 'revela',
-    'novo modelo', 'new model', 'just released', 'acaba de',
-    'agora disponível', 'now available', 'hoje', 'ontem', 'esta semana'
-  ];
-  
-  if (newsIndicators.some(term => text.includes(term))) {
-    return false;
-  }
-  
-  // Require academic/deep content indicators
-  const deepIndicators = [
-    'tutorial', 'guide', 'how to', 'como fazer', 'passo a passo',
-    'research', 'pesquisa', 'study', 'estudo', 'analysis', 'análise',
-    'paper', 'artigo científico', 'comprehensive', 'completo',
-    'deep dive', 'mergulho profundo', 'understanding', 'entendendo',
-    'introduction to', 'introdução', 'explained', 'explicado',
-    'implementation', 'implementação', 'architecture', 'arquitetura',
-    'matemática', 'mathematical', 'theory', 'teoria',
-    'framework', 'técnica', 'technique', 'methodology', 'metodologia',
-    'case study', 'estudo de caso', 'best practices', 'melhores práticas'
-  ];
-  
-  // Must have at least one deep content indicator
-  return deepIndicators.some(term => text.includes(term));
-}
+  console.log(`[FETCH] Searching Semantic Scholar: "${query}"...`);
 
-// Fetch articles from a single RSS feed
-async function fetchFeedArticles(feed) {
-  try {
-    console.log(`[FETCH] Fetching from ${feed.source}...`);
-    const feedData = await parser.parseURL(feed.url);
-    const articles = [];
-    
-    for (const item of feedData.items.slice(0, 10)) { // Get top 10 articles
-      // Check if already exists
-      if (await articleExists(item.link)) {
-        console.log(`  [SKIP] Article exists: ${item.title}`);
-        continue;
-      }
-      
-      const content = item.contentSnippet || item.content || item.summary || '';
-      
-      // Filter for AI-relevant content
-      if (!isAIRelevant(item.title, content)) {
-        console.log(`  [SKIP] Not AI-relevant: ${item.title}`);
-        continue;
-      }
-      
-      // Filter for deep/academic content (not news)
-      if (!isDeepContent(item.title, content)) {
-        console.log(`  [SKIP] Looks like news/announcement: ${item.title}`);
-        continue;
-      }
-      
-      const descricao = createSummary(content, 250);
-      
-      // Require substantial content (at least 200 chars for academic quality)
-      if (!descricao || descricao.length < 200) {
-        console.log(`  [SKIP] Content too short: ${item.title}`);
-        continue;
-      }
-      
-      const tags = extractTags(item.title, content);
-      
-      // Must have at least one tag to be relevant
-      if (tags.length === 0) {
-        console.log(`  [SKIP] No relevant tags: ${item.title}`);
-        continue;
-      }
-      
-      const article = {
-        titulo: item.title,
-        autor: extractAuthor(item),
-        resumo: descricao || 'Artigo sobre inteligência artificial',
-        categoria: detectCategory(item.title, content),
-        data: item.pubDate ? new Date(item.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        tags: tags,
-        tempo_leitura: calculateReadingTime(content),
-        link: item.link,
-        destaque: false
-      };
-      
-      articles.push(article);
-      console.log(`  [NEW] ${item.title} | Tags: ${tags.join(', ')}`);
-    }
-    
-    return articles;
-  } catch (error) {
-    console.error(`[ERROR] Failed to fetch from ${feed.source}:`, error.message);
+  const result = await httpGet(url);
+
+  if (!result.data || result.data.length === 0) {
+    console.error(`[ERROR] No results from Semantic Scholar for "${query}"`);
     return [];
   }
+
+  // Filter: must have abstract, be within last 5 years
+  const filtered = result.data.filter(paper =>
+    paper.year && paper.year >= MIN_YEAR &&
+    paper.abstract && paper.abstract.length >= 100 &&
+    paper.title
+  );
+
+  console.log(`[FETCH] ${result.data.length} results -> ${filtered.length} from last 5 years with abstracts`);
+
+  return filtered.slice(0, limit).map(paper => {
+    const abstract = paper.abstract || '';
+    const link = paper.url || `https://www.semanticscholar.org/paper/${paper.paperId}`;
+    const words = abstract.split(/\s+/).length;
+    const readingMinutes = Math.max(3, Math.ceil(words / 200));
+
+    return {
+      titulo: paper.title,
+      autor: extractAuthor(paper.authors),
+      resumo: createSummary(abstract, 300) || abstract.substring(0, 300),
+      categoria,
+      data: paper.publicationDate || `${paper.year}-01-01`,
+      tags: extractTags(paper.title, abstract),
+      tempo_leitura: `${readingMinutes} min`,
+      link,
+      destaque: (paper.citationCount || 0) > 100
+    };
+  });
 }
-// Clean old articles (older than 2 weeks)
-async function cleanOldArticles() {
-  try {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-    const cutoffDate = twoWeeksAgo.toISOString().split('T')[0];
-    
-    console.log(`[CLEANUP] Deleting articles older than ${cutoffDate}...`);
-    
-    const { data, error } = await supabase
-      .from('artigos')
-      .delete()
-      .lt('data', cutoffDate);
-    
-    if (error) {
-      console.error('[CLEANUP] Error deleting old articles:', error);
-    } else {
-      console.log('[CLEANUP] Old articles deleted successfully');
-    }
-  } catch (error) {
-    console.error('[CLEANUP] Failed to clean old articles:', error.message);
+
+// Delete the N oldest articles to enforce the MAX_ARTICLES limit
+async function enforceArticleLimit(newCount) {
+  const { count } = await supabase
+    .from('artigos')
+    .select('*', { count: 'exact', head: true });
+
+  const currentCount = count || 0;
+  const afterInsert = currentCount + newCount;
+
+  console.log(`[LIMIT] Current: ${currentCount} | New: ${newCount} | After: ${afterInsert} | Max: ${MAX_ARTICLES}`);
+
+  if (afterInsert <= MAX_ARTICLES) return;
+
+  const toDelete = afterInsert - MAX_ARTICLES;
+  console.log(`[CLEANUP] Deleting ${toDelete} oldest article(s)...`);
+
+  const { data: oldest } = await supabase
+    .from('artigos')
+    .select('id')
+    .order('data', { ascending: true })
+    .limit(toDelete);
+
+  if (!oldest || oldest.length === 0) return;
+
+  const ids = oldest.map(a => a.id);
+  const { error } = await supabase.from('artigos').delete().in('id', ids);
+
+  if (error) {
+    console.error('[CLEANUP] Error deleting old articles:', error);
+  } else {
+    console.log(`[CLEANUP] Deleted ${ids.length} articles`);
   }
 }
 // Main function
 async function main() {
-  console.log('[STARTUP] AI Articles Fetcher started\n');
-  
+  console.log('[STARTUP] Semantic Scholar Articles Fetcher started');
+  console.log(`[CONFIG] Min year: ${MIN_YEAR} | Max articles: ${MAX_ARTICLES} | Topics: ${SEARCH_TOPICS.map(t => t.label).join(', ')}\n`);
+
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables');
   }
-  
-  // Clean old articles first
-  await cleanOldArticles();
-  console.log('');
-  
-  let allArticles = [];
-  
-  // Fetch from all feeds
-  for (const feed of RSS_FEEDS) {
-    const articles = await fetchFeedArticles(feed);
-    allArticles = allArticles.concat(articles);
+
+  let allNewArticles = [];
+
+  for (const topic of SEARCH_TOPICS) {
+    const papers = await fetchSemanticScholarPapers(topic);
+
+    // Deduplicate against existing DB entries
+    const newPapers = [];
+    for (const paper of papers) {
+      if (await articleExists(paper.link)) {
+        console.log(`  [SKIP] Already in DB: ${paper.titulo}`);
+      } else {
+        newPapers.push(paper);
+        console.log(`  [NEW] ${paper.titulo} (${paper.data}) | Citations: ${paper.destaque ? '100+' : '<100'}`);
+      }
+    }
+
+    console.log(`[TOPIC] ${topic.label}: ${newPapers.length} new articles\n`);
+    allNewArticles = allNewArticles.concat(newPapers);
+
+    // Rate limit between API calls
+    await new Promise(r => setTimeout(r, 1000));
   }
-  
-  console.log(`\n[SUMMARY] Total new articles found: ${allArticles.length}`);
-  
-  if (allArticles.length === 0) {
+
+  console.log(`[SUMMARY] Total new articles: ${allNewArticles.length}`);
+
+  if (allNewArticles.length === 0) {
     console.log('[COMPLETE] No new articles to import.');
     process.exit(0);
   }
-  
+
+  // Enforce 30-article limit: delete oldest if needed before inserting
+  await enforceArticleLimit(allNewArticles.length);
+
   // Insert into Supabase
   console.log('\n[DB] Inserting articles into Supabase...');
-  const { data, error } = await supabase
-    .from('artigos')
-    .insert(allArticles);
-  
+  const { error } = await supabase.from('artigos').insert(allNewArticles);
+
   if (error) {
     console.error('[DB] Error inserting articles:', error);
     throw error;
   }
-  
-  console.log(`[DB] Successfully imported ${allArticles.length} new articles`);
-  console.log('\n[COMPLETE] Articles fetch completed');
+
+  console.log(`[DB] Successfully imported ${allNewArticles.length} articles`);
+  console.log('[COMPLETE] Done');
   process.exit(0);
 }
 
