@@ -88,7 +88,20 @@ const AdminCursos = () => {
   };
 
   const handleEdit = (curso: any) => {
-    setFormData(curso);
+    setFormData({
+      id: curso.id,
+      titulo: curso.titulo,
+      instrutor: curso.instrutor || curso.autor || "",
+      descricao: curso.descricao,
+      nivel: curso.nivel,
+      duracao: curso.duracao,
+      preco: curso.preco,
+      link: curso.link,
+      plataforma: curso.plataforma,
+      nota: curso.nota,
+      categoria: curso.categoria,
+      destaque: curso.destaque,
+    });
     setDialogOpen(true);
   };
 
