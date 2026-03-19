@@ -1,31 +1,15 @@
 const Parser = require('rss-parser');
 const { createClient } = require('@supabase/supabase-js');
 
-// RSS Feeds from Brazilian tech news sites focused on AI
+// RSS Feeds from Brazilian AI-focused news sites
 const RSS_FEEDS = [
   {
-    url: 'https://olhardigital.com.br/categoria/internet-e-redes-sociais/feed/',
-    source: 'Olhar Digital'
+    url: 'https://ainews.net.br/feed/',
+    source: 'AI News Brasil'
   },
   {
-    url: 'https://canaltech.com.br/rss/',
-    source: 'Canaltech'
-  },
-  {
-    url: 'https://www.tecmundo.com.br/rss',
-    source: 'TecMundo'
-  },
-  {
-    url: 'https://tecnoblog.net/feed/',
-    source: 'Tecnoblog'
-  },
-  {
-    url: 'https://startupi.com.br/feed/',
-    source: 'Startupi'
-  },
-  {
-    url: 'https://meiobit.com/feed/',
-    source: 'Meio Bit'
+    url: 'https://iabrasilnoticias.com.br/feed/',
+    source: 'IA Brasil Notícias'
   }
 ];
 
