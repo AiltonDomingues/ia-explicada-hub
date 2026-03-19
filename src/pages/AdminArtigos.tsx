@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -41,6 +42,7 @@ const AdminArtigos = () => {
     data: "",
     tags: "",
     link: "",
+    destaque: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,6 +123,7 @@ const AdminArtigos = () => {
       data: "",
       tags: "",
       link: "",
+      destaque: false,
     });
   };
 
@@ -241,6 +244,18 @@ const AdminArtigos = () => {
                   }
                   required
                 />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="destaque"
+                  checked={formData.destaque}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, destaque: checked as boolean })
+                  }
+                />
+                <Label htmlFor="destaque" className="cursor-pointer">
+                  Marcar como Destaque
+                </Label>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button

@@ -19,22 +19,23 @@ const CursosPage = () => {
   const cursos = cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded;
   
   const niveis = ["Todos os Níveis", ...Array.from(new Set(cursos.map((c) => c.nivel)))];
+  const categorias = ["Todas as Categorias", ...Array.from(new Set(cursos.map((c) => c.categoria)))];
   const [search, setSearch] = useState("");
   const [nivel, setNivel] = useState("Todos os Níveis");
-  const [sortBy, setSortBy] = useState("Destaques");
+  const [categoria, setCategoria] = useState("Todas as Categorias");
 
   const filtered = useMemo(() => {
     let result = cursos.filter((c) => {
       const matchSearch = c.titulo.toLowerCase().includes(search.toLowerCase()) ||
         c.descricao.toLowerCase().includes(search.toLowerCase());
       const matchNivel = nivel === "Todos os Níveis" || c.nivel === nivel;
-      return matchSearch && matchNivel;
+      const matchCategoria = categoria === "Todas as Categorias" || c.categoria === categoria;
+      return matchSearch && matchNivel && matchCategoria;
     });
-    if (sortBy === "Destaques") {
-      result = [...result].sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0));
-    }
+    // Ordenar por destaque primeiro, depois por outros critérios
+    result = [...result].sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0));
     return result;
-  }, [search, nivel, sortBy]);
+  }, [search, nivel, categoria]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,13 +72,16 @@ const CursosPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={categoria} onValueChange={setCategoria}>
             <SelectTrigger className="w-[220px] bg-card border-border">
-              <SelectValue placeholder="Ordenar" />
+              <SelectValue placeholder="Categoria" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Destaques">Destaques</SelectItem>
-              <SelectItem value="Mais Recentes">Mais Recentes</SelectItem>
+              {categorias.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

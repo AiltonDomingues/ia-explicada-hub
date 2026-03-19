@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -47,6 +48,10 @@ const AdminCursos = () => {
     duracao: "",
     preco: "",
     link: "",
+    plataforma: "",
+    nota: "",
+    categoria: "Fundamentos",
+    destaque: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,6 +124,10 @@ const AdminCursos = () => {
       duracao: "",
       preco: "",
       link: "",
+      plataforma: "",
+      nota: "",
+      categoria: "Fundamentos",
+      destaque: false,
     });
   };
 
@@ -231,6 +240,63 @@ const AdminCursos = () => {
                   }
                   required
                 />
+              </div>
+              <div>
+                <Label htmlFor="plataforma">Plataforma</Label>
+                <Input
+                  id="plataforma"
+                  value={formData.plataforma}
+                  onChange={(e) =>
+                    setFormData({ ...formData, plataforma: e.target.value })
+                  }
+                  placeholder="Ex: Udemy, Coursera, edX"
+                />
+              </div>
+              <div>
+                <Label htmlFor="nota">Nota</Label>
+                <Input
+                  id="nota"
+                  value={formData.nota}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nota: e.target.value })
+                  }
+                  placeholder="Ex: 4.8/5.0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="categoria">Categoria</Label>
+                <Select
+                  value={formData.categoria}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, categoria: value })
+                  }
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Fundamentos">Fundamentos</SelectItem>
+                    <SelectItem value="IA Generativa">IA Generativa</SelectItem>
+                    <SelectItem value="Agentes de IA">Agentes de IA</SelectItem>
+                    <SelectItem value="Deep Learning">Deep Learning</SelectItem>
+                    <SelectItem value="Machine Learning">Machine Learning</SelectItem>
+                    <SelectItem value="Processamento de Linguagem">Processamento de Linguagem</SelectItem>
+                    <SelectItem value="Visão Computacional">Visão Computacional</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="destaque"
+                  checked={formData.destaque}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, destaque: checked as boolean })
+                  }
+                />
+                <Label htmlFor="destaque" className="cursor-pointer">
+                  Marcar como Destaque
+                </Label>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button

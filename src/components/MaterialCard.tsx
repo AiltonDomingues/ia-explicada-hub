@@ -55,10 +55,10 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
   return (
     <div className="card-base rounded-2xl bg-card p-5 flex flex-col h-full">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <span className="font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">
-          {material.tipo}
+        <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary font-medium">
+          {material.categoria}
         </span>
-        <span className={`font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md ${nivelStyles.bg} ${nivelStyles.text} font-medium border ${nivelStyles.border}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-md ${nivelStyles.bg} ${nivelStyles.text} font-medium`}>
           {material.nivel}
         </span>
       </div>

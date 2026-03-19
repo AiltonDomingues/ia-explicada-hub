@@ -42,6 +42,7 @@ const AdminNoticias = () => {
     tags: "",
     tempo_leitura: "5 min",
     trending: false,
+    imagem_url: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,6 +124,7 @@ const AdminNoticias = () => {
       tags: "",
       tempo_leitura: "5 min",
       trending: false,
+      imagem_url: "",
     });
   };
 
@@ -241,6 +243,18 @@ const AdminNoticias = () => {
                     setFormData({ ...formData, link: e.target.value })
                   }
                   required
+                />
+              </div>
+              <div>
+                <Label htmlFor="imagem_url">URL da Imagem</Label>
+                <Input
+                  id="imagem_url"
+                  type="url"
+                  value={formData.imagem_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, imagem_url: e.target.value })
+                  }
+                  placeholder="https://exemplo.com/imagem.jpg"
                 />
               </div>
               <div className="flex gap-2 justify-end">

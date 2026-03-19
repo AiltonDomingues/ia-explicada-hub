@@ -29,7 +29,7 @@ const NoticiaCard = ({ noticia, featured = false }: NoticiaCardProps) => {
         
         <div className="p-6 md:p-8">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span className={`font-mono-meta text-xs uppercase tracking-wider px-3 py-1.5 rounded-md ${categoryColors.bg} ${categoryColors.text} font-semibold`}>
+            <span className={`text-xs px-2 py-0.5 rounded-md ${categoryColors.bg} ${categoryColors.text} font-medium`}>
               {noticia.categoria}
             </span>
             {noticia.trending && (
@@ -93,7 +93,7 @@ const NoticiaCard = ({ noticia, featured = false }: NoticiaCardProps) => {
       
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <span className={`font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md ${categoryColors.bg} ${categoryColors.text} font-medium`}>
+          <span className={`text-xs px-2 py-0.5 rounded-md ${categoryColors.bg} ${categoryColors.text} font-medium`}>
             {noticia.categoria}
           </span>
           <div className="flex items-center gap-2">

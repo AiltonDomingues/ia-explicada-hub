@@ -49,6 +49,7 @@ export type Curso = {
   nota: string;
   preco: string;
   link: string;
+  categoria: string;
   destaque?: boolean;
   created_at?: string;
 };
@@ -60,8 +61,8 @@ export type Material = {
   nivel: string;
   descricao: string;
   tamanho: string;
-  autor?: string;
-  link?: string;
+  autor: string;
+  link: string;
   created_at?: string;
 };
 

@@ -1,5 +1,6 @@
 export interface Curso {
   id: number;
+  categoria: string;
   nivel: string;
   plataforma: string;
   destaque?: boolean;
@@ -15,6 +16,7 @@ export interface Curso {
 export const cursos: Curso[] = [
   {
     id: 1,
+    categoria: "IA Generativa",
     nivel: "Intermediário",
     plataforma: "Alura",
     destaque: true,
@@ -28,6 +30,7 @@ export const cursos: Curso[] = [
   },
   {
     id: 2,
+    categoria: "Agentes de IA",
     nivel: "Intermediário",
     plataforma: "Alura",
     destaque: true,
@@ -41,6 +44,7 @@ export const cursos: Curso[] = [
   },
   {
     id: 3,
+    categoria: "Fundamentos",
     nivel: "Iniciante",
     plataforma: "Udemy",
     destaque: true,
@@ -54,6 +58,7 @@ export const cursos: Curso[] = [
   },
   {
     id: 4,
+    categoria: "Visão Computacional",
     nivel: "Iniciante",
     plataforma: "Udemy",
     destaque: true,
@@ -67,6 +72,7 @@ export const cursos: Curso[] = [
   },
   {
     id: 5,
+    categoria: "Processamento de Linguagem",
     nivel: "Avançado",
     plataforma: "edX",
     titulo: "NLP com Transformers",
@@ -79,6 +85,7 @@ export const cursos: Curso[] = [
   },
   {
     id: 6,
+    categoria: "Deep Learning",
     nivel: "Intermediário",
     plataforma: "Coursera",
     titulo: "PyTorch para Deep Learning",

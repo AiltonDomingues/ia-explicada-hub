@@ -106,7 +106,7 @@ export default function EventoCard({ evento }: EventoCardProps) {
         {/* Footer with Level and Link */}
         <div className="flex items-center justify-between pt-4 border-t border-border">
           {nivelStyles ? (
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono-meta font-semibold uppercase tracking-wider border ${nivelStyles.bg} ${nivelStyles.text} ${nivelStyles.border}`}>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${nivelStyles.bg} ${nivelStyles.text}`}>
               {evento.nivel}
             </span>
           ) : (

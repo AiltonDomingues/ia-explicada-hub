@@ -235,7 +235,7 @@ const ConceitosPage = () => {
                       {selectedConceito.nivel && (() => {
                         const nivelStyles = getNivelStyles(selectedConceito.nivel);
                         return (
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono-meta font-semibold uppercase tracking-wider border ${nivelStyles.bg} ${nivelStyles.text} ${nivelStyles.border}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${nivelStyles.bg} ${nivelStyles.text}`}>
                             {selectedConceito.nivel}
                           </span>
                         );

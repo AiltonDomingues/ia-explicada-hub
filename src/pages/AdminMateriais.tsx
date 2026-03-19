@@ -45,6 +45,8 @@ const AdminMateriais = () => {
     descricao: "",
     autor: "",
     link: "",
+    tamanho: "",
+    nivel: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,6 +117,8 @@ const AdminMateriais = () => {
       descricao: "",
       autor: "",
       link: "",
+      tamanho: "0 MB",
+      nivel: "Iniciante",
     });
   };
 
@@ -208,6 +212,37 @@ const AdminMateriais = () => {
                   required
                 />
               </div>
+              <div>
+                <Label htmlFor="tamanho">Tamanho</Label>
+                <Input
+                  id="tamanho"
+                  value={formData.tamanho}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tamanho: e.target.value })
+                  }
+                  placeholder="Ex: 2.3 MB, 45 min, 512 KB"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="nivel">Nível</Label>
+                <Select
+                  value={formData.nivel}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, nivel: value })
+                  }
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o nível" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Iniciante">Iniciante</SelectItem>
+                    <SelectItem value="Intermediário">Intermediário</SelectItem>
+                    <SelectItem value="Avançado">Avançado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button
                   type="button"
@@ -242,6 +277,8 @@ const AdminMateriais = () => {
               <TableRow>
                 <TableHead>Título</TableHead>
                 <TableHead>Tipo</TableHead>
+                <TableHead>Nível</TableHead>
+                <TableHead>Tamanho</TableHead>
                 <TableHead>Autor</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -253,6 +290,8 @@ const AdminMateriais = () => {
                     {material.titulo}
                   </TableCell>
                   <TableCell>{material.tipo}</TableCell>
+                  <TableCell>{material.nivel}</TableCell>
+                  <TableCell>{material.tamanho}</TableCell>
                   <TableCell>{material.autor}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">

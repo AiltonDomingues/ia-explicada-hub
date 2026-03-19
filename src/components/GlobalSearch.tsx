@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, FileText, Newspaper, GraduationCap, BookOpen, X } from "lucide-react";
+import { Search, FileText, Newspaper, GraduationCap, BookOpen, X, Book, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useNoticias, useArtigos, useCursos, useMateriais } from "@/hooks/useSupabase";
+import { useNoticias, useArtigos, useCursos, useMateriais, useConceitos, useEventos } from "@/hooks/useSupabase";
 
 interface SearchResult {
   id: string;
-  type: 'noticia' | 'artigo' | 'curso' | 'material';
+  type: 'noticia' | 'artigo' | 'curso' | 'material' | 'conceito' | 'evento';
   titulo: string;
   descricao?: string;
   categoria: string;
@@ -27,6 +27,8 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
   const { data: artigos = [] } = useArtigos();
   const { data: cursos = [] } = useCursos();
   const { data: materiais = [] } = useMateriais();
+  const { data: conceitos = [] } = useConceitos();
+  const { data: eventos = [] } = useEventos();
 
   // Keyboard shortcut (Ctrl+K or Cmd+K)
   useEffect(() => {
@@ -124,8 +126,45 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       }
     });
 
+    // Search in conceitos
+    conceitos.forEach((c) => {
+      const matchTitle = c.titulo.toLowerCase().includes(searchTerm);
+      const matchConteudo = c.conteudo.toLowerCase().includes(searchTerm);
+      const matchArea = c.area.toLowerCase().includes(searchTerm);
+      const matchTags = c.tags?.some((tag: string) => tag.toLowerCase().includes(searchTerm));
+
+      if (matchTitle || matchConteudo || matchArea || matchTags) {
+        allResults.push({
+          id: c.id,
+          type: 'conceito',
+          titulo: c.titulo,
+          descricao: c.conteudo.substring(0, 100).replace(/#|\*|\n/g, ' ') + '...',
+          categoria: c.area
+        });
+      }
+    });
+
+    // Search in eventos
+    eventos.forEach((e) => {
+      const matchTitle = e.titulo.toLowerCase().includes(searchTerm);
+      const matchDesc = e.descricao.toLowerCase().includes(searchTerm);
+      const matchLocal = e.local.toLowerCase().includes(searchTerm);
+      const matchTipo = e.tipo.toLowerCase().includes(searchTerm);
+
+      if (matchTitle || matchDesc || matchLocal || matchTipo) {
+        allResults.push({
+          id: e.id,
+          type: 'evento',
+          titulo: e.titulo,
+          descricao: e.descricao.substring(0, 100) + '...',
+          categoria: e.tipo,
+          link: e.link
+        });
+      }
+    });
+
     return allResults;
-  }, [query, noticias, artigos, cursos, materiais]);
+  }, [query, noticias, artigos, cursos, materiais, conceitos, eventos]);
 
   // Group results by type
   const groupedResults = useMemo(() => {
@@ -133,7 +172,9 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       noticia: results.filter(r => r.type === 'noticia'),
       artigo: results.filter(r => r.type === 'artigo'),
       curso: results.filter(r => r.type === 'curso'),
-      material: results.filter(r => r.type === 'material')
+      material: results.filter(r => r.type === 'material'),
+      conceito: results.filter(r => r.type === 'conceito'),
+      evento: results.filter(r => r.type === 'evento')
     };
     return groups;
   }, [results]);
@@ -153,7 +194,9 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
         noticia: '/noticias',
         artigo: '/artigos',
         curso: '/cursos',
-        material: '/materiais'
+        material: '/materiais',
+        conceito: '/conceitos',
+        evento: '/eventos'
       };
       navigate(pages[result.type]);
     }
@@ -167,6 +210,8 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       case 'artigo': return <FileText className="w-4 h-4 text-purple-500" />;
       case 'curso': return <GraduationCap className="w-4 h-4 text-green-500" />;
       case 'material': return <BookOpen className="w-4 h-4 text-orange-500" />;
+      case 'conceito': return <Book className="w-4 h-4 text-cyan-500" />;
+      case 'evento': return <Calendar className="w-4 h-4 text-pink-500" />;
       default: return <Search className="w-4 h-4" />;
     }
   };
@@ -176,7 +221,9 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       noticia: 'Notícias',
       artigo: 'Artigos',
       curso: 'Cursos',
-      material: 'Materiais'
+      material: 'Materiais',
+      conceito: 'Conceitos',
+      evento: 'Eventos'
     };
     return names[type] || type;
   };
@@ -206,27 +253,36 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
 
       {/* Search modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl p-0 gap-0 max-h-[80vh] overflow-hidden">
-          {/* Search input */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b">
-            <Search className="w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar notícias, artigos, cursos, materiais..."
-              className="flex-1 bg-transparent outline-none text-base placeholder:text-muted-foreground"
-              autoFocus
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="p-1 hover:bg-muted rounded"
-                aria-label="Limpar busca"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+        <DialogContent className="max-w-2xl p-0 gap-0 max-h-[80vh] overflow-hidden [&>button]:hidden">
+          {/* Header with close button */}
+          <div className="flex items-center justify-between px-4 py-3 border-b">
+            <div className="flex items-center gap-2 flex-1">
+              <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar notícias, artigos, cursos, materiais..."
+                className="flex-1 bg-transparent outline-none text-base placeholder:text-muted-foreground"
+                autoFocus
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="px-2 py-1 hover:bg-muted rounded-md flex-shrink-0 transition-colors text-sm text-muted-foreground hover:text-foreground"
+                  aria-label="Limpar busca"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="ml-2 p-1.5 hover:bg-muted rounded-md flex-shrink-0 transition-colors"
+              aria-label="Fechar busca"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Results */}
@@ -339,6 +395,62 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
                       <span>Materiais ({groupedResults.material.length})</span>
                     </div>
                     {groupedResults.material.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultClick(result)}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          {getTypeIcon(result.type)}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm line-clamp-1">{result.titulo}</div>
+                            <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                              {result.descricao}
+                            </div>
+                            <div className="text-xs text-primary mt-1">{result.categoria}</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Conceitos */}
+                {groupedResults.conceito.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 px-3 py-2 text-sm font-semibold">
+                      <Book className="w-4 h-4 text-cyan-500" />
+                      <span>Conceitos ({groupedResults.conceito.length})</span>
+                    </div>
+                    {groupedResults.conceito.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultClick(result)}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          {getTypeIcon(result.type)}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm line-clamp-1">{result.titulo}</div>
+                            <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                              {result.descricao}
+                            </div>
+                            <div className="text-xs text-primary mt-1">{result.categoria}</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Eventos */}
+                {groupedResults.evento.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 px-3 py-2 text-sm font-semibold">
+                      <Calendar className="w-4 h-4 text-pink-500" />
+                      <span>Eventos ({groupedResults.evento.length})</span>
+                    </div>
+                    {groupedResults.evento.map((result) => (
                       <button
                         key={result.id}
                         onClick={() => handleResultClick(result)}

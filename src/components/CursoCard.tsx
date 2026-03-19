@@ -5,6 +5,20 @@ interface CursoCardProps {
   curso: Curso;
 }
 
+const getCategoryColor = (categoria: string) => {
+  const colors: Record<string, { bg: string; text: string }> = {
+    // Baseado nas cores dos roadmaps
+    "Fundamentos": { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400" },
+    "IA Generativa": { bg: "bg-yellow-500/10", text: "text-yellow-600 dark:text-yellow-400" },
+    "Agentes de IA": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
+    "Visão Computacional": { bg: "bg-pink-500/10", text: "text-pink-600 dark:text-pink-400" },
+    "Processamento de Linguagem": { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400" },
+    "Deep Learning": { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    "Machine Learning": { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+  };
+  return colors[categoria] || { bg: "bg-primary/10", text: "text-primary" };
+};
+
 const getNivelStyles = (nivel: string) => {
   const nivelLower = nivel.toLowerCase();
   
@@ -41,16 +55,19 @@ const getNivelStyles = (nivel: string) => {
 };
 
 const CursoCard = ({ curso }: CursoCardProps) => {
+  const categoryColors = getCategoryColor(curso.categoria);
   const nivelStyles = getNivelStyles(curso.nivel);
   
   return (
     <div className="card-base rounded-2xl bg-card p-5 flex flex-col h-full">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <span className={`font-mono-meta text-xs uppercase tracking-wider px-2.5 py-1 rounded-md ${nivelStyles.bg} ${nivelStyles.text} font-medium border ${nivelStyles.border}`}>
-          {curso.nivel}
+        <span className={`text-xs px-2 py-0.5 rounded-md ${categoryColors.bg} ${categoryColors.text} font-medium`}>
+          {curso.categoria}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium">{curso.plataforma}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-md ${nivelStyles.bg} ${nivelStyles.text} font-medium`}>
+            {curso.nivel}
+          </span>
           {curso.destaque && (
             <span className="text-xs px-2 py-0.5 rounded-md bg-primary text-card font-medium">
               Destaque
@@ -64,9 +81,12 @@ const CursoCard = ({ curso }: CursoCardProps) => {
       <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{curso.descricao}</p>
 
       <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-        <span className="flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5" /> {curso.duracao}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="font-medium">{curso.plataforma}</span>
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" /> {curso.duracao}
+          </span>
+        </div>
         <span className="flex items-center gap-1">
           <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {curso.nota}
         </span>
