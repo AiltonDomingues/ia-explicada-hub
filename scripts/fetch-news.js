@@ -1,6 +1,8 @@
 require('dotenv').config();
 const Parser = require('rss-parser');
 const { createClient } = require('@supabase/supabase-js');
+const https = require('https');
+const http = require('http');
 
 // RSS Feeds from Brazilian AI-focused news sites
 const RSS_FEEDS = [
@@ -41,8 +43,107 @@ const parser = new Parser({
   }
 });
 
+// Fetch HTML from URL and extract first image (fallback method)
+async function fetchImageFromUrl(url) {
+  return new Promise((resolve) => {
+    const client = url.startsWith('https') ? https : http;
+    const timeout = 8000; // 8 second timeout
+    
+    const options = {
+      timeout,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      },
+      rejectUnauthorized: false // Accept self-signed certificates
+    };
+    
+    const req = client.get(url, options, (res) => {
+      let html = '';
+      
+      // Only process if successful response
+      if (res.statusCode !== 200) {
+        console.log(`    [SCRAPE] HTTP ${res.statusCode} - skipping`);
+        resolve(null);
+        return;
+      }
+      
+      res.on('data', (chunk) => {
+        html += chunk;
+        // Stop early if we have enough content (first 150KB should have meta tags)
+        if (html.length > 150000) {
+          res.destroy();
+        }
+      });
+      
+      res.on('end', () => {
+        // Try Open Graph image first (best quality)
+        let match = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
+        if (!match) {
+          match = html.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:image["']/i);
+        }
+        if (match && match[1]) {
+          console.log(`    [SCRAPE] Found og:image: ${match[1].substring(0, 60)}...`);
+          resolve(match[1]);
+          return;
+        }
+        
+        // Try Twitter card image
+        match = html.match(/<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i);
+        if (!match) {
+          match = html.match(/<meta\s+content=["']([^"']+)["']\s+name=["']twitter:image["']/i);
+        }
+        if (match && match[1]) {
+          console.log(`    [SCRAPE] Found twitter:image`);
+          resolve(match[1]);
+          return;
+        }
+        
+        // Try WordPress featured image (common pattern)
+        match = html.match(/<meta\s+property=["']og:image:secure_url["']\s+content=["']([^"']+)["']/i);
+        if (match && match[1]) {
+          console.log(`    [SCRAPE] Found og:image:secure_url`);
+          resolve(match[1]);
+          return;
+        }
+        
+        // Try first <img> tag with class containing "feature", "header", "main", "hero"
+        match = html.match(/<img[^>]*class=["'][^"']*(?:feature|header|main|hero|wp-post)[^"']*["'][^>]+src=["']([^"']+)["']/i);
+        if (!match) {
+          match = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*class=["'][^"']*(?:feature|header|main|hero|wp-post)[^"']*["']/i);
+        }
+        if (match && match[1] && !match[1].includes('logo') && !match[1].includes('icon')) {
+          console.log(`    [SCRAPE] Found featured img tag`);
+          resolve(match[1]);
+          return;
+        }
+        
+        // Try any <img> tag (excluding logos, icons, small images)
+        match = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
+        if (match && match[1] && !match[1].includes('logo') && !match[1].includes('icon') && !match[1].includes('avatar')) {
+          console.log(`    [SCRAPE] Found first img tag`);
+          resolve(match[1]);
+          return;
+        }
+        
+        console.log(`    [SCRAPE] No images in HTML (${html.length} bytes)`);
+        resolve(null);
+      });
+    });
+    
+    req.on('error', (err) => {
+      console.log(`    [SCRAPE] Error: ${err.message}`);
+      resolve(null);
+    });
+    req.on('timeout', () => {
+      console.log(`    [SCRAPE] Timeout after 8s`);
+      req.destroy();
+      resolve(null);
+    });
+  });
+}
+
 // Extract image URL from RSS item
-function extractImageUrl(item) {
+async function extractImageUrl(item) {
   // Try different RSS image formats
   
   // 1. media:content (most common format)
@@ -142,6 +243,16 @@ function extractImageUrl(item) {
   if (item.itunes && item.itunes.image) {
     console.log(`  [IMAGE] Found via itunes:image`);
     return item.itunes.image;
+  }
+  
+  // 9. Fetch from URL as last resort (scrape website)
+  if (item.link) {
+    console.log(`  [IMAGE] Trying to fetch from URL: ${item.link.substring(0, 60)}...`);
+    const imageFromUrl = await fetchImageFromUrl(item.link);
+    if (imageFromUrl) {
+      console.log(`  [IMAGE] Found via web scraping (og:image or first img)`);
+      return imageFromUrl;
+    }
   }
   
   // No image found
@@ -474,7 +585,7 @@ async function fetchFeedNews(feed) {
         tags: extractTags(item.title, content, feed.source),
         tempo_leitura: calculateReadingTime(content),
         trending: isTrending(item.title, content, categoria, item.pubDate),
-        imagem_url: extractImageUrl(item)
+        imagem_url: await extractImageUrl(item)
       };
       
       articles.push(article);
