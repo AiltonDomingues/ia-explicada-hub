@@ -1,5 +1,4 @@
 import { FileText, Video, Code, BookOpen, Database } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { Material } from "@/data/materiais";
 
 const tipoIcons: Record<string, React.ElementType> = {
@@ -76,12 +75,14 @@ const MaterialCard = ({ material }: MaterialCardProps) => {
         <span>Tamanho: {material.tamanho}</span>
       </div>
 
-      <Link
-        to={`/materiais/${material.id}`}
+      <a
+        href={material.link}
+        target="_blank"
+        rel="noopener noreferrer"
         className="block text-center py-2 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
       >
         Ver Material
-      </Link>
+      </a>
     </div>
   );
 };
