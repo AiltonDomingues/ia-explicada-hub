@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Youtube, Linkedin, Instagram, Twitter, Heart } from "lucide-react";
+import { Linkedin, Instagram, Heart, Mail } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -15,10 +15,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Youtube, label: "YouTube", url: "#" },
-    { icon: Linkedin, label: "LinkedIn", url: "#" },
-    { icon: Instagram, label: "Instagram", url: "#" },
-    { icon: Twitter, label: "Twitter", url: "#" },
+    { icon: Linkedin, label: "LinkedIn", url: "https://www.linkedin.com/company/ia-explicada" },
+    { icon: Instagram, label: "Instagram", url: "https://www.instagram.com/ia.explicada?igsh=amI4MXljOWFrYzlk&utm_source=qr" },
   ];
 
   return (
@@ -68,7 +66,7 @@ const Footer = () => {
             <p className="text-slate-400 text-sm mb-4">
               Acompanhe as últimas novidades sobre IA nas redes sociais
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-6">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
@@ -84,6 +82,18 @@ const Footer = () => {
                   </a>
                 );
               })}
+            </div>
+            
+            {/* Contact */}
+            <div className="pt-4 border-t border-slate-800">
+              <h4 className="text-lg font-semibold mb-3">Contato</h4>
+              <a
+                href="mailto:admin.iaexplicada@gmail.com"
+                className="inline-flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors text-sm"
+              >
+                <Mail className="w-4 h-4" />
+                admin.iaexplicada@gmail.com
+              </a>
             </div>
           </div>
         </div>

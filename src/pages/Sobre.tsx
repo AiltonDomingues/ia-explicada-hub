@@ -1,4 +1,4 @@
-import { User, Target, Heart, Mail, Linkedin, Github } from "lucide-react";
+import { User, Target, Heart, Mail, Linkedin } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -127,13 +127,6 @@ const Sobre = () => {
                 {/* Links de Contato */}
                 <div className="flex flex-wrap gap-3">
                   <a
-                    href="mailto:tomdominguesp@gmail.com"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-card hover:bg-muted rounded-xl border border-border transition-colors"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm">Email</span>
-                  </a>
-                  <a
                     href="https://www.linkedin.com/in/ailton-domingues"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -141,15 +134,6 @@ const Sobre = () => {
                   >
                     <Linkedin className="w-4 h-4" />
                     <span className="text-sm">LinkedIn</span>
-                  </a>
-                  <a
-                    href="https://github.com/AiltonDomingues"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-card hover:bg-muted rounded-xl border border-border transition-colors"
-                  >
-                    <Github className="w-4 h-4" />
-                    <span className="text-sm">GitHub</span>
                   </a>
                 </div>
 
@@ -179,7 +163,7 @@ const Sobre = () => {
             parcerias ou colaborações.
           </p>
           <a
-            href="mailto:tomdominguesp@gmail.com"
+            href="mailto:admin.iaexplicada@gmail.com"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
           >
             <Mail className="w-4 h-4" />
