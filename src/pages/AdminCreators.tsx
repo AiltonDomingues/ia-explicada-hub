@@ -289,14 +289,14 @@ const AdminCreators = () => {
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>
               {editingCreator ? "Editar Creator" : "Novo Creator"}
             </DialogTitle>
           </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="nome">Nome *</Label>
@@ -416,6 +416,7 @@ const AdminCreators = () => {
               </Button>
             </div>
           </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

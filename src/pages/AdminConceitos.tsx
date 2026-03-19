@@ -308,12 +308,13 @@ const AdminConceitos = () => {
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>
               {editingConceito ? "Editar Conceito" : "Novo Conceito"}
             </DialogTitle>
           </DialogHeader>
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -448,6 +449,7 @@ def sigmoid(x):
               </Button>
             </DialogFooter>
           </form>
+          </div>
         </DialogContent>
       </Dialog>
 

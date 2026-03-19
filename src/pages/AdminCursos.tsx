@@ -146,13 +146,14 @@ const AdminCursos = () => {
               Novo Curso
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
               <DialogTitle>
                 {formData.id ? "Editar Curso" : "Novo Curso"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
+              <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="titulo">Título</Label>
                 <Input
@@ -309,6 +310,7 @@ const AdminCursos = () => {
                 <Button type="submit">Salvar</Button>
               </div>
             </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

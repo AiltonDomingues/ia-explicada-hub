@@ -139,13 +139,14 @@ const AdminMateriais = () => {
               Novo Material
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
               <DialogTitle>
                 {formData.id ? "Editar Material" : "Novo Material"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
+              <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="titulo">Título</Label>
                 <Input
@@ -254,6 +255,7 @@ const AdminMateriais = () => {
                 <Button type="submit">Salvar</Button>
               </div>
             </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
