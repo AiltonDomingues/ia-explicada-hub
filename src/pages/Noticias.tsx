@@ -107,13 +107,13 @@ const NoticiasPage = () => {
                   Mais Notícias
                 </h2>
                 <motion.div
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  className="columns-1 md:columns-2 lg:columns-3 gap-6"
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
                 >
                   {filtered.slice(1).map((n) => (
-                    <motion.div key={n.id} variants={itemVariants}>
+                    <motion.div key={n.id} variants={itemVariants} className="mb-6 break-inside-avoid">
                       <NoticiaCard noticia={n} />
                     </motion.div>
                   ))}

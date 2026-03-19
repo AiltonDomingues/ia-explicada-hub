@@ -77,7 +77,7 @@ const NoticiaCard = ({ noticia, featured = false }: NoticiaCardProps) => {
   }
 
   return (
-    <div className={`card-base rounded-2xl bg-card overflow-hidden flex flex-col h-full border-l-4 ${categoryColors.border} hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group`}>
+    <div className={`card-base rounded-2xl bg-card overflow-hidden flex flex-col border-l-4 ${categoryColors.border} hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group`}>
       {noticia.imagem_url && (
         <div className="w-full h-48 overflow-hidden">
           <img 
