@@ -227,11 +227,17 @@ function calculateReadingTime(content) {
   return `${minutes} min`;
 }
 
-// Check if content is AI-relevant
-function isAIRelevant(title, content) {
+// Check if content is AI-relevant (skip for AI-specific sources)
+function isAIRelevant(title, content, source) {
+  // AI-specific news sources - all articles are relevant
+  const aiSpecificSources = ['AI News Brasil', 'IA Brasil Notícias'];
+  if (aiSpecificSources.includes(source)) {
+    return true; // All articles from AI-specific sources are relevant
+  }
+  
   const text = `${title} ${content}`.toLowerCase();
   
-  // AI/ML terms that should be present
+  // AI/ML terms that should be present (for general tech sources)
   const aiTerms = [
     // Core AI terms
     'inteligência artificial', 'artificial intelligence', 'ia generativa',
@@ -290,7 +296,7 @@ async function fetchFeedNews(feed) {
       const content = item.contentSnippet || item.content || item.summary || '';
       
       // Filter for AI-relevant content
-      if (!isAIRelevant(item.title, content)) {
+      if (!isAIRelevant(item.title, content, feed.source)) {
         console.log(`  [SKIP] Not AI-relevant: ${item.title}`);
         continue;
       }
