@@ -127,7 +127,6 @@ export const useEventos = () => {
       // Map database fields to component format
       return data.map((evento: any) => ({
         ...evento,
-        nivel: evento.nivel || 'Intermediário',
       }));
     },
   });
