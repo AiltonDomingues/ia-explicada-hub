@@ -45,7 +45,7 @@ const AdminEventos = () => {
     data: "",
     local: "",
     tipo: "Conferência",
-    nivel: "Intermediário",
+    nivel: "todos",
     banner: "",
     link: "",
     organizador: "",
@@ -55,7 +55,8 @@ const AdminEventos = () => {
     e.preventDefault();
 
     try {
-      const { id, ...data } = formData;
+      const { id, ...rest } = formData;
+      const data = { ...rest, nivel: rest.nivel === "todos" ? null : rest.nivel };
 
       let result;
       if (id) {
@@ -96,7 +97,7 @@ const AdminEventos = () => {
       data: evento.data,
       local: evento.local,
       tipo: evento.tipo,
-      nivel: evento.nivel || "Intermediário",
+      nivel: evento.nivel || "todos",
       banner: evento.banner,
       link: evento.link || "",
       organizador: evento.organizador || "",
@@ -134,7 +135,7 @@ const AdminEventos = () => {
       data: "",
       local: "",
       tipo: "Conferência",
-      nivel: "Intermediário",
+      nivel: "todos",
       banner: "",
       link: "",
       organizador: "",
@@ -240,7 +241,7 @@ const AdminEventos = () => {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="z-[300]">
                       <SelectItem value="Conferência">Conferência</SelectItem>
                       <SelectItem value="Workshop">Workshop</SelectItem>
                       <SelectItem value="Hackathon">Hackathon</SelectItem>
@@ -259,9 +260,10 @@ const AdminEventos = () => {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione o nível" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="z-[300]">
+                      <SelectItem value="todos">Todos os níveis</SelectItem>
                       <SelectItem value="Iniciante">Iniciante</SelectItem>
                       <SelectItem value="Intermediário">Intermediário</SelectItem>
                       <SelectItem value="Avançado">Avançado</SelectItem>

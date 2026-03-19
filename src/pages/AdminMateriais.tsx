@@ -170,7 +170,7 @@ const AdminMateriais = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[300]">
                     <SelectItem value="E-book">E-book</SelectItem>
                     <SelectItem value="Guia">Guia</SelectItem>
                     <SelectItem value="Podcast">Podcast</SelectItem>
@@ -237,7 +237,7 @@ const AdminMateriais = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o nível" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[300]">
                     <SelectItem value="Iniciante">Iniciante</SelectItem>
                     <SelectItem value="Intermediário">Intermediário</SelectItem>
                     <SelectItem value="Avançado">Avançado</SelectItem>

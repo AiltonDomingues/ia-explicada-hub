@@ -373,7 +373,7 @@ const AdminConceitos = () => {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[300]">
                   <SelectItem value="Iniciante">Iniciante</SelectItem>
                   <SelectItem value="Intermediário">Intermediário</SelectItem>
                   <SelectItem value="Avançado">Avançado</SelectItem>

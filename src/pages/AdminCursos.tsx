@@ -146,7 +146,7 @@ const AdminCursos = () => {
               Novo Curso
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
+          <DialogContent className="max-w-2xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>
                 {formData.id ? "Editar Curso" : "Novo Curso"}
@@ -194,12 +194,11 @@ const AdminCursos = () => {
                   onValueChange={(value) =>
                     setFormData({ ...formData, nivel: value })
                   }
-                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o nível" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[300]">
                     <SelectItem value="Iniciante">Iniciante</SelectItem>
                     <SelectItem value="Intermediário">Intermediário</SelectItem>
                     <SelectItem value="Avançado">Avançado</SelectItem>
@@ -271,12 +270,11 @@ const AdminCursos = () => {
                   onValueChange={(value) =>
                     setFormData({ ...formData, categoria: value })
                   }
-                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a categoria" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[300]">
                     <SelectItem value="Fundamentos">Fundamentos</SelectItem>
                     <SelectItem value="IA Generativa">IA Generativa</SelectItem>
                     <SelectItem value="Agentes de IA">Agentes de IA</SelectItem>

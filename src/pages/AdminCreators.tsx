@@ -357,7 +357,7 @@ const AdminCreators = () => {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[300]">
                     <SelectItem value="YouTube">YouTube</SelectItem>
                     <SelectItem value="Twitter">Twitter</SelectItem>
                     <SelectItem value="LinkedIn">LinkedIn</SelectItem>
