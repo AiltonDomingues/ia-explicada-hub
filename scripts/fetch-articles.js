@@ -168,11 +168,29 @@ function detectCategory(title, content) {
   return 'Inteligência Artificial';
 }
 
+// Translate text from English to Portuguese via MyMemory free API
+async function translateToPortuguese(text) {
+  if (!text) return '';
+  // Truncate to 500 chars to stay well within MyMemory free tier (5000 chars/day)
+  const truncated = text.substring(0, 500);
+  const encoded = encodeURIComponent(truncated);
+  const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|pt-BR`;
+  try {
+    const result = await httpGet(url);
+    if (result.responseStatus === 200 && result.responseData && result.responseData.translatedText) {
+      return result.responseData.translatedText;
+    }
+  } catch (e) {
+    console.error(`[TRANSLATE] Error translating: ${e.message}`);
+  }
+  return truncated; // fallback: return original
+}
+
 // Extract intelligent tags from content
-function extractTags(title, content) {
+function extractTags(title, content, fallbackCategory) {
   const text = `${title} ${content}`.toLowerCase();
   const tags = [];
-  
+
   // AI Models & Companies
   const aiKeywords = {
     'gpt-4|gpt-5|gpt': 'GPT',
@@ -187,38 +205,49 @@ function extractTags(title, content) {
     'pytorch': 'PyTorch',
     'hugging face|huggingface': 'Hugging Face'
   };
-  
-  // Technologies & Concepts (Portuguese + English)
+
+  // Technologies & Concepts
   const techKeywords = {
-    'llm|large language model|modelo de linguagem': 'LLM',
-    'machine learning|ml|aprendizado de máquina': 'Machine Learning',
-    'deep learning|aprendizado profundo': 'Deep Learning',
-    'neural network|rede neural|redes neurais': 'Redes Neurais',
+    'llm|large language model': 'LLM',
+    'machine learning': 'Machine Learning',
+    'deep learning': 'Deep Learning',
+    'neural network|neural net': 'Redes Neurais',
     'transformer': 'Transformers',
-    'generative ai|gen ai|ia generativa|generativa': 'IA Generativa',
-    'computer vision|visão computacional': 'Visão Computacional',
-    'nlp|natural language|processamento de linguagem': 'NLP',
-    'reinforcement learning|aprendizado por reforço': 'RL',
-    'supervised|supervisionado': 'Supervisionado',
-    'unsupervised|não supervisionado': 'Não Supervisionado',
-    'classification|classificação': 'Classificação',
-    'regression|regressão': 'Regressão',
-    'clustering|agrupamento': 'Clustering',
-    'python': 'Python',
-    'dataset|conjunto de dados': 'Dataset'
+    'generative|diffusion|gan|vae': 'IA Generativa',
+    'computer vision|image recognition|object detection': 'Visão Computacional',
+    'natural language|\bnlp\b|text classification|sentiment': 'NLP',
+    'reinforcement learning': 'RL',
+    'classification|classifier': 'Classificação',
+    'regression': 'Regressão',
+    'clustering|cluster': 'Clustering',
+    'optimization|gradient|loss function': 'Otimização',
+    'prediction|forecasting|forecast': 'Predição',
+    'algorithm|algoritmo': 'Algoritmos',
+    'dataset|benchmark|training data': 'Dataset',
+    'python|pytorch|keras|scikit': 'Python',
+    'healthcare|medical|clinical|diagnosis': 'IA na Saúde',
+    'robotic|autonomous|drone': 'Robótica',
+    'ethics|bias|fairness|explainab': 'Ética em IA',
+    'artificial intelligence|\bai\b': 'Inteligência Artificial'
   };
-  
+
   const allKeywords = { ...aiKeywords, ...techKeywords };
-  
+
   for (const [pattern, tag] of Object.entries(allKeywords)) {
     const regex = new RegExp(pattern, 'i');
     if (regex.test(text)) {
       tags.push(tag);
     }
   }
-  
-  // Remove duplicates and limit to 6 tags
-  return [...new Set(tags)].slice(0, 6);
+
+  const unique = [...new Set(tags)].slice(0, 6);
+
+  // Fallback: if no tags found, use the topic category as base tag
+  if (unique.length === 0 && fallbackCategory) {
+    return [fallbackCategory];
+  }
+
+  return unique;
 }
 
 // Extract author names from Semantic Scholar authors array
@@ -265,24 +294,36 @@ async function fetchSemanticScholarPapers(topic) {
   // API already returns by relevance; preserve that order
   console.log(`[FETCH] ${result.data.length} results -> ${filtered.length} from last 5 years with abstracts`);
 
-  return filtered.slice(0, limit).map(paper => {
+  const candidates = filtered.slice(0, limit);
+
+  // Translate abstracts sequentially to avoid rate limiting
+  const articles = [];
+  for (const paper of candidates) {
     const abstract = paper.abstract || '';
     const link = paper.url || `https://www.semanticscholar.org/paper/${paper.paperId}`;
     const words = abstract.split(/\s+/).length;
     const readingMinutes = Math.max(3, Math.ceil(words / 200));
 
-    return {
+    console.log(`  [TRANSLATE] ${paper.title.substring(0, 60)}...`);
+    const resumoPt = await translateToPortuguese(createSummary(abstract, 500) || abstract.substring(0, 500));
+
+    articles.push({
       titulo: paper.title,
       autor: extractAuthor(paper.authors),
-      resumo: createSummary(abstract, 300) || abstract.substring(0, 300),
+      resumo: resumoPt,
       categoria,
       data: paper.publicationDate || `${paper.year}-01-01`,
-      tags: extractTags(paper.title, abstract),
+      tags: extractTags(paper.title, abstract, categoria),
       tempo_leitura: `${readingMinutes} min`,
       link,
-      destaque: (paper.citationCount || 0) > 100
-    };
-  });
+      destaque: (paper.citationCount || 0) > 1000
+    });
+
+    // Small delay to respect MyMemory rate limits
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  return articles;
 }
 
 // Delete the N oldest articles to enforce the MAX_ARTICLES limit
