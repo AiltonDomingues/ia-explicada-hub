@@ -28,13 +28,20 @@ const NoticiasPage = () => {
   const [categoria, setCategoria] = useState("Todas as Categorias");
 
   const filtered = useMemo(() => {
-    return noticias.filter((n) => {
+    const results = noticias.filter((n) => {
       const matchSearch = n.titulo.toLowerCase().includes(search.toLowerCase()) ||
         n.descricao.toLowerCase().includes(search.toLowerCase());
       const matchCat = categoria === "Todas as Categorias" || n.categoria === categoria;
       return matchSearch && matchCat;
     });
-  }, [search, categoria]);
+    
+    // Sort: 1. Trending first, 2. Most recent
+    return results.sort((a, b) => {
+      if (a.trending && !b.trending) return -1;
+      if (!a.trending && b.trending) return 1;
+      return new Date(b.data).getTime() - new Date(a.data).getTime();
+    });
+  }, [search, categoria, noticias]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,18 +83,51 @@ const NoticiasPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {filtered.map((n) => (
-            <motion.div key={n.id} variants={itemVariants}>
-              <NoticiaCard noticia={n} />
+        {filtered.length > 0 && (
+          <>
+            {/* Featured News - Hero Section */}
+            <motion.div
+              className="mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full"></span>
+                Em Destaque
+              </h2>
+              <NoticiaCard noticia={filtered[0]} featured={true} />
             </motion.div>
-          ))}
-        </motion.div>
+
+            {/* Remaining News Grid */}
+            {filtered.length > 1 && (
+              <>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-primary rounded-full"></span>
+                  Mais Notícias
+                </h2>
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {filtered.slice(1).map((n) => (
+                    <motion.div key={n.id} variants={itemVariants}>
+                      <NoticiaCard noticia={n} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </>
+            )}
+          </>
+        )}
+        
+        {filtered.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">Nenhuma notícia encontrada</p>
+          </div>
+        )}
       </div>
       <Footer />
       <ScrollToTop />

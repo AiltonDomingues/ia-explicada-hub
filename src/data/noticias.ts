@@ -7,6 +7,8 @@ export interface Noticia {
   tags: string[];
   tempoLeitura: string;
   data: string;
+  link?: string;
+  imagem_url?: string;
 }
 
 export const noticias: Noticia[] = [

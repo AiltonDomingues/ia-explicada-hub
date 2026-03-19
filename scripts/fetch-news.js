@@ -25,10 +25,46 @@ const parser = new Parser({
   customFields: {
     item: [
       ['media:content', 'media'],
+      ['media:thumbnail', 'mediaThumbnail'],
+      ['enclosure', 'enclosure'],
       ['content:encoded', 'contentEncoded']
     ]
   }
 });
+
+// Extract image URL from RSS item
+function extractImageUrl(item) {
+  // Try different RSS image formats
+  
+  // 1. media:content (most common)
+  if (item.media && item.media.$ && item.media.$.url) {
+    return item.media.$.url;
+  }
+  
+  // 2. media:thumbnail
+  if (item.mediaThumbnail && item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
+    return item.mediaThumbnail.$.url;
+  }
+  
+  // 3. enclosure (podcasts/RSS 2.0)
+  if (item.enclosure && item.enclosure.url && item.enclosure.type?.startsWith('image/')) {
+    return item.enclosure.url;
+  }
+  
+  // 4. Look for <img> in content
+  const content = item.contentEncoded || item.content || '';
+  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch && imgMatch[1]) {
+    return imgMatch[1];
+  }
+  
+  // 5. itunes:image (some RSS feeds)
+  if (item.itunes && item.itunes.image) {
+    return item.itunes.image;
+  }
+  
+  return null;
+}
 
 // Extract clean text from HTML
 function stripHtml(html) {
@@ -227,6 +263,34 @@ function calculateReadingTime(content) {
   return `${minutes} min`;
 }
 
+// Determine if article should be featured/trending
+function isTrending(title, content, category, pubDate) {
+  const text = `${title} ${content}`.toLowerCase();
+  const articleDate = pubDate ? new Date(pubDate) : new Date();
+  const now = new Date();
+  const hoursAgo = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
+  
+  // Very recent news (< 6 hours) = trending
+  if (hoursAgo < 6) return true;
+  
+  // Priority categories
+  const priorityCategories = ['IA Generativa', 'Lançamentos', 'Pesquisa', 'Regulação'];
+  if (priorityCategories.includes(category) && hoursAgo < 12) return true;
+  
+  // High-impact keywords in title
+  const trendingKeywords = [
+    'gpt-5', 'gpt-4', 'chatgpt', 'openai', 'google', 'microsoft', 'meta',
+    'lança', 'anuncia', 'lançamento', 'novo modelo', 'nova ia',
+    'breakthrough', 'revolucion', 'inédito', 'exclusiv',
+    'proibi', 'regulament', 'lei', 'multa'
+  ];
+  
+  const hasTrendingKeyword = trendingKeywords.some(keyword => text.includes(keyword));
+  if (hasTrendingKeyword && hoursAgo < 24) return true;
+  
+  return false;
+}
+
 // Check if content is AI-relevant (skip for AI-specific sources)
 function isAIRelevant(title, content, source) {
   // AI-specific news sources - all articles are relevant
@@ -316,19 +380,22 @@ async function fetchFeedNews(feed) {
       
       if (!descricao || descricao.length < 30) continue; // Skip if no proper description
       
+      const categoria = detectCategory(item.title, content);
+      
       const article = {
         titulo: item.title,
         descricao: descricao,
         data: item.pubDate ? new Date(item.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        categoria: detectCategory(item.title, content),
+        categoria: categoria,
         link: item.link,
         tags: extractTags(item.title, content, feed.source),
         tempo_leitura: calculateReadingTime(content),
-        trending: false
+        trending: isTrending(item.title, content, categoria, item.pubDate),
+        imagem_url: extractImageUrl(item)
       };
       
       articles.push(article);
-      console.log(`  [NEW] ${item.title}`);
+      console.log(`  [NEW] ${item.title}${article.trending ? ' 🔥 TRENDING' : ''}`);
     }
     
     return articles;
