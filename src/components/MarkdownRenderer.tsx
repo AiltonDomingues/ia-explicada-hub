@@ -34,11 +34,17 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               {children}
             </h3>
           ),
-          p: ({ children }) => (
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              {children}
-            </p>
-          ),
+          p: ({ children }) => {
+            const filtered = Array.isArray(children)
+              ? children.filter((c) => c !== undefined && c !== null)
+              : children;
+            if (filtered === undefined || filtered === null || (Array.isArray(filtered) && filtered.length === 0)) return null;
+            return (
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {filtered}
+              </p>
+            );
+          },
           code: ({ className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return match ? (
