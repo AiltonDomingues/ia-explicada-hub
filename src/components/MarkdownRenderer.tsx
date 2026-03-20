@@ -34,11 +34,18 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               {children}
             </h3>
           ),
-          p: ({ children }) => (
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              {children}
-            </p>
-          ),
+          p: ({ children }) => {
+            // Filtrar apenas strings "undefined" de arrays
+            const cleanChildren = Array.isArray(children)
+              ? children.filter(child => !(typeof child === 'string' && child.trim() === 'undefined'))
+              : children;
+            
+            return (
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {cleanChildren}
+              </p>
+            );
+          },
           code: ({ className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return match ? (
