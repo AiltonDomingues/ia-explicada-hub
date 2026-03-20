@@ -175,6 +175,41 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               </td>
             );
           },
+          tbody: ({ children }) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <tbody>{filtered}</tbody>;
+          },
+          thead: ({ children }) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <thead>{filtered}</thead>;
+          },
+          tr: ({ children }) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <tr>{filtered}</tr>;
+          },
+          div: ({ children, ...props }: any) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <div {...props}>{filtered}</div>;
+          },
+          span: ({ children, ...props }: any) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <span {...props}>{filtered}</span>;
+          },
+          strong: ({ children }) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <strong>{filtered}</strong>;
+          },
+          em: ({ children }) => {
+            const filtered = filterChildren(children);
+            if (!filtered) return null;
+            return <em>{filtered}</em>;
+          },
         }}
       >
         {content}
