@@ -273,7 +273,6 @@ const ConceitosPage = () => {
                   </div>
 
                   {/* Conteúdo em Markdown */}
-                  {console.log('Conceito:', selectedConceito.titulo, 'Tamanho:', selectedConceito.conteudo.length, 'chars')}
                   <MarkdownRenderer content={selectedConceito.conteudo} />
                 </div>
               ) : (
