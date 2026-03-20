@@ -91,6 +91,7 @@ const AdminConceitos = () => {
   const [formData, setFormData] = useState({
     titulo: "",
     area: "",
+    subarea: "",
     conteudo: "",
     tags: "",
     ordem: 0,
@@ -109,6 +110,7 @@ const AdminConceitos = () => {
       const payload = {
         titulo: data.titulo,
         area: data.area,
+        subarea: data.subarea || null,
         conteudo: data.conteudo,
         slug,
         tags: tagsArray,
@@ -174,6 +176,7 @@ const AdminConceitos = () => {
     setFormData({
       titulo: "",
       area: "",
+      subarea: "",
       conteudo: "",
       tags: "",
       ordem: 0,
@@ -187,6 +190,7 @@ const AdminConceitos = () => {
     setFormData({
       titulo: conceito.titulo,
       area: conceito.area,
+      subarea: conceito.subarea || "",
       conteudo: conceito.conteudo,
       tags: conceito.tags.join(", "),
       ordem: conceito.ordem,
@@ -263,7 +267,10 @@ const AdminConceitos = () => {
                     >
                       <div className="flex-1">
                         <h3 className="font-medium">{conceito.titulo}</h3>
-                        <div className="flex items-center gap-2 mt-2">
+                        {conceito.subarea && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{conceito.subarea}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
                           {conceito.tags.map((tag, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
                               {tag}
@@ -339,6 +346,18 @@ const AdminConceitos = () => {
                   placeholder="Ex: Deep Learning"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="subarea">
+                Subárea <span className="text-muted-foreground text-xs">(opcional)</span>
+              </Label>
+              <Input
+                id="subarea"
+                value={formData.subarea}
+                onChange={(e) => setFormData({ ...formData, subarea: e.target.value })}
+                placeholder="Ex: Álgebra Linear"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

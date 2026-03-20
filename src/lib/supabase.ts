@@ -70,6 +70,7 @@ export type Conceito = {
   id: string;
   titulo: string;
   area: string;
+  subarea?: string;
   conteudo: string;
   slug: string;
   tags: string[];

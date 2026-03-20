@@ -69,49 +69,34 @@ const ConceitosPage = () => {
 
   const niveis = ["Todos os Níveis", ...Array.from(new Set(conceitos.filter(c => c.nivel).map(c => c.nivel!)))];
 
-  // Agrupar conceitos por área
-  const conceitosPorArea = useMemo(() => {
-    const grupos: Record<string, Conceito[]> = {};
-    
-    conceitos.forEach((conceito) => {
-      if (!grupos[conceito.area]) {
-        grupos[conceito.area] = [];
-      }
-      grupos[conceito.area].push(conceito);
-    });
-
-    return grupos;
-  }, [conceitos]);
-
-  // Filtrar conceitos por busca e nível
-  const conceitosFiltrados = useMemo(() => {
+  // Filtrar conceitos (flat) por busca e nível
+  const filteredFlat = useMemo(() => {
     const query = searchQuery.toLowerCase();
-    const filtrados: Record<string, Conceito[]> = {};
-
-    Object.entries(conceitosPorArea).forEach(([area, conceitosArea]) => {
-      const matches = conceitosArea.filter(
-        (c) => {
-          const matchSearch = !searchQuery.trim() || 
-            c.titulo.toLowerCase().includes(query) ||
-            c.area.toLowerCase().includes(query) ||
-            c.conteudo.toLowerCase().includes(query) ||
-            c.tags.some((tag) => tag.toLowerCase().includes(query));
-          
-          const matchNivel = nivelFilter === "Todos os Níveis" || c.nivel === nivelFilter;
-          
-          return matchSearch && matchNivel;
-        }
-      );
-
-      if (matches.length > 0) {
-        filtrados[area] = matches;
-      }
+    return conceitos.filter((c) => {
+      const matchSearch = !searchQuery.trim() ||
+        c.titulo.toLowerCase().includes(query) ||
+        c.area.toLowerCase().includes(query) ||
+        (c.subarea?.toLowerCase().includes(query) ?? false) ||
+        c.conteudo.toLowerCase().includes(query) ||
+        c.tags.some((tag) => tag.toLowerCase().includes(query));
+      const matchNivel = nivelFilter === "Todos os Níveis" || c.nivel === nivelFilter;
+      return matchSearch && matchNivel;
     });
+  }, [conceitos, searchQuery, nivelFilter]);
 
-    return filtrados;
-  }, [conceitosPorArea, searchQuery, nivelFilter]);
+  // Agrupar em 2 níveis: area → subarea → conceitos
+  const conceitosGrouped = useMemo(() => {
+    const groups: Record<string, Record<string, Conceito[]>> = {};
+    filteredFlat.forEach((c) => {
+      if (!groups[c.area]) groups[c.area] = {};
+      const sub = c.subarea || "";
+      if (!groups[c.area][sub]) groups[c.area][sub] = [];
+      groups[c.area][sub].push(c);
+    });
+    return groups;
+  }, [filteredFlat]);
 
-  const areas = Object.keys(conceitosFiltrados).sort();
+  const areas = Object.keys(conceitosGrouped).sort();
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,7 +150,7 @@ const ConceitosPage = () => {
           </Button>
         </div>
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Encontrados <span className="text-primary font-bold">{Object.values(conceitosFiltrados).flat().length}</span> conceitos
+          Encontrados <span className="text-primary font-bold">{filteredFlat.length}</span> conceitos
         </p>
       </div>
 
@@ -196,26 +181,55 @@ const ConceitosPage = () => {
                             <ChevronRight className="w-4 h-4" />
                             <span className="font-semibold text-sm">{area}</span>
                             <Badge variant="secondary" className="ml-auto">
-                              {conceitosFiltrados[area].length}
+                              {Object.values(conceitosGrouped[area]).flat().length}
                             </Badge>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-2">
-                          <div className="space-y-1">
-                            {conceitosFiltrados[area].map((conceito) => (
-                              <button
-                                key={conceito.id}
-                                onClick={() => setSelectedConceito(conceito)}
-                                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                                  selectedConceito?.id === conceito.id
-                                    ? "bg-primary text-primary-foreground"
-                                    : "hover:bg-muted text-muted-foreground"
-                                }`}
-                              >
-                                {conceito.titulo}
-                              </button>
+                          {/* Conceitos sem subarea */}
+                          {conceitosGrouped[area][""]?.length > 0 && (
+                            <div className="space-y-1 mb-1">
+                              {conceitosGrouped[area][""].map((conceito) => (
+                                <button
+                                  key={conceito.id}
+                                  onClick={() => setSelectedConceito(conceito)}
+                                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                                    selectedConceito?.id === conceito.id
+                                      ? "bg-primary text-primary-foreground"
+                                      : "hover:bg-muted text-muted-foreground"
+                                  }`}
+                                >
+                                  {conceito.titulo}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          {/* Subareas */}
+                          {Object.entries(conceitosGrouped[area])
+                            .filter(([sub]) => sub !== "")
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([subarea, items]) => (
+                              <div key={subarea} className="mt-2">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-3 py-1 border-t border-border/50 pt-2">
+                                  {subarea}
+                                </p>
+                                <div className="space-y-1">
+                                  {items.map((conceito) => (
+                                    <button
+                                      key={conceito.id}
+                                      onClick={() => setSelectedConceito(conceito)}
+                                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                                        selectedConceito?.id === conceito.id
+                                          ? "bg-primary text-primary-foreground"
+                                          : "hover:bg-muted text-muted-foreground"
+                                      }`}
+                                    >
+                                      {conceito.titulo}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                             ))}
-                          </div>
                         </AccordionContent>
                       </AccordionItem>
                     ))}
@@ -232,6 +246,9 @@ const ConceitosPage = () => {
                   <div className="mb-6 border-b border-border pb-4">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <Badge className="bg-primary/10 text-primary border-primary/20">{selectedConceito.area}</Badge>
+                      {selectedConceito.subarea && (
+                        <Badge variant="outline" className="text-xs">{selectedConceito.subarea}</Badge>
+                      )}
                       {selectedConceito.nivel && (() => {
                         const nivelStyles = getNivelStyles(selectedConceito.nivel);
                         return (
