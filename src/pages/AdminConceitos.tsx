@@ -85,8 +85,10 @@ const AdminConceitos = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [editingConceito, setEditingConceito] = useState<Conceito | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [previewConceito, setPreviewConceito] = useState<Conceito | null>(null);
 
   const [formData, setFormData] = useState({
     titulo: "",
@@ -204,6 +206,11 @@ const AdminConceitos = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handlePreview = (conceito: Conceito) => {
+    setPreviewConceito(conceito);
+    setIsPreviewDialogOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate(formData);
@@ -263,37 +270,45 @@ const AdminConceitos = () => {
                   {conceitosArea.map((conceito) => (
                     <div
                       key={conceito.id}
-                      className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                      className="p-4 flex items-start gap-4 hover:bg-muted/50 transition-colors"
                     >
-                      <div className="flex-1">
-                        <h3 className="font-medium">{conceito.titulo}</h3>
-                        {conceito.subarea && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{conceito.subarea}</p>
-                        )}
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          {conceito.tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {conceito.nivel && (
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
-                            >
-                              {conceito.nivel}
-                            </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            Ordem: {conceito.ordem}
-                          </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1">
+                            <h3 className="font-medium text-base">{conceito.titulo}</h3>
+                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                              <Badge variant="outline" className="text-xs">
+                                {conceito.area}{conceito.subarea ? ` › ${conceito.subarea}` : ''}
+                              </Badge>
+                              {conceito.nivel && (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
+                                >
+                                  {conceito.nivel}
+                                </Badge>
+                              )}
+                              <span className="text-xs text-muted-foreground">
+                                #{conceito.ordem}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handlePreview(conceito)}
+                          title="Visualizar conteúdo"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(conceito)}
+                          title="Editar"
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -301,6 +316,7 @@ const AdminConceitos = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(conceito.id)}
+                          title="Deletar"
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
@@ -468,6 +484,33 @@ def sigmoid(x):
               </Button>
             </DialogFooter>
           </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Preview */}
+      <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>{previewConceito?.titulo}</DialogTitle>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-xs">
+                {previewConceito?.area}{previewConceito?.subarea ? ` › ${previewConceito?.subarea}` : ''}
+              </Badge>
+              {previewConceito?.nivel && (
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${getNivelStyles(previewConceito.nivel).bg} ${getNivelStyles(previewConceito.nivel).text} ${getNivelStyles(previewConceito.nivel).border}`}
+                >
+                  {previewConceito.nivel}
+                </Badge>
+              )}
+            </div>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
+            {previewConceito && (
+              <MarkdownRenderer content={previewConceito.conteudo} />
+            )}
           </div>
         </DialogContent>
       </Dialog>
