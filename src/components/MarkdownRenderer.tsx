@@ -15,10 +15,18 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
   // Função auxiliar para filtrar undefined/null de children
   const filterChildren = (children: any) => {
     if (Array.isArray(children)) {
-      const filtered = children.filter((c) => c !== undefined && c !== null);
+      const filtered = children.filter((c) => {
+        // Remove undefined, null, e strings "undefined"
+        if (c === undefined || c === null) return false;
+        if (typeof c === 'string' && c.trim() === 'undefined') return false;
+        return true;
+      });
       return filtered.length > 0 ? filtered : null;
     }
-    return children !== undefined && children !== null ? children : null;
+    // Remove undefined, null, e strings "undefined"
+    if (children === undefined || children === null) return null;
+    if (typeof children === 'string' && children.trim() === 'undefined') return null;
+    return children;
   };
 
   return (
