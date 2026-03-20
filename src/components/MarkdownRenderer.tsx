@@ -12,19 +12,19 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) => {
-  // Função auxiliar para filtrar undefined/null de children
+  // Função auxiliar para filtrar apenas "undefined" strings
   const filterChildren = (children: any) => {
+    if (!children) return children;
+    
     if (Array.isArray(children)) {
-      const filtered = children.filter((c) => {
-        // Remove undefined, null, e strings "undefined"
-        if (c === undefined || c === null) return false;
+      return children.filter((c) => {
+        // Remove apenas strings "undefined" - mantém todo o resto
         if (typeof c === 'string' && c.trim() === 'undefined') return false;
         return true;
       });
-      return filtered.length > 0 ? filtered : null;
     }
-    // Remove undefined, null, e strings "undefined"
-    if (children === undefined || children === null) return null;
+    
+    // Remove apenas strings "undefined" 
     if (typeof children === 'string' && children.trim() === 'undefined') return null;
     return children;
   };
@@ -36,42 +36,26 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
         rehypePlugins={[rehypeKatex, rehypeHighlight]}
         components={{
           // Customizar renderização de elementos específicos
-          h1: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <h1 className="text-3xl font-bold text-foreground mt-8 mb-4 border-b border-border pb-2">
-                {filtered}
-              </h1>
-            );
-          },
-          h2: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <h2 className="text-2xl font-semibold text-foreground mt-6 mb-3">
-                {filtered}
-              </h2>
-            );
-          },
-          h3: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
-                {filtered}
-              </h3>
-            );
-          },
-          p: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                {filtered}
-              </p>
-            );
-          },
+          h1: ({ children }) => (
+            <h1 className="text-3xl font-bold text-foreground mt-8 mb-4 border-b border-border pb-2">
+              {filterChildren(children)}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-2xl font-semibold text-foreground mt-6 mb-3">
+              {filterChildren(children)}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
+              {filterChildren(children)}
+            </h3>
+          ),
+          p: ({ children }) => (
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {filterChildren(children)}
+            </p>
+          ),
           code: ({ className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return match ? (
@@ -84,61 +68,39 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               </code>
             );
           },
-          pre: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4 border border-border">
-                {filtered}
-              </pre>
-            );
-          },
-          blockquote: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
-                {filtered}
-              </blockquote>
-            );
-          },
-          ul: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <ul className="list-disc pl-6 mb-4 space-y-2 text-muted-foreground">
-                {filtered}
-              </ul>
-            );
-          },
-          ol: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <ol className="list-decimal pl-6 mb-4 space-y-2 text-muted-foreground">
-                {filtered}
-              </ol>
-            );
-          },
-          li: ({ children, ...props }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <li {...props}>{filtered}</li>;
-          },
-          a: ({ href, children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <a
-                href={href}
-                className="text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {filtered}
-              </a>
-            );
-          },
+          pre: ({ children }) => (
+            <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4 border border-border">
+              {filterChildren(children)}
+            </pre>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
+              {filterChildren(children)}
+            </blockquote>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc pl-6 mb-4 space-y-2 text-muted-foreground">
+              {filterChildren(children)}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal pl-6 mb-4 space-y-2 text-muted-foreground">
+              {filterChildren(children)}
+            </ol>
+          ),
+          li: ({ children, ...props }) => (
+            <li {...props}>{filterChildren(children)}</li>
+          ),
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {filterChildren(children)}
+            </a>
+          ),
           img: ({ src, alt }) => (
             <img
               src={src}
@@ -146,70 +108,30 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               className="rounded-lg max-w-full h-auto my-4 border border-border"
             />
           ),
-          table: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <div className="overflow-x-auto my-4">
-                <table className="min-w-full border-collapse border border-border">
-                  {filtered}
-                </table>
-              </div>
-            );
-          },
-          th: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <th className="border border-border bg-muted px-4 py-2 text-left font-semibold">
-                {filtered}
-              </th>
-            );
-          },
-          td: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return (
-              <td className="border border-border px-4 py-2">
-                {filtered}
-              </td>
-            );
-          },
-          tbody: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <tbody>{filtered}</tbody>;
-          },
-          thead: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <thead>{filtered}</thead>;
-          },
-          tr: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <tr>{filtered}</tr>;
-          },
-          div: ({ children, ...props }: any) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <div {...props}>{filtered}</div>;
-          },
-          span: ({ children, ...props }: any) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <span {...props}>{filtered}</span>;
-          },
-          strong: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <strong>{filtered}</strong>;
-          },
-          em: ({ children }) => {
-            const filtered = filterChildren(children);
-            if (!filtered) return null;
-            return <em>{filtered}</em>;
-          },
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-4">
+              <table className="min-w-full border-collapse border border-border">
+                {filterChildren(children)}
+              </table>
+            </div>
+          ),
+          th: ({ children }) => (
+            <th className="border border-border bg-muted px-4 py-2 text-left font-semibold">
+              {filterChildren(children)}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="border border-border px-4 py-2">
+              {filterChildren(children)}
+            </td>
+          ),
+          tbody: ({ children }) => <tbody>{filterChildren(children)}</tbody>,
+          thead: ({ children }) => <thead>{filterChildren(children)}</thead>,
+          tr: ({ children }) => <tr>{filterChildren(children)}</tr>,
+          div: ({ children, ...props }: any) => <div {...props}>{filterChildren(children)}</div>,
+          span: ({ children, ...props }: any) => <span {...props}>{filterChildren(children)}</span>,
+          strong: ({ children }) => <strong>{filterChildren(children)}</strong>,
+          em: ({ children }) => <em>{filterChildren(children)}</em>,
         }}
       >
         {content}
