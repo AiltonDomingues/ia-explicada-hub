@@ -16,7 +16,15 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
     <div className={`prose prose-slate dark:prose-invert max-w-none ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeHighlight]}
+        rehypePlugins={[
+          [rehypeKatex, { 
+            strict: false,
+            throwOnError: false,
+            errorColor: '#cc0000',
+            trust: true
+          }],
+          rehypeHighlight
+        ]}
         components={{
           // Customizar renderização de elementos específicos
           h1: ({ children }) => (
@@ -34,18 +42,11 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               {children}
             </h3>
           ),
-          p: ({ children }) => {
-            // Filtrar apenas strings "undefined" de arrays
-            const cleanChildren = Array.isArray(children)
-              ? children.filter(child => !(typeof child === 'string' && child.trim() === 'undefined'))
-              : children;
-            
-            return (
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                {cleanChildren}
-              </p>
-            );
-          },
+          p: ({ children }) => (
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {children}
+            </p>
+          ),
           code: ({ className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return match ? (
