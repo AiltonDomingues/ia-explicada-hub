@@ -168,72 +168,155 @@ const ConceitosPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Sidebar - Lista de conceitos */}
+            {/* Sidebar - Lista hierárquica de conceitos */}
             <div className="lg:col-span-1">
               <div className="sticky top-20">
-                {/* Áreas e Conceitos */}
-                <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-                  <Accordion type="multiple" defaultValue={areas} className="w-full">
-                    {areas.map((area) => (
-                      <AccordionItem key={area} value={area}>
-                        <AccordionTrigger className="px-4 py-3 hover:bg-muted/50">
-                          <div className="flex items-center gap-2">
-                            <ChevronRight className="w-4 h-4" />
-                            <span className="font-semibold text-sm">{area}</span>
-                            <Badge variant="secondary" className="ml-auto">
-                              {Object.values(conceitosGrouped[area]).flat().length}
-                            </Badge>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-2">
-                          {/* Conceitos sem subarea */}
-                          {conceitosGrouped[area][""]?.length > 0 && (
-                            <div className="space-y-1 mb-1">
-                              {conceitosGrouped[area][""].map((conceito) => (
-                                <button
-                                  key={conceito.id}
-                                  onClick={() => setSelectedConceito(conceito)}
-                                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                                    selectedConceito?.id === conceito.id
-                                      ? "bg-primary text-primary-foreground"
-                                      : "hover:bg-muted text-muted-foreground"
-                                  }`}
-                                >
-                                  {conceito.titulo}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          {/* Subareas */}
-                          {Object.entries(conceitosGrouped[area])
-                            .filter(([sub]) => sub !== "")
-                            .sort(([a], [b]) => a.localeCompare(b))
-                            .map(([subarea, items]) => (
-                              <div key={subarea} className="mt-2">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-3 py-1 border-t border-border/50 pt-2">
-                                  {subarea}
-                                </p>
-                                <div className="space-y-1">
-                                  {items.map((conceito) => (
-                                    <button
-                                      key={conceito.id}
-                                      onClick={() => setSelectedConceito(conceito)}
-                                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                                        selectedConceito?.id === conceito.id
-                                          ? "bg-primary text-primary-foreground"
-                                          : "hover:bg-muted text-muted-foreground"
-                                      }`}
-                                    >
-                                      {conceito.titulo}
-                                    </button>
-                                  ))}
+                <div className="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-3 border-b border-border">
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <Book className="w-4 h-4" />
+                      Índice de Conceitos
+                    </h3>
+                  </div>
+                  <div className="max-h-[calc(100vh-180px)] overflow-y-auto">
+                    <Accordion type="multiple" defaultValue={areas} className="w-full">
+                      {areas.map((area) => {
+                        const totalConceitos = Object.values(conceitosGrouped[area]).flat().length;
+                        const subareas = Object.entries(conceitosGrouped[area])
+                          .filter(([sub]) => sub !== "")
+                          .sort(([a], [b]) => a.localeCompare(b));
+                        const conceitosSemSubarea = conceitosGrouped[area][""] || [];
+
+                        return (
+                          <AccordionItem key={area} value={area} className="border-b border-border/50">
+                            <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 hover:no-underline group">
+                              <div className="flex items-center gap-2 flex-1">
+                                <div className="flex items-center gap-2 flex-1">
+                                  <span className="font-semibold text-sm group-hover:text-primary transition-colors">
+                                    {area}
+                                  </span>
                                 </div>
+                                <Badge variant="secondary" className="text-xs">
+                                  {totalConceitos}
+                                </Badge>
                               </div>
-                            ))}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-0">
+                              {/* Se há subáreas, usar accordion aninhado */}
+                              {subareas.length > 0 ? (
+                                <Accordion type="multiple" className="pl-2">
+                                  {/* Conceitos sem subárea primeiro */}
+                                  {conceitosSemSubarea.length > 0 && (
+                                    <div className="pb-2 border-b border-border/30">
+                                      <div className="space-y-1 px-2">
+                                        {conceitosSemSubarea
+                                          .sort((a, b) => a.ordem - b.ordem)
+                                          .map((conceito) => (
+                                            <button
+                                              key={conceito.id}
+                                              onClick={() => setSelectedConceito(conceito)}
+                                              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all ${
+                                                selectedConceito?.id === conceito.id
+                                                  ? "bg-primary text-primary-foreground shadow-sm"
+                                                  : "hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                                              }`}
+                                            >
+                                              <div className="flex items-center gap-2">
+                                                <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                                <span className="flex-1">{conceito.titulo}</span>
+                                                {conceito.nivel && (
+                                                  <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
+                                                    {conceito.nivel.charAt(0)}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </button>
+                                          ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {/* Subáreas */}
+                                  {subareas.map(([subarea, items]) => (
+                                    <AccordionItem
+                                      key={`${area}-${subarea}`}
+                                      value={`${area}-${subarea}`}
+                                      className="border-0"
+                                    >
+                                      <AccordionTrigger className="px-3 py-2 hover:bg-muted/50 hover:no-underline text-xs">
+                                        <div className="flex items-center gap-2 flex-1">
+                                          <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                          <span className="font-medium text-muted-foreground">
+                                            {subarea}
+                                          </span>
+                                          <Badge variant="outline" className="text-xs ml-auto">
+                                            {items.length}
+                                          </Badge>
+                                        </div>
+                                      </AccordionTrigger>
+                                      <AccordionContent className="pb-2">
+                                        <div className="space-y-1 pl-4">
+                                          {items
+                                            .sort((a, b) => a.ordem - b.ordem)
+                                            .map((conceito) => (
+                                              <button
+                                                key={conceito.id}
+                                                onClick={() => setSelectedConceito(conceito)}
+                                                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all ${
+                                                  selectedConceito?.id === conceito.id
+                                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                                    : "hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                                                }`}
+                                              >
+                                                <div className="flex items-center gap-2">
+                                                  <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                                  <span className="flex-1">{conceito.titulo}</span>
+                                                  {conceito.nivel && (
+                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
+                                                      {conceito.nivel.charAt(0)}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </button>
+                                            ))}
+                                        </div>
+                                      </AccordionContent>
+                                    </AccordionItem>
+                                  ))}
+                                </Accordion>
+                              ) : (
+                                // Se não há subáreas, mostrar conceitos direto
+                                <div className="space-y-1 px-2 pb-2">
+                                  {conceitosSemSubarea
+                                    .sort((a, b) => a.ordem - b.ordem)
+                                    .map((conceito) => (
+                                      <button
+                                        key={conceito.id}
+                                        onClick={() => setSelectedConceito(conceito)}
+                                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all ${
+                                          selectedConceito?.id === conceito.id
+                                            ? "bg-primary text-primary-foreground shadow-sm"
+                                            : "hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                          <span className="flex-1">{conceito.titulo}</span>
+                                          {conceito.nivel && (
+                                            <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
+                                              {conceito.nivel.charAt(0)}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </button>
+                                    ))}
+                                </div>
+                              )}
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,30 +324,40 @@ const ConceitosPage = () => {
             {/* Conteúdo - Conceito selecionado */}
             <div className="lg:col-span-2">
               {selectedConceito ? (
-                <div className="bg-card border border-border rounded-lg shadow-sm p-6">
-                  {/* Header do conceito */}
-                  <div className="mb-6 border-b border-border pb-4">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <Badge className="bg-primary/10 text-primary border-primary/20">{selectedConceito.area}</Badge>
+                <div className="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+                  {/* Header do conceito com gradiente */}
+                  <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-5 border-b border-border">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                      <Badge className="bg-primary/20 text-primary border-primary/30 font-medium">
+                        {selectedConceito.area}
+                      </Badge>
                       {selectedConceito.subarea && (
-                        <Badge variant="outline" className="text-xs">{selectedConceito.subarea}</Badge>
+                        <>
+                          <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                          <Badge variant="outline" className="text-xs font-medium">
+                            {selectedConceito.subarea}
+                          </Badge>
+                        </>
                       )}
                       {selectedConceito.nivel && (() => {
                         const nivelStyles = getNivelStyles(selectedConceito.nivel);
                         return (
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${nivelStyles.bg} ${nivelStyles.text}`}>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs font-medium ml-auto ${nivelStyles.bg} ${nivelStyles.text} ${nivelStyles.border}`}
+                          >
                             {selectedConceito.nivel}
-                          </span>
+                          </Badge>
                         );
                       })()}
                     </div>
-                    <h1 className="text-3xl font-bold text-foreground">
+                    <h1 className="text-3xl font-bold text-foreground mb-3">
                       {selectedConceito.titulo}
                     </h1>
                     {selectedConceito.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
+                      <div className="flex flex-wrap gap-2">
                         {selectedConceito.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline">
+                          <Badge key={index} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
                         ))}
@@ -273,13 +366,20 @@ const ConceitosPage = () => {
                   </div>
 
                   {/* Conteúdo em Markdown */}
-                  <MarkdownRenderer content={selectedConceito.conteudo} />
+                  <div className="p-6">
+                    <MarkdownRenderer content={selectedConceito.conteudo} />
+                  </div>
                 </div>
               ) : (
-                <div className="bg-card border border-border rounded-lg shadow-sm p-12 text-center">
-                  <Book className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-lg text-muted-foreground">
-                    Selecione um conceito na barra lateral para visualizar
+                <div className="bg-card border border-border rounded-lg shadow-lg p-12 text-center">
+                  <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Book className="w-10 h-10 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    Selecione um Conceito
+                  </h3>
+                  <p className="text-muted-foreground max-w-sm mx-auto">
+                    Navegue pela barra lateral e escolha um conceito para visualizar seu conteúdo completo
                   </p>
                 </div>
               )}
