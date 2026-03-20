@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Eye, Save, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Save, X, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useConceitos } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -10,6 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Dialog,
   DialogContent,
@@ -216,14 +222,25 @@ const AdminConceitos = () => {
     saveMutation.mutate(formData);
   };
 
-  // Agrupar conceitos por área
-  const conceitosPorArea = conceitos.reduce((acc: Record<string, Conceito[]>, conceito) => {
-    if (!acc[conceito.area]) {
-      acc[conceito.area] = [];
-    }
-    acc[conceito.area].push(conceito);
-    return acc;
-  }, {});
+  // Agrupar conceitos em hierarquia: área → subárea → conceitos
+  const hierarquia = useMemo(() => {
+    const resultado: Record<string, Record<string, Conceito[]>> = {};
+    
+    conceitos.forEach((conceito) => {
+      const area = conceito.area;
+      const subarea = conceito.subarea || "Sem Subárea";
+      
+      if (!resultado[area]) {
+        resultado[area] = {};
+      }
+      if (!resultado[area][subarea]) {
+        resultado[area][subarea] = [];
+      }
+      resultado[area][subarea].push(conceito);
+    });
+    
+    return resultado;
+  }, [conceitos]);
 
   return (
     <div className="space-y-6">
@@ -247,7 +264,7 @@ const AdminConceitos = () => {
         </Button>
       </div>
 
-      {/* Lista de conceitos agrupados por área */}
+      {/* Hierarquia expansível: Área → Subárea → Conceitos */}
       {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -257,76 +274,119 @@ const AdminConceitos = () => {
           <p className="text-muted-foreground">Nenhum conceito cadastrado</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {(Object.entries(conceitosPorArea) as [string, Conceito[]][])
+        <Accordion type="multiple" className="space-y-4">
+          {Object.entries(hierarquia)
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([area, conceitosArea]) => (
-              <div key={area} className="border border-border rounded-lg overflow-hidden">
-                <div className="bg-muted px-4 py-3 border-b border-border">
-                  <h2 className="font-semibold text-lg">{area}</h2>
-                  <p className="text-sm text-muted-foreground">{conceitosArea.length} conceitos</p>
-                </div>
-                <div className="divide-y divide-border">
-                  {conceitosArea.map((conceito) => (
-                    <div
-                      key={conceito.id}
-                      className="p-4 flex items-start gap-4 hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1">
-                            <h3 className="font-medium text-base">{conceito.titulo}</h3>
-                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                              <Badge variant="outline" className="text-xs">
-                                {conceito.area}{conceito.subarea ? ` › ${conceito.subarea}` : ''}
-                              </Badge>
-                              {conceito.nivel && (
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
-                                >
-                                  {conceito.nivel}
-                                </Badge>
-                              )}
-                              <span className="text-xs text-muted-foreground">
-                                #{conceito.ordem}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handlePreview(conceito)}
-                          title="Visualizar conteúdo"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(conceito)}
-                          title="Editar"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(conceito.id)}
-                          title="Deletar"
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
+            .map(([area, subareas]) => {
+              const totalConceitos = Object.values(subareas).flat().length;
+              return (
+                <AccordionItem
+                  key={area}
+                  value={area}
+                  className="border border-border rounded-lg overflow-hidden"
+                >
+                  <AccordionTrigger className="px-4 py-3 bg-muted hover:bg-muted/80 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h2 className="font-semibold text-lg">{area}</h2>
+                        <Badge variant="secondary" className="text-xs">
+                          {totalConceitos} {totalConceitos === 1 ? 'conceito' : 'conceitos'}
+                        </Badge>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-        </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-0">
+                    <Accordion type="multiple" className="divide-y divide-border">
+                      {Object.entries(subareas)
+                        .sort(([a], [b]) => {
+                          // "Sem Subárea" vai para o final
+                          if (a === "Sem Subárea") return 1;
+                          if (b === "Sem Subárea") return -1;
+                          return a.localeCompare(b);
+                        })
+                        .map(([subarea, conceitosSubarea]) => (
+                          <AccordionItem
+                            key={`${area}-${subarea}`}
+                            value={`${area}-${subarea}`}
+                            className="border-0"
+                          >
+                            <AccordionTrigger className="px-4 py-2.5 hover:bg-muted/50 hover:no-underline">
+                              <div className="flex items-center justify-between w-full pr-4">
+                                <div className="flex items-center gap-2">
+                                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                  <h3 className="font-medium text-sm">{subarea}</h3>
+                                  <Badge variant="outline" className="text-xs">
+                                    {conceitosSubarea.length}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-0">
+                              <div className="divide-y divide-border bg-background/50">
+                                {conceitosSubarea
+                                  .sort((a, b) => a.ordem - b.ordem)
+                                  .map((conceito) => (
+                                    <div
+                                      key={conceito.id}
+                                      className="px-4 py-3 flex items-start gap-4 hover:bg-muted/30 transition-colors"
+                                    >
+                                      <div className="flex-1 min-w-0">
+                                        <h4 className="font-medium text-sm">{conceito.titulo}</h4>
+                                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                          {conceito.nivel && (
+                                            <Badge
+                                              variant="outline"
+                                              className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
+                                            >
+                                              {conceito.nivel}
+                                            </Badge>
+                                          )}
+                                          <span className="text-xs text-muted-foreground">
+                                            #{conceito.ordem}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-1 flex-shrink-0">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-8 w-8"
+                                          onClick={() => handlePreview(conceito)}
+                                          title="Visualizar conteúdo"
+                                        >
+                                          <Eye className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-8 w-8"
+                                          onClick={() => handleEdit(conceito)}
+                                          title="Editar"
+                                        >
+                                          <Pencil className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-8 w-8"
+                                          onClick={() => handleDelete(conceito.id)}
+                                          title="Deletar"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                    </Accordion>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+        </Accordion>
       )}
 
       {/* Dialog de Criar/Editar */}
