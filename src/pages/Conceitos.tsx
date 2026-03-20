@@ -222,7 +222,7 @@ const ConceitosPage = () => {
                                               }`}
                                             >
                                               <div className="flex items-center gap-2">
-                                                <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
+                                                <Circle className="w-1 h-1 flex-shrink-0 fill-current opacity-60" />
                                                 <span className="flex-1">{conceito.titulo}</span>
                                                 {conceito.nivel && (
                                                   <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
@@ -242,7 +242,7 @@ const ConceitosPage = () => {
                                       value={`${area}-${subarea}`}
                                       className="border-0"
                                     >
-                                      <AccordionTrigger className="px-3 py-2 hover:bg-muted/50 hover:no-underline text-xs">
+                                      <AccordionTrigger className="px-3 py-2 hover:bg-muted/50 hover:no-underline text-sm">
                                         <div className="flex items-center gap-2 flex-1">
                                           <ChevronRight className="w-3 h-3 text-muted-foreground" />
                                           <span className="font-medium text-muted-foreground">
@@ -268,7 +268,7 @@ const ConceitosPage = () => {
                                                 }`}
                                               >
                                                 <div className="flex items-center gap-2">
-                                                  <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
+                                                  <Circle className="w-1 h-1 flex-shrink-0 fill-current opacity-60" />
                                                   <span className="flex-1">{conceito.titulo}</span>
                                                   {conceito.nivel && (
                                                     <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
@@ -299,7 +299,7 @@ const ConceitosPage = () => {
                                         }`}
                                       >
                                         <div className="flex items-center gap-2">
-                                          <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
+                                            <Circle className="w-1 h-1 flex-shrink-0 fill-current opacity-60" />
                                           <span className="flex-1">{conceito.titulo}</span>
                                           {conceito.nivel && (
                                             <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
