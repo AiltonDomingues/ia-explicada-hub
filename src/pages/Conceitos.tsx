@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Book, ChevronRight, Search, Map, ArrowDown } from "lucide-react";
+import { Book, ChevronRight, Search, Map, ArrowDown, Circle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -222,7 +222,7 @@ const ConceitosPage = () => {
                                               }`}
                                             >
                                               <div className="flex items-center gap-2">
-                                                <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                                <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
                                                 <span className="flex-1">{conceito.titulo}</span>
                                                 {conceito.nivel && (
                                                   <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
@@ -268,7 +268,7 @@ const ConceitosPage = () => {
                                                 }`}
                                               >
                                                 <div className="flex items-center gap-2">
-                                                  <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                                  <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
                                                   <span className="flex-1">{conceito.titulo}</span>
                                                   {conceito.nivel && (
                                                     <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
@@ -299,7 +299,7 @@ const ConceitosPage = () => {
                                         }`}
                                       >
                                         <div className="flex items-center gap-2">
-                                          <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                                          <Circle className="w-2 h-2 flex-shrink-0 fill-current" />
                                           <span className="flex-1">{conceito.titulo}</span>
                                           {conceito.nivel && (
                                             <span className={`text-xs px-1.5 py-0.5 rounded ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text}`}>
