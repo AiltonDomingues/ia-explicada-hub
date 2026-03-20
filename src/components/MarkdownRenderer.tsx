@@ -12,6 +12,20 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) => {
+  // Função para remover strings "undefined" de children
+  const cleanUndefined = (children: any) => {
+    if (!children) return children;
+    if (Array.isArray(children)) {
+      return children.filter(child => 
+        !(typeof child === 'string' && child.trim() === 'undefined')
+      );
+    }
+    if (typeof children === 'string' && children.trim() === 'undefined') {
+      return null;
+    }
+    return children;
+  };
+
   return (
     <div className={`prose prose-slate dark:prose-invert max-w-none ${className}`}>
       <ReactMarkdown
@@ -29,22 +43,22 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
           // Customizar renderização de elementos específicos
           h1: ({ children }) => (
             <h1 className="text-3xl font-bold text-foreground mt-8 mb-4 border-b border-border pb-2">
-              {children}
+              {cleanUndefined(children)}
             </h1>
           ),
           h2: ({ children }) => (
             <h2 className="text-2xl font-semibold text-foreground mt-6 mb-3">
-              {children}
+              {cleanUndefined(children)}
             </h2>
           ),
           h3: ({ children }) => (
             <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
-              {children}
+              {cleanUndefined(children)}
             </h3>
           ),
           p: ({ children }) => (
             <p className="text-muted-foreground leading-relaxed mb-4">
-              {children}
+              {cleanUndefined(children)}
             </p>
           ),
           code: ({ className, children, ...props }: any) => {
@@ -80,7 +94,7 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
             </ol>
           ),
           li: ({ children, ...props }) => (
-            <li {...props}>{children}</li>
+            <li {...props}>{cleanUndefined(children)}</li>
           ),
           a: ({ href, children }) => (
             <a
@@ -89,7 +103,7 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
               target="_blank"
               rel="noopener noreferrer"
             >
-              {children}
+              {cleanUndefined(children)}
             </a>
           ),
           img: ({ src, alt }) => (
@@ -113,9 +127,12 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
           ),
           td: ({ children }) => (
             <td className="border border-border px-4 py-2">
-              {children}
+              {cleanUndefined(children)}
             </td>
           ),
+          strong: ({ children }) => <strong>{cleanUndefined(children)}</strong>,
+          em: ({ children }) => <em>{cleanUndefined(children)}</em>,
+          div: ({ children, ...props }: any) => <div {...props}>{cleanUndefined(children)}</div>,
         }}
       >
         {content}
