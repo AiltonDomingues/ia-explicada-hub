@@ -15,6 +15,10 @@ const MermaidRenderer = ({ chart }: MermaidRendererProps) => {
       startOnLoad: false,
       theme: 'default',
       securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+      },
       themeVariables: {
         primaryColor: '#3b82f6',
         primaryTextColor: '#fff',
@@ -34,6 +38,15 @@ const MermaidRenderer = ({ chart }: MermaidRendererProps) => {
           // Renderizar novo diagrama
           const { svg } = await mermaid.render(idRef.current, chart);
           elementRef.current.innerHTML = svg;
+
+          const svgElement = elementRef.current.querySelector('svg');
+          if (svgElement) {
+            svgElement.style.width = '100%';
+            svgElement.style.height = 'auto';
+            svgElement.style.display = 'block';
+            svgElement.style.maxWidth = '100%';
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          }
         } catch (error) {
           console.error('Erro ao renderizar Mermaid:', error);
           elementRef.current.innerHTML = `
@@ -50,10 +63,10 @@ const MermaidRenderer = ({ chart }: MermaidRendererProps) => {
   }, [chart]);
 
   return (
-    <div className="my-6 flex justify-center">
+    <div className="my-6 w-full">
       <div 
         ref={elementRef} 
-        className="mermaid-diagram bg-background/50 p-4 rounded-lg border border-border overflow-auto max-w-full"
+        className="mermaid-diagram w-full bg-background/50 p-4 rounded-lg border border-border overflow-auto"
       />
     </div>
   );
