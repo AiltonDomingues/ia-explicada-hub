@@ -3,6 +3,8 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
+import MermaidRenderer from './MermaidRenderer';
+import PlotRenderer from './PlotRenderer';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
 
@@ -63,6 +65,20 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
           ),
           code: ({ className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
+            const language = match ? match[1] : '';
+            const codeContent = String(children).replace(/\n$/, '');
+
+            // Renderizar diagramas Mermaid
+            if (language === 'mermaid') {
+              return <MermaidRenderer chart={codeContent} />;
+            }
+
+            // Renderizar gráficos com Plot
+            if (language === 'plot' || language === 'chart') {
+              return <PlotRenderer config={codeContent} />;
+            }
+
+            // Código normal com syntax highlighting
             return match ? (
               <code className={className} {...props}>
                 {children}
