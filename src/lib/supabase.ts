@@ -76,6 +76,11 @@ export type Conceito = {
   tags: string[];
   ordem: number;
   nivel?: string;
+  materiais_complementares?: Array<{
+    titulo: string;
+    url: string;
+    tipo: 'video' | 'artigo' | 'curso' | 'documentacao' | 'outro';
+  }>;
   created_at?: string;
   updated_at?: string;
 };

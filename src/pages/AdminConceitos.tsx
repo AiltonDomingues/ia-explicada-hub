@@ -104,6 +104,11 @@ const AdminConceitos = () => {
     tags: "",
     ordem: 0,
     nivel: "Intermediário",
+    materiais_complementares: [] as Array<{
+      titulo: string;
+      url: string;
+      tipo: "video" | "artigo" | "curso" | "documentacao" | "outro";
+    }>,
   });
 
   // Mutation para criar/atualizar conceito
@@ -124,6 +129,7 @@ const AdminConceitos = () => {
         tags: tagsArray,
         ordem: data.ordem,
         nivel: data.nivel,
+        materiais_complementares: data.materiais_complementares || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -189,6 +195,7 @@ const AdminConceitos = () => {
       tags: "",
       ordem: 0,
       nivel: "Intermediário",
+      materiais_complementares: [],
     });
     setEditingConceito(null);
   };
@@ -203,6 +210,7 @@ const AdminConceitos = () => {
       tags: conceito.tags.join(", "),
       ordem: conceito.ordem,
       nivel: conceito.nivel || "Intermediário",
+      materiais_complementares: conceito.materiais_complementares || [],
     });
     setIsDialogOpen(true);
   };
@@ -474,6 +482,89 @@ const AdminConceitos = () => {
                   <SelectItem value="Avançado">Avançado</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Materiais Complementares */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Materiais Complementares</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      materiais_complementares: [
+                        ...formData.materiais_complementares,
+                        { titulo: "", url: "", tipo: "video" as const },
+                      ],
+                    });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Material
+                </Button>
+              </div>
+              {formData.materiais_complementares.length > 0 && (
+                <div className="space-y-3 border rounded-lg p-4">
+                  {formData.materiais_complementares.map((material, index) => (
+                    <div key={index} className="flex gap-2 items-start p-3 bg-muted/50 rounded-lg">
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          placeholder="Título do material"
+                          value={material.titulo}
+                          onChange={(e) => {
+                            const updated = [...formData.materiais_complementares];
+                            updated[index].titulo = e.target.value;
+                            setFormData({ ...formData, materiais_complementares: updated });
+                          }}
+                        />
+                        <Input
+                          placeholder="URL completa (https://...)"
+                          value={material.url}
+                          onChange={(e) => {
+                            const updated = [...formData.materiais_complementares];
+                            updated[index].url = e.target.value;
+                            setFormData({ ...formData, materiais_complementares: updated });
+                          }}
+                        />
+                        <Select
+                          value={material.tipo}
+                          onValueChange={(value: "video" | "artigo" | "curso" | "documentacao" | "outro") => {
+                            const updated = [...formData.materiais_complementares];
+                            updated[index].tipo = value;
+                            setFormData({ ...formData, materiais_complementares: updated });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent position="popper" className="z-[300]">
+                            <SelectItem value="video">Vídeo</SelectItem>
+                            <SelectItem value="artigo">Artigo</SelectItem>
+                            <SelectItem value="curso">Curso</SelectItem>
+                            <SelectItem value="documentacao">Documentação</SelectItem>
+                            <SelectItem value="outro">Outro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          const updated = formData.materiais_complementares.filter((_, i) => i !== index);
+                          setFormData({ ...formData, materiais_complementares: updated });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <Tabs defaultValue="edit" className="w-full">

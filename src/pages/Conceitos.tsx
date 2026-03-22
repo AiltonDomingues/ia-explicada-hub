@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import MateriaisComplementares from "@/components/MateriaisComplementares";
 import RoadmapCard from "@/components/RoadmapCard";
 import { useConceitos } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -368,6 +369,11 @@ const ConceitosPage = () => {
                   {/* Conteúdo em Markdown */}
                   <div className="p-6">
                     <MarkdownRenderer content={selectedConceito.conteudo} />
+                    
+                    {/* Materiais Complementares */}
+                    {selectedConceito.materiais_complementares && (
+                      <MateriaisComplementares materiais={selectedConceito.materiais_complementares} />
+                    )}
                   </div>
                 </div>
               ) : (
