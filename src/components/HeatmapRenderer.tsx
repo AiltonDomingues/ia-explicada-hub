@@ -51,22 +51,21 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
 
     const rows = data.length;
     const cols = data[0].length;
-    const cellSize = 60;
-    const padding = 80;
+    const cellSize = 100;
+    const padding = 120;
     const svgWidth = cols * cellSize + padding * 2;
     const svgHeight = rows * cellSize + padding * 2;
 
     return (
-      <div className="my-6 flex flex-col items-center">
+      <div className="my-8 flex flex-col items-center w-full">
         {title && (
-          <h3 className="text-lg font-semibold text-foreground mb-4">{title}</h3>
+          <h3 className="text-xl font-semibold text-foreground mb-6">{title}</h3>
         )}
-        <div className="overflow-x-auto w-full flex justify-center">
+        <div className="overflow-x-auto w-full flex justify-center px-4">
           <svg
             width={svgWidth}
             height={svgHeight}
-            className="bg-card rounded-lg shadow-sm"
-            style={{ minWidth: '400px' }}
+            className="bg-card rounded-lg shadow-md max-w-full"
           >
             {/* Grid de células */}
             {data.map((row, rowIndex) =>
@@ -75,12 +74,12 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                   <rect
                     x={padding + colIndex * cellSize}
                     y={padding + rowIndex * cellSize}
-                    width={cellSize - 2}
-                    height={cellSize - 2}
+                    width={cellSize - 4}
+                    height={cellSize - 4}
                     fill={getColor(value, colorScheme)}
                     stroke="hsl(var(--border))"
-                    strokeWidth="1"
-                    className="transition-opacity hover:opacity-80"
+                    strokeWidth="2"
+                    className="transition-opacity hover:opacity-80 cursor-pointer"
                   />
                   {(showValues !== false) && (
                     <text
@@ -88,7 +87,7 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                       y={padding + rowIndex * cellSize + cellSize / 2}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      className="text-xs font-medium pointer-events-none"
+                      className="text-sm font-semibold pointer-events-none"
                       fill={
                         (value - minValue) / (maxValue - minValue) > 0.5
                           ? 'white'
@@ -108,9 +107,9 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                 <text
                   key={`x-label-${index}`}
                   x={padding + index * cellSize + cellSize / 2}
-                  y={padding - 10}
+                  y={padding - 15}
                   textAnchor="middle"
-                  className="text-xs fill-muted-foreground"
+                  className="text-sm font-medium fill-muted-foreground"
                 >
                   {label}
                 </text>
@@ -121,34 +120,34 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
               yLabels.map((label: string, index: number) => (
                 <text
                   key={`y-label-${index}`}
-                  x={padding - 10}
+                  x={padding - 15}
                   y={padding + index * cellSize + cellSize / 2}
                   textAnchor="end"
                   dominantBaseline="middle"
-                  className="text-xs fill-muted-foreground"
+                  className="text-sm font-medium fill-muted-foreground"
                 >
                   {label}
                 </text>
               ))}
 
             {/* Legenda de cores */}
-            <g transform={`translate(${padding}, ${padding + rows * cellSize + 40})`}>
-              <text x="0" y="-5" className="text-xs fill-muted-foreground">
+            <g transform={`translate(${padding}, ${padding + rows * cellSize + 50})`}>
+              <text x="0" y="-8" className="text-sm font-medium fill-muted-foreground">
                 {minValue.toFixed(2)}
               </text>
-              {Array.from({ length: 10 }).map((_, i) => (
+              {Array.from({ length: 15 }).map((_, i) => (
                 <rect
                   key={`legend-${i}`}
-                  x={i * 20}
+                  x={i * 30}
                   y="0"
-                  width="20"
-                  height="15"
-                  fill={getColor(minValue + (maxValue - minValue) * (i / 9), colorScheme)}
+                  width="30"
+                  height="20"
+                  fill={getColor(minValue + (maxValue - minValue) * (i / 14), colorScheme)}
                   stroke="hsl(var(--border))"
-                  strokeWidth="0.5"
+                  strokeWidth="1"
                 />
               ))}
-              <text x="200" y="-5" className="text-xs fill-muted-foreground">
+              <text x="450" y="-8" className="text-sm font-medium fill-muted-foreground">
                 {maxValue.toFixed(2)}
               </text>
             </g>
