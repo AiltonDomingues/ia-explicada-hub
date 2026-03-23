@@ -1,3 +1,15 @@
+import {
+  BarChart,
+  Bar,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+
 interface HeatmapRendererProps {
   config: string;
 }
@@ -5,7 +17,7 @@ interface HeatmapRendererProps {
 const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
   try {
     const heatmapConfig = JSON.parse(config);
-    const { data, xLabels, yLabels, title, colorScheme, showValues } = heatmapConfig;
+    const { data, xLabels, yLabels, title, colorScheme = 'blue', showValues = true } = heatmapConfig;
 
     // Validação
     if (!data || !Array.isArray(data) || data.length === 0) {
@@ -17,22 +29,22 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
     const minValue = Math.min(...flatData);
     const maxValue = Math.max(...flatData);
 
+    // Esquemas de cores
+    const colorSchemes: Record<string, { low: string; high: string }> = {
+      blue: { low: '#e0f2fe', high: '#0369a1' },
+      green: { low: '#d1fae5', high: '#047857' },
+      red: { low: '#fee2e2', high: '#dc2626' },
+      purple: { low: '#f3e8ff', high: '#7c3aed' },
+      orange: { low: '#ffedd5', high: '#ea580c' },
+      viridis: { low: '#fde725', high: '#440154' },
+    };
+
+    const colors = colorSchemes[colorScheme] || colorSchemes.blue;
+
     // Função para gerar cor baseada no valor
-    const getColor = (value: number, scheme: string = 'blue') => {
+    const getColor = (value: number) => {
       const normalized = (value - minValue) / (maxValue - minValue || 1);
       
-      const schemes: Record<string, { low: string; high: string }> = {
-        blue: { low: '#e0f2fe', high: '#0369a1' },
-        green: { low: '#d1fae5', high: '#047857' },
-        red: { low: '#fee2e2', high: '#dc2626' },
-        purple: { low: '#f3e8ff', high: '#7c3aed' },
-        orange: { low: '#ffedd5', high: '#ea580c' },
-        viridis: { low: '#fde725', high: '#440154' },
-      };
-
-      const colors = schemes[scheme] || schemes.blue;
-      
-      // Interpolação RGB
       const parseColor = (hex: string) => ({
         r: parseInt(hex.slice(1, 3), 16),
         g: parseInt(hex.slice(3, 5), 16),
@@ -49,109 +61,101 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
       return `rgb(${r}, ${g}, ${b})`;
     };
 
-    const rows = data.length;
+    // Transformar dados para formato Recharts
     const cols = data[0].length;
-    const cellSize = 100;
-    const padding = 120;
-    const svgWidth = cols * cellSize + padding * 2;
-    const svgHeight = rows * cellSize + padding * 2;
+    const chartData = data.map((row, rowIndex) => {
+      const rowData: any = {
+        name: yLabels?.[rowIndex] || `Row ${rowIndex + 1}`,
+      };
+      row.forEach((value, colIndex) => {
+        const colName = xLabels?.[colIndex] || `Col ${colIndex + 1}`;
+        rowData[colName] = value;
+      });
+      return rowData;
+    });
+
+    // Obter nomes das colunas
+    const columnNames = xLabels || Array.from({ length: cols }, (_, i) => `Col ${i + 1}`);
+
+    // Custom tooltip
+    const CustomTooltip = ({ active, payload }: any) => {
+      if (active && payload && payload.length) {
+        return (
+          <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+            <p className="font-semibold text-gray-900 mb-1">{payload[0].payload.name}</p>
+            <p className="text-sm text-gray-700">
+              {payload[0].name}: <span className="font-medium">{payload[0].value.toFixed(3)}</span>
+            </p>
+          </div>
+        );
+      }
+      return null;
+    };
+
+    // Custom label para mostrar valores nas células
+    const CustomLabel = (props: any) => {
+      const { x, y, width, height, value } = props;
+      if (!showValues) return null;
+      
+      return (
+        <text
+          x={x + width / 2}
+          y={y + height / 2}
+          fill={(value - minValue) / (maxValue - minValue) > 0.5 ? 'white' : '#1f2937'}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className="text-xs font-semibold"
+        >
+          {typeof value === 'number' ? value.toFixed(2) : value}
+        </text>
+      );
+    };
+
+    const barHeight = Math.max(60, Math.min(100, 600 / data.length));
 
     return (
-      <div className="my-8 flex flex-col items-center w-full">
+      <div className="my-6 bg-white dark:bg-slate-50 rounded-lg p-6 shadow-md">
         {title && (
-          <h3 className="text-xl font-semibold text-foreground mb-6">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">{title}</h3>
         )}
-        <div className="overflow-x-auto w-full flex justify-center px-4 py-6 bg-background rounded-lg">
-          <svg
-            width={svgWidth}
-            height={svgHeight}
-            className="bg-white dark:bg-slate-50 rounded-lg shadow-lg"
+        
+        <ResponsiveContainer width="100%" height={Math.max(300, data.length * barHeight + 100)}>
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={{ top: 20, right: 30, left: 100, bottom: 40 }}
           >
-            {/* Grid de células */}
-            {data.map((row, rowIndex) =>
-              row.map((value, colIndex) => (
-                <g key={`cell-${rowIndex}-${colIndex}`}>
-                  <rect
-                    x={padding + colIndex * cellSize}
-                    y={padding + rowIndex * cellSize}
-                    width={cellSize - 4}
-                    height={cellSize - 4}
-                    fill={getColor(value, colorScheme)}
-                    stroke="#cbd5e1"
-                    strokeWidth="2"
-                    className="transition-opacity hover:opacity-80 cursor-pointer"
-                  />
-                  {(showValues !== false) && (
-                    <text
-                      x={padding + colIndex * cellSize + cellSize / 2}
-                      y={padding + rowIndex * cellSize + cellSize / 2}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="text-sm font-semibold pointer-events-none"
-                      fill={
-                        (value - minValue) / (maxValue - minValue) > 0.5
-                          ? 'white'
-                          : 'hsl(var(--foreground))'
-                      }
-                    >
-                      {typeof value === 'number' ? value.toFixed(2) : value}
-                    </text>
-                  )}
-                </g>
-              ))
-            )}
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis type="number" stroke="#6b7280" />
+            <YAxis dataKey="name" type="category" stroke="#6b7280" width={90} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            
+            {columnNames.map((colName, index) => (
+              <Bar key={colName} dataKey={colName} stackId="a" label={<CustomLabel />}>
+                {chartData.map((entry, rowIndex) => (
+                  <Cell key={`cell-${rowIndex}-${index}`} fill={getColor(entry[colName])} />
+                ))}
+              </Bar>
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
 
-            {/* Labels do eixo X */}
-            {xLabels &&
-              xLabels.map((label: string, index: number) => (
-                <text
-                  key={`x-label-${index}`}
-                  x={padding + index * cellSize + cellSize / 2}
-                  y={padding - 15}
-                  textAnchor="middle"
-                  className="text-sm font-medium fill-gray-700"
-                >
-                  {label}
-                </text>
-              ))}
-
-            {/* Labels do eixo Y */}
-            {yLabels &&
-              yLabels.map((label: string, index: number) => (
-                <text
-                  key={`y-label-${index}`}
-                  x={padding - 15}
-                  y={padding + index * cellSize + cellSize / 2}
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                  className="text-sm font-medium fill-gray-700"
-                >
-                  {label}
-                </text>
-              ))}
-
-            {/* Legenda de cores */}
-            <g transform={`translate(${padding}, ${padding + rows * cellSize + 50})`}>
-              <text x="0" y="-8" className="text-sm font-medium fill-gray-700">
-                {minValue.toFixed(2)}
-              </text>
-              {Array.from({ length: 15 }).map((_, i) => (
-                <rect
-                  key={`legend-${i}`}
-                  x={i * 30}
-                  y="0"
-                  width="30"
-                  height="20"
-                  fill={getColor(minValue + (maxValue - minValue) * (i / 14), colorScheme)}
-                  stroke="#cbd5e1"
-                  strokeWidth="1"
-                />
-              ))}
-              <text x="450" y="-8" className="text-sm font-medium fill-gray-700">
-                {maxValue.toFixed(2)}
-              </text>
-            </g>
-          </svg>
+        {/* Legenda de cores */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <span className="text-xs text-gray-600">{minValue.toFixed(2)}</span>
+          <div className="flex">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-4 h-4"
+                style={{
+                  backgroundColor: getColor(minValue + (maxValue - minValue) * (i / 19)),
+                }}
+              />
+            ))}
+          </div>
+          <span className="text-xs text-gray-600">{maxValue.toFixed(2)}</span>
         </div>
       </div>
     );
