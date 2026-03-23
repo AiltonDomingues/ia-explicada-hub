@@ -23,8 +23,10 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          mermaid: ['mermaid'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules/mermaid')) {
+            return 'mermaid';
+          }
         },
       },
     },
