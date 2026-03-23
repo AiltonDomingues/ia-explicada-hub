@@ -86,7 +86,7 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
 
             // Código normal com syntax highlighting
             return match ? (
-              <code className={className} {...props}>
+              <code className={`${className} block bg-slate-900 text-slate-100 p-4 rounded-lg`} {...props}>
                 {children}
               </code>
             ) : (
@@ -96,7 +96,7 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
             );
           },
           pre: ({ children }) => (
-            <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4 border border-border">
+            <pre className="overflow-x-auto mb-4">
               {children}
             </pre>
           ),
