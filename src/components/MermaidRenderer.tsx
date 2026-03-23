@@ -49,10 +49,17 @@ const MermaidRenderer = ({ chart }: MermaidRendererProps) => {
           }
         } catch (error) {
           console.error('Erro ao renderizar Mermaid:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+          const isModuleError = errorMessage.includes('Failed to fetch') || errorMessage.includes('dynamically imported module');
+          
           elementRef.current.innerHTML = `
             <div class="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-4 rounded-lg">
-              <p class="font-semibold mb-1">Erro ao renderizar diagrama Mermaid</p>
-              <pre class="text-xs overflow-auto">${error instanceof Error ? error.message : 'Erro desconhecido'}</pre>
+              <p class="font-semibold mb-2">Erro ao renderizar diagrama Mermaid</p>
+              ${isModuleError ? '<p class="text-sm mb-2">Tente limpar o cache do navegador (Ctrl+Shift+R)</p>' : ''}
+              <details class="text-xs">
+                <summary class="cursor-pointer hover:underline">Ver detalhes do erro</summary>
+                <pre class="mt-2 overflow-auto bg-red-900/10 p-2 rounded">${errorMessage}</pre>
+              </details>
             </div>
           `;
         }
