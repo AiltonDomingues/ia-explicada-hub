@@ -1,12 +1,8 @@
-import { useState } from 'react';
-
 interface HeatmapRendererProps {
   config: string;
 }
 
 const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
-  const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number; value: number } | null>(null);
-
   try {
     const heatmapConfig = JSON.parse(config);
     const { data, xLabels, yLabels, title, colorScheme = 'blue', showValues = true } = heatmapConfig;
@@ -98,10 +94,8 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                   {row.map((value, colIndex) => (
                     <div
                       key={`cell-${rowIndex}-${colIndex}`}
-                      className="relative border border-gray-200 transition-all duration-200 hover:ring-2 hover:ring-gray-400 hover:z-10 cursor-pointer flex items-center justify-center"
+                      className="relative border border-gray-200 flex items-center justify-center"
                       style={{ backgroundColor: getColor(value) }}
-                      onMouseEnter={() => setHoveredCell({ row: rowIndex, col: colIndex, value })}
-                      onMouseLeave={() => setHoveredCell(null)}
                     >
                       {showValues && (
                         <span 
@@ -118,17 +112,6 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                 </>
               ))}
             </div>
-
-            {/* Tooltip */}
-            {hoveredCell && (
-              <div className="mt-4 p-3 bg-gray-800 text-white rounded-lg text-sm text-center">
-                <span className="font-medium">
-                  {(yLabels?.[hoveredCell.row] || `R${hoveredCell.row + 1}`)} × {' '}
-                  {(xLabels?.[hoveredCell.col] || `C${hoveredCell.col + 1}`)}
-                </span>
-                <span className="ml-2">→ {hoveredCell.value.toFixed(3)}</span>
-              </div>
-            )}
           </div>
         </div>
 
