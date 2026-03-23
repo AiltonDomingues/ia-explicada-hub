@@ -1,20 +1,12 @@
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { useState } from 'react';
 
 interface HeatmapRendererProps {
   config: string;
 }
 
 const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
+  const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number; value: number } | null>(null);
+
   try {
     const heatmapConfig = JSON.parse(config);
     const { data, xLabels, yLabels, title, colorScheme = 'blue', showValues = true } = heatmapConfig;
@@ -31,11 +23,11 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
 
     // Esquemas de cores
     const colorSchemes: Record<string, { low: string; high: string }> = {
-      blue: { low: '#e0f2fe', high: '#0369a1' },
-      green: { low: '#d1fae5', high: '#047857' },
-      red: { low: '#fee2e2', high: '#dc2626' },
-      purple: { low: '#f3e8ff', high: '#7c3aed' },
-      orange: { low: '#ffedd5', high: '#ea580c' },
+      blue: { low: '#eff6ff', high: '#1e40af' },
+      green: { low: '#f0fdf4', high: '#15803d' },
+      red: { low: '#fef2f2', high: '#b91c1c' },
+      purple: { low: '#faf5ff', high: '#7e22ce' },
+      orange: { low: '#fff7ed', high: '#c2410c' },
       viridis: { low: '#fde725', high: '#440154' },
     };
 
@@ -61,101 +53,100 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
       return `rgb(${r}, ${g}, ${b})`;
     };
 
-    // Transformar dados para formato Recharts
+    const rows = data.length;
     const cols = data[0].length;
-    const chartData = data.map((row, rowIndex) => {
-      const rowData: any = {
-        name: yLabels?.[rowIndex] || `Row ${rowIndex + 1}`,
-      };
-      row.forEach((value, colIndex) => {
-        const colName = xLabels?.[colIndex] || `Col ${colIndex + 1}`;
-        rowData[colName] = value;
-      });
-      return rowData;
-    });
-
-    // Obter nomes das colunas
-    const columnNames = xLabels || Array.from({ length: cols }, (_, i) => `Col ${i + 1}`);
-
-    // Custom tooltip
-    const CustomTooltip = ({ active, payload }: any) => {
-      if (active && payload && payload.length) {
-        return (
-          <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-            <p className="font-semibold text-gray-900 mb-1">{payload[0].payload.name}</p>
-            <p className="text-sm text-gray-700">
-              {payload[0].name}: <span className="font-medium">{payload[0].value.toFixed(3)}</span>
-            </p>
-          </div>
-        );
-      }
-      return null;
-    };
-
-    // Custom label para mostrar valores nas células
-    const CustomLabel = (props: any) => {
-      const { x, y, width, height, value } = props;
-      if (!showValues) return null;
-      
-      return (
-        <text
-          x={x + width / 2}
-          y={y + height / 2}
-          fill={(value - minValue) / (maxValue - minValue) > 0.5 ? 'white' : '#1f2937'}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          className="text-xs font-semibold"
-        >
-          {typeof value === 'number' ? value.toFixed(2) : value}
-        </text>
-      );
-    };
-
-    const barHeight = Math.max(60, Math.min(100, 600 / data.length));
+    const cellSize = 70;
 
     return (
-      <div className="my-6 bg-white dark:bg-slate-50 rounded-lg p-6 shadow-md">
+      <div className="my-6 bg-white dark:bg-slate-50 rounded-lg p-8 shadow-md">
         {title && (
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">{title}</h3>
         )}
         
-        <ResponsiveContainer width="100%" height={Math.max(300, data.length * barHeight + 100)}>
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{ top: 20, right: 30, left: 100, bottom: 40 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis type="number" stroke="#6b7280" />
-            <YAxis dataKey="name" type="category" stroke="#6b7280" width={90} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            
-            {columnNames.map((colName, index) => (
-              <Bar key={colName} dataKey={colName} stackId="a" label={<CustomLabel />}>
-                {chartData.map((entry, rowIndex) => (
-                  <Cell key={`cell-${rowIndex}-${index}`} fill={getColor(entry[colName])} />
-                ))}
-              </Bar>
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="flex justify-center overflow-x-auto">
+          <div className="inline-block">
+            {/* Grid Container */}
+            <div className="grid gap-0" style={{ 
+              gridTemplateColumns: `auto repeat(${cols}, ${cellSize}px)`,
+              gridTemplateRows: `auto repeat(${rows}, ${cellSize}px)`,
+            }}>
+              {/* Célula vazia no canto superior esquerdo */}
+              <div></div>
+              
+              {/* Labels das colunas (topo) */}
+              {(xLabels || Array.from({ length: cols }, (_, i) => `C${i + 1}`)).map((label, i) => (
+                <div 
+                  key={`xlabel-${i}`}
+                  className="flex items-center justify-center text-sm font-medium text-gray-700 pb-2"
+                >
+                  {label}
+                </div>
+              ))}
+
+              {/* Linhas da matriz */}
+              {data.map((row, rowIndex) => (
+                <>
+                  {/* Label da linha (esquerda) */}
+                  <div 
+                    key={`ylabel-${rowIndex}`}
+                    className="flex items-center justify-end pr-3 text-sm font-medium text-gray-700"
+                  >
+                    {(yLabels || Array.from({ length: rows }, (_, i) => `R${i + 1}`))[rowIndex]}
+                  </div>
+                  
+                  {/* Células da linha */}
+                  {row.map((value, colIndex) => (
+                    <div
+                      key={`cell-${rowIndex}-${colIndex}`}
+                      className="relative border border-gray-200 transition-all duration-200 hover:ring-2 hover:ring-gray-400 hover:z-10 cursor-pointer flex items-center justify-center"
+                      style={{ backgroundColor: getColor(value) }}
+                      onMouseEnter={() => setHoveredCell({ row: rowIndex, col: colIndex, value })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      {showValues && (
+                        <span 
+                          className="text-xs font-semibold pointer-events-none"
+                          style={{ 
+                            color: (value - minValue) / (maxValue - minValue) > 0.5 ? 'white' : '#1f2937'
+                          }}
+                        >
+                          {typeof value === 'number' ? value.toFixed(2) : value}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </>
+              ))}
+            </div>
+
+            {/* Tooltip */}
+            {hoveredCell && (
+              <div className="mt-4 p-3 bg-gray-800 text-white rounded-lg text-sm text-center">
+                <span className="font-medium">
+                  {(yLabels?.[hoveredCell.row] || `R${hoveredCell.row + 1}`)} × {' '}
+                  {(xLabels?.[hoveredCell.col] || `C${hoveredCell.col + 1}`)}
+                </span>
+                <span className="ml-2">→ {hoveredCell.value.toFixed(3)}</span>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Legenda de cores */}
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <span className="text-xs text-gray-600">{minValue.toFixed(2)}</span>
-          <div className="flex">
-            {Array.from({ length: 20 }).map((_, i) => (
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <span className="text-sm text-gray-700 font-medium">{minValue.toFixed(2)}</span>
+          <div className="flex shadow-sm rounded overflow-hidden border border-gray-200">
+            {Array.from({ length: 30 }).map((_, i) => (
               <div
                 key={i}
-                className="w-4 h-4"
+                className="w-3 h-6"
                 style={{
-                  backgroundColor: getColor(minValue + (maxValue - minValue) * (i / 19)),
+                  backgroundColor: getColor(minValue + (maxValue - minValue) * (i / 29)),
                 }}
               />
             ))}
           </div>
-          <span className="text-xs text-gray-600">{maxValue.toFixed(2)}</span>
+          <span className="text-sm text-gray-700 font-medium">{maxValue.toFixed(2)}</span>
         </div>
       </div>
     );
