@@ -355,15 +355,6 @@ const ConceitosPage = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-3">
                       {selectedConceito.titulo}
                     </h1>
-                    {selectedConceito.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {selectedConceito.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   {/* Conteúdo em Markdown */}
