@@ -5,6 +5,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
 import MermaidRenderer from './MermaidRenderer';
 import PlotRenderer from './PlotRenderer';
+import HeatmapRenderer from './HeatmapRenderer';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
 
@@ -76,6 +77,11 @@ const MarkdownRenderer = ({ content, className = '' }: MarkdownRendererProps) =>
             // Renderizar gráficos com Plot
             if (language === 'plot' || language === 'chart') {
               return <PlotRenderer config={codeContent} />;
+            }
+
+            // Renderizar heatmaps
+            if (language === 'heatmap') {
+              return <HeatmapRenderer config={codeContent} />;
             }
 
             // Código normal com syntax highlighting
