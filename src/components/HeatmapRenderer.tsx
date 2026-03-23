@@ -61,11 +61,11 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
         {title && (
           <h3 className="text-xl font-semibold text-foreground mb-6">{title}</h3>
         )}
-        <div className="overflow-x-auto w-full flex justify-center px-4">
+        <div className="overflow-x-auto w-full flex justify-center px-4 py-6 bg-background rounded-lg">
           <svg
             width={svgWidth}
             height={svgHeight}
-            className="bg-card rounded-lg shadow-md max-w-full"
+            className="bg-white dark:bg-slate-50 rounded-lg shadow-lg"
           >
             {/* Grid de células */}
             {data.map((row, rowIndex) =>
@@ -77,7 +77,7 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                     width={cellSize - 4}
                     height={cellSize - 4}
                     fill={getColor(value, colorScheme)}
-                    stroke="hsl(var(--border))"
+                    stroke="#cbd5e1"
                     strokeWidth="2"
                     className="transition-opacity hover:opacity-80 cursor-pointer"
                   />
@@ -109,7 +109,7 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                   x={padding + index * cellSize + cellSize / 2}
                   y={padding - 15}
                   textAnchor="middle"
-                  className="text-sm font-medium fill-muted-foreground"
+                  className="text-sm font-medium fill-gray-700"
                 >
                   {label}
                 </text>
@@ -124,7 +124,7 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                   y={padding + index * cellSize + cellSize / 2}
                   textAnchor="end"
                   dominantBaseline="middle"
-                  className="text-sm font-medium fill-muted-foreground"
+                  className="text-sm font-medium fill-gray-700"
                 >
                   {label}
                 </text>
@@ -132,7 +132,7 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
 
             {/* Legenda de cores */}
             <g transform={`translate(${padding}, ${padding + rows * cellSize + 50})`}>
-              <text x="0" y="-8" className="text-sm font-medium fill-muted-foreground">
+              <text x="0" y="-8" className="text-sm font-medium fill-gray-700">
                 {minValue.toFixed(2)}
               </text>
               {Array.from({ length: 15 }).map((_, i) => (
@@ -143,11 +143,11 @@ const HeatmapRenderer = ({ config }: HeatmapRendererProps) => {
                   width="30"
                   height="20"
                   fill={getColor(minValue + (maxValue - minValue) * (i / 14), colorScheme)}
-                  stroke="hsl(var(--border))"
+                  stroke="#cbd5e1"
                   strokeWidth="1"
                 />
               ))}
-              <text x="450" y="-8" className="text-sm font-medium fill-muted-foreground">
+              <text x="450" y="-8" className="text-sm font-medium fill-gray-700">
                 {maxValue.toFixed(2)}
               </text>
             </g>

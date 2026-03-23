@@ -24,6 +24,13 @@ interface PlotRendererProps {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
+const TOOLTIP_STYLE = {
+  backgroundColor: 'white',
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  color: '#1f2937',
+};
+
 const PlotRenderer = ({ config }: PlotRendererProps) => {
   try {
     const plotConfig = JSON.parse(config);
@@ -38,16 +45,10 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
           return (
             <ResponsiveContainer width={chartWidth} height={chartHeight}>
               <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey={xKey || 'x'} className="text-xs" />
-                <YAxis className="text-xs" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey={xKey || 'x'} className="text-xs" stroke="#6b7280" />
+                <YAxis className="text-xs" stroke="#6b7280" />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend />
                 {Object.keys(data[0] || {})
                   .filter((key) => key !== (xKey || 'x'))
@@ -69,16 +70,10 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
           return (
             <ResponsiveContainer width={chartWidth} height={chartHeight}>
               <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey={xKey || 'x'} className="text-xs" />
-                <YAxis className="text-xs" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey={xKey || 'x'} className="text-xs" stroke="#6b7280" />
+                <YAxis className="text-xs" stroke="#6b7280" />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend />
                 {Object.keys(data[0] || {})
                   .filter((key) => key !== (xKey || 'x'))
@@ -97,15 +92,11 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
           return (
             <ResponsiveContainer width={chartWidth} height={chartHeight}>
               <ScatterChart>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey={xKey || 'x'} type="number" className="text-xs" />
-                <YAxis dataKey={yKey || 'y'} type="number" className="text-xs" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey={xKey || 'x'} type="number" className="text-xs" stroke="#6b7280" />
+                <YAxis dataKey={yKey || 'y'} type="number" className="text-xs" stroke="#6b7280" />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
+                  contentStyle={TOOLTIP_STYLE}
                   cursor={{ strokeDasharray: '3 3' }}
                 />
                 <Legend />
@@ -122,16 +113,10 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
           return (
             <ResponsiveContainer width={chartWidth} height={chartHeight}>
               <AreaChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey={xKey || 'x'} className="text-xs" />
-                <YAxis className="text-xs" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey={xKey || 'x'} className="text-xs" stroke="#6b7280" />
+                <YAxis className="text-xs" stroke="#6b7280" />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend />
                 {Object.keys(data[0] || {})
                   .filter((key) => key !== (xKey || 'x'))
@@ -169,13 +154,7 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -192,9 +171,9 @@ const PlotRenderer = ({ config }: PlotRendererProps) => {
     };
 
     return (
-      <div className="my-6 bg-card border border-border rounded-lg p-4">
+      <div className="my-6 bg-white dark:bg-slate-50 rounded-lg p-6 shadow-md">
         {title && (
-          <h4 className="text-sm font-semibold text-foreground mb-4 text-center">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4 text-center">
             {title}
           </h4>
         )}

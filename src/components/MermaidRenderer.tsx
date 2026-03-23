@@ -66,7 +66,7 @@ const MermaidRenderer = ({ chart }: MermaidRendererProps) => {
     <div className="my-6 w-full">
       <div 
         ref={elementRef} 
-        className="mermaid-diagram w-full bg-background/50 p-4 rounded-lg border border-border overflow-auto"
+        className="mermaid-diagram w-full bg-white dark:bg-slate-50 p-6 rounded-lg shadow-md overflow-auto"
       />
     </div>
   );
