@@ -49,7 +49,7 @@ const AdminArtigos = () => {
     e.preventDefault();
 
     try {
-      const { id, tags, ...data } = formData;
+      const { id, tags, tempoLeitura, ...data } = formData as any;
       const tagsArray = tags.split(",").map((tag) => tag.trim());
 
       let result;
