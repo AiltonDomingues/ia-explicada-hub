@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import type { Noticia, Artigo, Curso, Material, Creator } from '@/lib/supabase';
+import type { Noticia, Artigo, Curso, Material, Creator, Ferramenta } from '@/lib/supabase';
 
 // Fetch Notícias
 export const useNoticias = () => {
@@ -149,6 +149,25 @@ export const useCreators = () => {
       if (error) throw error;
       
       return data as Creator[];
+    },
+  });
+};
+
+// Fetch Ferramentas
+export const useFerramentas = () => {
+  return useQuery({
+    queryKey: ['ferramentas'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ferramentas')
+        .select('*')
+        .order('categoria', { ascending: true })
+        .order('ranking', { ascending: true, nullsLast: true })
+        .order('nome', { ascending: true });
+      
+      if (error) throw error;
+      
+      return data as Ferramenta[];
     },
   });
 };

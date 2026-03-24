@@ -1,14 +1,17 @@
 {
-  "name": "ia-explicada-news-fetcher",
+  "name": "ia-explicada-scripts",
   "version": "1.0.0",
-  "description": "Automated news fetcher for IA Explicada HUB",
+  "description": "Scripts for IA Explicada HUB",
+  "type": "module",
   "main": "fetch-news.js",
   "scripts": {
-    "fetch": "node fetch-news.js"
+    "fetch": "node fetch-news.js",
+    "migrate-ferramentas": "node migrate-ferramentas.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "dotenv": "^16.3.1"
   },
   "engines": {
     "node": ">=18.0.0"

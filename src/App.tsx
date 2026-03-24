@@ -10,6 +10,7 @@ import Cursos from "./pages/Cursos.tsx";
 import Materiais from "./pages/Materiais.tsx";
 import Conceitos from "./pages/Conceitos.tsx";
 import Eventos from "./pages/Eventos.tsx";
+import Ferramentas from "./pages/Ferramentas.tsx";
 import Sobre from "./pages/Sobre.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
@@ -22,6 +23,7 @@ import AdminMateriais from "./pages/AdminMateriais.tsx";
 import AdminConceitos from "./pages/AdminConceitos.tsx";
 import AdminEventos from "./pages/AdminEventos.tsx";
 import AdminCreators from "./pages/AdminCreators.tsx";
+import AdminFerramentas from "./pages/AdminFerramentas.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import ScrollToTopOnMount from "./components/ScrollToTopOnMount.tsx";
 
@@ -42,6 +44,7 @@ const App = () => (
           <Route path="/materiais" element={<Materiais />} />
           <Route path="/conceitos" element={<Conceitos />} />
           <Route path="/eventos" element={<Eventos />} />
+          <Route path="/ferramentas" element={<Ferramentas />} />
           <Route path="/sobre" element={<Sobre />} />
           
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -61,6 +64,7 @@ const App = () => (
             <Route path="conceitos" element={<AdminConceitos />} />
             <Route path="eventos" element={<AdminEventos />} />
             <Route path="creators" element={<AdminCreators />} />
+            <Route path="ferramentas" element={<AdminFerramentas />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

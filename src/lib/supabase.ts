@@ -38,6 +38,22 @@ export type Artigo = {
   created_at?: string;
 };
 
+export type Ferramenta = {
+  id: string;
+  nome: string;
+  descricao: string;
+  categoria: string;
+  preco: "Gratuito" | "Freemium" | "Pago" | "Trial Grátis";
+  url: string;
+  logo?: string;
+  tags: string[];
+  verificada: boolean;
+  destaque: boolean;
+  ranking?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type Curso = {
   id: string;
   titulo: string;

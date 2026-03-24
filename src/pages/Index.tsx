@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Calendar, TrendingUp, Map, BookOpen, Rocket } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Sparkles, Calendar, TrendingUp, Map, BookOpen, Rocket, User, Briefcase, Zap, Target, GraduationCap, FolderKanban, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -12,6 +13,7 @@ import { getCategoryColor } from "@/lib/utils";
 
 const Index = () => {
   usePageTitle("IA Explicada Hub");
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
   
   // Fetch data from Supabase
   const { data: noticiasData = [] } = useNoticias();
@@ -43,8 +45,8 @@ const Index = () => {
               Seu <span className="text-primary">HUB</span> completo sobre{" "}
               <span className="text-primary">Inteligência Artificial</span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Descubra as últimas novidades, aprenda com cursos especializados e acesse materiais didáticos de qualidade sobre IA.
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+              Do conceito à prática, com curadoria inteligente pra você não perder tempo.
             </p>
             <Link
               to="/noticias"
@@ -56,8 +58,307 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Activity Dashboard */}
+      {/* Audience Selection */}
       <section className="py-16 sm:py-20 bg-gradient-to-br from-primary/5 via-background to-primary/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
+              Qual é o seu <span className="text-primary">objetivo</span> com IA?
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Escolha seu perfil e descubra o caminho ideal
+            </p>
+          </motion.div>
+
+          {/* Main Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {/* Card 1: Iniciante */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="h-full"
+            >
+              <Card 
+                className={`h-full cursor-pointer transition-all duration-300 ${
+                  expandedCard === 'beginner' 
+                    ? 'ring-2 ring-primary shadow-2xl scale-[1.03]' 
+                    : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
+                }`}
+                onClick={() => setExpandedCard(expandedCard === 'beginner' ? null : 'beginner')}
+              >
+                <CardContent className="p-8 text-center h-full flex flex-col justify-between">
+                  <div>
+                    <div className={`w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center transition-all duration-300 ${
+                      expandedCard === 'beginner' ? 'bg-emerald-500/20 scale-110' : ''
+                    }`}>
+                      <User className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Quero Entender IA</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Comece do zero. Aprenda os fundamentos sem se perder em termos técnicos complexos.
+                    </p>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center gap-2 text-primary font-medium">
+                      {expandedCard === 'beginner' ? 'Ver menos' : 'Começar a Aprender'}
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                        expandedCard === 'beginner' ? 'rotate-180' : ''
+                      }`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Card 2: Carreira */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="h-full"
+            >
+              <Card 
+                className={`h-full cursor-pointer transition-all duration-300 ${
+                  expandedCard === 'career' 
+                    ? 'ring-2 ring-primary shadow-2xl scale-[1.03]' 
+                    : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
+                }`}
+                onClick={() => setExpandedCard(expandedCard === 'career' ? null : 'career')}
+              >
+                <CardContent className="p-8 text-center h-full flex flex-col justify-between">
+                  <div>
+                    <div className={`w-16 h-16 mx-auto mb-6 rounded-full bg-blue-500/10 flex items-center justify-center transition-all duration-300 ${
+                      expandedCard === 'career' ? 'bg-blue-500/20 scale-110' : ''
+                    }`}>
+                      <Briefcase className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Quero Trabalhar com IA</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Siga um caminho estruturado para desenvolver habilidades que o mercado procura.
+                    </p>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center gap-2 text-primary font-medium">
+                      {expandedCard === 'career' ? 'Ver menos' : 'Ver Roadmaps'}
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                        expandedCard === 'career' ? 'rotate-180' : ''
+                      }`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Card 3: Profissional */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="h-full"
+            >
+              <Card 
+                className={`h-full cursor-pointer transition-all duration-300 ${
+                  expandedCard === 'professional' 
+                    ? 'ring-2 ring-primary shadow-2xl scale-[1.03]' 
+                    : 'shadow-md hover:shadow-lg hover:scale-[1.01]'
+                }`}
+                onClick={() => setExpandedCard(expandedCard === 'professional' ? null : 'professional')}
+              >
+                <CardContent className="p-8 text-center h-full flex flex-col justify-between">
+                  <div>
+                    <div className={`w-16 h-16 mx-auto mb-6 rounded-full bg-amber-500/10 flex items-center justify-center transition-all duration-300 ${
+                      expandedCard === 'professional' ? 'bg-amber-500/20 scale-110' : ''
+                    }`}>
+                      <Zap className="w-8 h-8 text-amber-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Quero Usar IA Agora</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Ferramentas práticas e guias diretos para aplicar IA nos seus projetos hoje.
+                    </p>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center gap-2 text-primary font-medium">
+                      {expandedCard === 'professional' ? 'Ver menos' : 'Explorar Ferramentas'}
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                        expandedCard === 'professional' ? 'rotate-180' : ''
+                      }`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Expanded Subcards */}
+          <AnimatePresence mode="wait">
+            {expandedCard === 'beginner' && (
+              <motion.div
+                key="beginner-sub"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid md:grid-cols-3 gap-6"
+              >
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Map className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Planeje sua Jornada</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Roadmaps estruturados para aprender no caminho certo
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Aprenda do Zero</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Conceitos fundamentais explicados de forma clara
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Rocket className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Pratique e Evolua</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Materiais práticos para consolidar o aprendizado
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </motion.div>
+            )}
+
+            {expandedCard === 'career' && (
+              <motion.div
+                key="career-sub"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid md:grid-cols-3 gap-6"
+              >
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Target className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Especializações</h4>
+                      <p className="text-sm text-muted-foreground">
+                        ML, NLP, Visão Computacional: escolha sua área
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <GraduationCap className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Cursos Profissionalizantes</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Certificações e cursos reconhecidos pelo mercado
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FolderKanban className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Projetos no Portfólio</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Projetos práticos para impressionar recrutadores
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </motion.div>
+            )}
+
+            {expandedCard === 'professional' && (
+              <motion.div
+                key="professional-sub"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid md:grid-cols-3 gap-6"
+              >
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Ferramentas Práticas</h4>
+                      <p className="text-sm text-muted-foreground">
+                        APIs, plataformas e SDKs para usar hoje
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Casos de Uso</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Exemplos reais de aplicação por indústria
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <Link to="#">
+                    <CardContent className="p-6">
+                      <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Rocket className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-bold mb-2">Tutoriais Rápidos</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Guias diretos para integrar IA no seu projeto
+                      </p>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* Activity Dashboard */}
+      <section className="py-16 sm:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
@@ -185,104 +486,6 @@ const Index = () => {
                   </Card>
                 )}
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Learning Paths */}
-      <section className="py-16 sm:py-20 hero-gradient-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
-              Quer aprender sobre <span className="text-primary">IA</span> mas não sabe por onde começar?
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Nós te ajudamos! Escolha seu caminho de aprendizado:
-            </p>
-          </motion.div>
-
-          {/* Journey Cards */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Roadmaps Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Link to="/conceitos#roadmaps">
-                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Map className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Planeje sua Jornada</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Siga roadmaps estruturados e descubra o caminho ideal para dominar IA
-                    </p>
-                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                      Ver Roadmaps <ArrowRight className="w-4 h-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            {/* Conceitos Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link to="/conceitos">
-                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <BookOpen className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Aprenda do Zero</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Conceitos fundamentais explicados de forma clara e didática para iniciantes
-                    </p>
-                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                      Explorar Conceitos <ArrowRight className="w-4 h-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            {/* Materiais/Cursos Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Link to="/materiais">
-                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Rocket className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Pratique e Evolua</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Acesse cursos, tutoriais e materiais práticos para aprimorar suas habilidades
-                    </p>
-                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                      Ver Materiais <ArrowRight className="w-4 h-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
             </motion.div>
           </div>
         </div>
