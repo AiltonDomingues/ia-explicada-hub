@@ -10,18 +10,10 @@ import CursoCard from "@/components/CursoCard";
 import MaterialCard from "@/components/MaterialCard";
 import { cursos as cursosHardcoded } from "@/data/cursos";
 import { materiais as materiaisHardcoded } from "@/data/materiais";
-import { Youtube, Linkedin, Instagram, Twitter } from "lucide-react";
 import { useNoticias, useArtigos, useCursos, useMateriais } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 import { containerVariants, itemVariants } from "@/lib/animations";
-
-const socialPlatforms = [
-  { name: "YouTube", desc: "Tutoriais em vídeo, explicações detalhadas e lives sobre IA", icon: Youtube, color: "bg-red-500" },
-  { name: "LinkedIn", desc: "Insights profissionais, tendências do mercado e networking", icon: Linkedin, color: "bg-blue-600" },
-  { name: "Instagram", desc: "Conteúdo visual, infográficos e stories sobre IA", icon: Instagram, color: "bg-pink-500" },
-  { name: "Twitter/X", desc: "Notícias rápidas, discussões e threads educativas", icon: Twitter, color: "bg-sky-500" },
-];
 
 const SectionHeader = ({ title, highlight, subtitle, linkTo, linkLabel }: {
   title: string; highlight: string; subtitle: string; linkTo?: string; linkLabel?: string;
@@ -47,11 +39,11 @@ const Index = () => {
   const { data: materiaisData } = useMateriais();
 
   // Use Supabase data (notícias e artigos são populados pelos workflows)
-  const noticias = noticiasData;
-  const artigos = artigosData;
+  const noticias = noticiasData.slice(0, 6); // Últimas 6 notícias
+  const artigos = artigosData.slice(0, 5); // 5 artigos
   // Cursos e materiais ainda usam fallback hardcoded
-  const cursos = cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded;
-  const materiais = materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded;
+  const cursos = (cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded).slice(0, 6); // 6 cursos
+  const materiais = (materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded).slice(0, 6); // 6 materiais
 
   return (
     <div className="min-h-screen bg-background">
@@ -187,7 +179,7 @@ const Index = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
           >
-            {materiais.slice(0, 6).map((m) => (
+            {materiais.map((m) => (
               <motion.div key={m.id} variants={itemVariants}>
                 <MaterialCard material={m} />
               </motion.div>
@@ -197,31 +189,6 @@ const Index = () => {
             <Link to="/materiais" className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
               Ver Todos os Materiais <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Redes Sociais */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Redes"
-            highlight="Sociais"
-            subtitle="Conecte-se conosco em todas as plataformas e faça parte da maior comunidade de IA do Brasil"
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {socialPlatforms.map((p) => (
-              <div key={p.name} className="card-base rounded-2xl bg-card p-6 text-center">
-                <div className={`w-14 h-14 ${p.color} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                  <p.icon className="w-7 h-7 text-card" />
-                </div>
-                <h3 className="font-semibold mb-2">{p.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{p.desc}</p>
-                <button className="w-full py-2 rounded-lg bg-primary text-card text-sm font-medium hover:bg-primary/90 transition-colors">
-                  Seguir
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       </section>

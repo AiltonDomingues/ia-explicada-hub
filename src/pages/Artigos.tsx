@@ -78,16 +78,32 @@ const ArtigosPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {filtered.map((a) => (
-            <motion.div key={a.id} variants={itemVariants}>
-              <ArtigoCard artigo={a} />
-            </motion.div>
-          ))}
+          {filtered.map((a, index) => {
+            // Artigos em destaque ocupam 2 colunas no desktop
+            const isLargeFeatured = a.destaque && index % 3 === 0;
+            const isSmallFeatured = a.destaque && !isLargeFeatured;
+            
+            return (
+              <motion.div 
+                key={a.id} 
+                variants={itemVariants}
+                className={
+                  isLargeFeatured 
+                    ? "md:col-span-2 lg:col-span-2" 
+                    : isSmallFeatured
+                    ? "md:col-span-1 lg:col-span-1"
+                    : "md:col-span-1 lg:col-span-1"
+                }
+              >
+                <ArtigoCard artigo={a} featured={a.destaque} />
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
       <Footer />
