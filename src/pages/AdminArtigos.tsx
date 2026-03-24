@@ -85,6 +85,7 @@ const AdminArtigos = () => {
   const handleEdit = (artigo: any) => {
     setFormData({
       ...artigo,
+      tempo_leitura: artigo.tempoLeitura || artigo.tempo_leitura,
       tags: artigo.tags.join(", "),
     });
     setDialogOpen(true);
