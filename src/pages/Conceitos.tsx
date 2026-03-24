@@ -286,7 +286,6 @@ const ConceitosPage = () => {
                                     >
                                       <AccordionTrigger className="px-3 py-2 hover:bg-muted/50 hover:no-underline text-sm">
                                         <div className="flex items-center gap-2 flex-1">
-                                          <ChevronRight className="w-3 h-3 text-muted-foreground" />
                                           <span className="font-medium text-muted-foreground">
                                             {subarea}
                                           </span>
