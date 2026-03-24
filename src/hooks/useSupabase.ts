@@ -98,7 +98,10 @@ export const useConceitos = () => {
       const { data, error } = await supabase
         .from('conceitos')
         .select('*')
+        .order('ordem_area', { ascending: true })
         .order('area', { ascending: true })
+        .order('ordem_subarea', { ascending: true })
+        .order('subarea', { ascending: true })
         .order('ordem', { ascending: true });
       
       if (error) throw error;

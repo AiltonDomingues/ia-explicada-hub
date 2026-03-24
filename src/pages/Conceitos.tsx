@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Book, ChevronRight, Search, Map, ArrowDown, Circle } from "lucide-react";
+import { Book, ChevronRight, Search, Map as MapIcon, ArrowDown, Circle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -97,7 +97,47 @@ const ConceitosPage = () => {
     return groups;
   }, [filteredFlat]);
 
-  const areas = Object.keys(conceitosGrouped).sort();
+  const areas = useMemo(() => {
+    const areasMap = new Map<string, number>();
+
+    filteredFlat.forEach((conceito) => {
+      if (!areasMap.has(conceito.area)) {
+        areasMap.set(conceito.area, conceito.ordem_area ?? 0);
+      }
+    });
+
+    return Array.from(areasMap.entries())
+      .map(([area, ordem]) => ({ area, ordem }))
+      .sort((a, b) => {
+        if (a.ordem !== b.ordem) {
+          return a.ordem - b.ordem;
+        }
+        return a.area.localeCompare(b.area);
+      })
+      .map(({ area }) => area);
+  }, [filteredFlat]);
+
+  const getOrderedSubareas = (area: string) => {
+    const subareas = conceitosGrouped[area] || {};
+    const subareasMap = new Map<string, number>();
+
+    Object.entries(subareas).forEach(([subarea, items]) => {
+      if (items.length > 0) {
+        subareasMap.set(subarea, items[0].ordem_subarea ?? 0);
+      }
+    });
+
+    return Array.from(subareasMap.entries())
+      .filter(([subarea]) => subarea !== "")
+      .map(([subarea, ordem]) => ({ subarea, ordem }))
+      .sort((a, b) => {
+        if (a.ordem !== b.ordem) {
+          return a.ordem - b.ordem;
+        }
+        return a.subarea.localeCompare(b.subarea);
+      })
+      .map(({ subarea }) => subarea);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -145,7 +185,7 @@ const ConceitosPage = () => {
             variant="outline"
             className="w-full sm:w-auto whitespace-nowrap"
           >
-            <Map className="mr-2 h-4 w-4" />
+            <MapIcon className="mr-2 h-4 w-4" />
             Ver Roadmaps
             <ArrowDown className="ml-2 h-4 w-4" />
           </Button>
@@ -183,9 +223,7 @@ const ConceitosPage = () => {
                     <Accordion type="multiple" defaultValue={areas} className="w-full">
                       {areas.map((area) => {
                         const totalConceitos = Object.values(conceitosGrouped[area]).flat().length;
-                        const subareas = Object.entries(conceitosGrouped[area])
-                          .filter(([sub]) => sub !== "")
-                          .sort(([a], [b]) => a.localeCompare(b));
+                        const subareas = getOrderedSubareas(area);
                         const conceitosSemSubarea = conceitosGrouped[area][""] || [];
 
                         return (
@@ -237,7 +275,10 @@ const ConceitosPage = () => {
                                     </div>
                                   )}
                                   {/* Subáreas */}
-                                  {subareas.map(([subarea, items]) => (
+                                  {subareas.map((subarea) => {
+                                    const items = conceitosGrouped[area][subarea] || [];
+
+                                    return (
                                     <AccordionItem
                                       key={`${area}-${subarea}`}
                                       value={`${area}-${subarea}`}
@@ -282,7 +323,8 @@ const ConceitosPage = () => {
                                         </div>
                                       </AccordionContent>
                                     </AccordionItem>
-                                  ))}
+                                    );
+                                  })}
                                 </Accordion>
                               ) : (
                                 // Se não há subáreas, mostrar conceitos direto
@@ -390,7 +432,7 @@ const ConceitosPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Map className="w-8 h-8 text-primary" />
+              <MapIcon className="w-8 h-8 text-primary" />
               <h2 className="text-3xl font-bold">
                 Roadmaps de <span className="text-primary">Aprendizado</span>
               </h2>
