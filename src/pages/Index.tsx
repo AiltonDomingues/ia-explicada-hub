@@ -1,49 +1,28 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Calendar, TrendingUp, Map, BookOpen, Rocket } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import NoticiaCard from "@/components/NoticiaCard";
-import ArtigoCard from "@/components/ArtigoCard";
-import CursoCard from "@/components/CursoCard";
-import MaterialCard from "@/components/MaterialCard";
-import { cursos as cursosHardcoded } from "@/data/cursos";
-import { materiais as materiaisHardcoded } from "@/data/materiais";
-import { useNoticias, useArtigos, useCursos, useMateriais } from "@/hooks/useSupabase";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNoticias, useEventos } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
-
-import { containerVariants, itemVariants } from "@/lib/animations";
-
-const SectionHeader = ({ title, highlight, subtitle, linkTo, linkLabel }: {
-  title: string; highlight: string; subtitle: string; linkTo?: string; linkLabel?: string;
-}) => (
-  <div className="text-center mb-10">
-    <h2 className="text-3xl sm:text-4xl">
-      {title} <span className="text-primary">{highlight}</span>
-    </h2>
-    <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
-    {linkTo && (
-      <Link to={linkTo} className="inline-flex items-center gap-1 mt-4 text-primary text-sm font-medium hover:underline">
-        {linkLabel} <ArrowRight className="w-4 h-4" />
-      </Link>
-    )}
-  </div>
-);
+import { getCategoryColor } from "@/lib/utils";
 
 const Index = () => {
+  usePageTitle("IA Explicada Hub");
+  
   // Fetch data from Supabase
   const { data: noticiasData = [] } = useNoticias();
-  const { data: artigosData = [] } = useArtigos();
-  const { data: cursosData } = useCursos();
-  const { data: materiaisData } = useMateriais();
-
-  // Use Supabase data (notícias e artigos são populados pelos workflows)
-  const noticias = noticiasData.slice(0, 6); // Últimas 6 notícias
-  const artigos = artigosData.slice(0, 6); // 6 artigos
-  // Cursos e materiais ainda usam fallback hardcoded
-  const cursos = (cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded).slice(0, 6); // 6 cursos
-  const materiais = (materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded).slice(0, 6); // 6 materiais
+  const { data: eventosData = [] } = useEventos();
+  
+  // Dados para a seção de atividades
+  const noticiasRecentes = noticiasData.slice(0, 3);
+  const proximosEventos = eventosData
+    .filter((e: any) => new Date(e.data) >= new Date())
+    .sort((a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime())
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,118 +56,234 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Notícias */}
-      <section className="py-16 sm:py-24">
+      {/* Activity Dashboard */}
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-primary/5 via-background to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Últimas"
-            highlight="Notícias"
-            subtitle="Fique por dentro das novidades mais importantes do mundo da Inteligência Artificial"
-          />
-          <motion.div
-            className="columns-1 md:columns-2 lg:columns-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-          >
-            {noticias.map((n) => (
-              <motion.div key={n.id} variants={itemVariants} className="mb-6 break-inside-avoid">
-                <NoticiaCard noticia={n} />
-              </motion.div>
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <Link to="/noticias" className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
-              Ver Todas as Notícias <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.h2 
+              className="text-3xl sm:text-4xl font-bold mb-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              O que há de <span className="text-primary">novo</span> no Hub
+            </motion.h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Acompanhe as últimas atualizações, eventos e conteúdos adicionados
+            </p>
+          </div>
+
+          {/* Activity Feed */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Notícias Recentes */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">Notícias Recentes</h3>
+              </div>
+              <div className="space-y-4">
+                {noticiasRecentes.map((noticia: any) => {
+                  const categoryColors = getCategoryColor(noticia.categoria);
+                  return (
+                    <Card key={noticia.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex gap-3">
+                          {noticia.imagem_url && (
+                            <img 
+                              src={noticia.imagem_url} 
+                              alt={noticia.titulo}
+                              className="w-20 h-20 object-cover rounded flex-shrink-0"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            {noticia.categoria && (
+                              <span className={`text-xs px-2 py-0.5 rounded-md ${categoryColors.bg} ${categoryColors.text} font-medium inline-block mb-2`}>
+                                {noticia.categoria}
+                              </span>
+                            )}
+                            <h4 className="font-semibold text-sm line-clamp-2 mb-1">{noticia.titulo}</h4>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(noticia.data).toLocaleDateString('pt-BR', { 
+                                day: '2-digit', 
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                <Link 
+                  to="/noticias" 
+                  className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+                >
+                  Ver todas as notícias <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Próximos Eventos */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">Próximos Eventos</h3>
+              </div>
+              <div className="space-y-4">
+                {proximosEventos.length > 0 ? (
+                  <>
+                    {proximosEventos.map((evento: any) => {
+                      const diasRestantes = Math.ceil(
+                        (new Date(evento.data).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+                      );
+                      return (
+                        <Card key={evento.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-sm mb-1">{evento.titulo}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(evento.data).toLocaleDateString('pt-BR', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                              <Badge variant="secondary" className="whitespace-nowrap">
+                                {diasRestantes === 0 ? 'Hoje' : diasRestantes === 1 ? 'Amanhã' : `em ${diasRestantes}d`}
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                    <Link 
+                      to="/eventos" 
+                      className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+                    >
+                      Ver todos os eventos <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </>
+                ) : (
+                  <Card>
+                    <CardContent className="p-6 text-center text-muted-foreground">
+                      Nenhum evento programado no momento
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Artigos */}
-      <section className="py-16 sm:py-24 bg-muted/50">
+      {/* Learning Paths */}
+      <section className="py-16 sm:py-20 hero-gradient-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Artigos"
-            highlight="Especializados"
-            subtitle="Mergulhe em análises aprofundadas e pesquisas acadêmicas sobre inteligência artificial"
-          />
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
+          {/* Header */}
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
           >
-            {artigos.map((a) => (
-              <motion.div key={a.id} variants={itemVariants}>
-                <ArtigoCard artigo={a} />
-              </motion.div>
-            ))}
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
+              Quer aprender sobre <span className="text-primary">IA</span> mas não sabe por onde começar?
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Nós te ajudamos! Escolha seu caminho de aprendizado:
+            </p>
           </motion.div>
-          <div className="text-center mt-8">
-            <Link to="/artigos" className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
-              Ver Todos os Artigos <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      {/* Cursos */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Cursos de"
-            highlight="IA"
-            subtitle="Desenvolva suas habilidades com cursos estruturados e ministrados por especialistas"
-          />
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-          >
-            {cursos.map((c) => (
-              <motion.div key={c.id} variants={itemVariants}>
-                <CursoCard curso={c} />
-              </motion.div>
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <Link to="/cursos" className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
-              Ver Todos os Cursos <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+          {/* Journey Cards */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Roadmaps Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Link to="/conceitos#roadmaps">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Map className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Planeje sua Jornada</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Siga roadmaps estruturados e descubra o caminho ideal para dominar IA
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                      Ver Roadmaps <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
 
-      {/* Materiais */}
-      <section className="py-16 sm:py-24 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Materiais"
-            highlight="Didáticos"
-            subtitle="Recursos gratuitos para aprender, praticar e aprofundar seus conhecimentos em IA"
-          />
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-          >
-            {materiais.map((m) => (
-              <motion.div key={m.id} variants={itemVariants}>
-                <MaterialCard material={m} />
-              </motion.div>
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <Link to="/materiais" className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
-              Ver Todos os Materiais <ArrowRight className="w-4 h-4" />
-            </Link>
+            {/* Conceitos Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Link to="/conceitos">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <BookOpen className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Aprenda do Zero</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Conceitos fundamentais explicados de forma clara e didática para iniciantes
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                      Explorar Conceitos <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+
+            {/* Materiais/Cursos Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <Link to="/materiais">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/50 group">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Rocket className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Pratique e Evolua</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Acesse cursos, tutoriais e materiais práticos para aprimorar suas habilidades
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                      Ver Materiais <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>

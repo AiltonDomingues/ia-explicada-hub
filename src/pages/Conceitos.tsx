@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Book, ChevronRight, Search, Map as MapIcon, ArrowDown, Circle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -67,6 +67,19 @@ const ConceitosPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [nivelFilter, setNivelFilter] = useState("Todos os Níveis");
   const [selectedConceito, setSelectedConceito] = useState<Conceito | null>(null);
+
+  // Scroll para seção de roadmaps se houver hash na URL
+  useEffect(() => {
+    if (window.location.hash === '#roadmaps') {
+      // Pequeno delay para garantir que o DOM está pronto
+      setTimeout(() => {
+        const roadmapsSection = document.getElementById('roadmaps');
+        if (roadmapsSection) {
+          roadmapsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
 
   const niveis = ["Todos os Níveis", ...Array.from(new Set(conceitos.filter(c => c.nivel).map(c => c.nivel!)))];
 
