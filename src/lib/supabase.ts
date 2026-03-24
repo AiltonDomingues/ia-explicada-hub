@@ -75,6 +75,8 @@ export type Conceito = {
   slug: string;
   tags: string[];
   ordem: number;
+  ordem_area?: number;
+  ordem_subarea?: number;
   nivel?: string;
   materiais_complementares?: Array<{
     titulo: string;

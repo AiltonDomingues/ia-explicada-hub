@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Eye, Save, X, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Save, X, ChevronRight, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useConceitos } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -186,6 +186,88 @@ const AdminConceitos = () => {
     },
   });
 
+  // Mutation para reordenar conceitos
+  const reorderMutation = useMutation({
+    mutationFn: async ({ conceito1, conceito2 }: { conceito1: Conceito; conceito2: Conceito }) => {
+      const ordem1 = conceito1.ordem;
+      const ordem2 = conceito2.ordem;
+
+      // Troca as ordens
+      const { error: error1 } = await supabase
+        .from("conceitos")
+        .update({ ordem: ordem2 })
+        .eq("id", conceito1.id);
+      
+      if (error1) throw error1;
+
+      const { error: error2 } = await supabase
+        .from("conceitos")
+        .update({ ordem: ordem1 })
+        .eq("id", conceito2.id);
+      
+      if (error2) throw error2;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conceitos"] });
+      toast({
+        title: "Ordem atualizada",
+        description: "A ordem dos conceitos foi alterada com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao reordenar",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation para reordenar áreas
+  const reorderAreaMutation = useMutation({
+    mutationFn: async ({ area, novaOrdem }: { area: string; novaOrdem: number }) => {
+      const { error } = await supabase
+        .from("conceitos")
+        .update({ ordem_area: novaOrdem })
+        .eq("area", area);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conceitos"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao reordenar área",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation para reordenar subáreas
+  const reorderSubareaMutation = useMutation({
+    mutationFn: async ({ area, subarea, novaOrdem }: { area: string; subarea: string; novaOrdem: number }) => {
+      const { error } = await supabase
+        .from("conceitos")
+        .update({ ordem_subarea: novaOrdem })
+        .eq("area", area)
+        .eq("subarea", subarea);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conceitos"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao reordenar subárea",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const resetForm = () => {
     setFormData({
       titulo: "",
@@ -225,6 +307,102 @@ const AdminConceitos = () => {
     setIsPreviewDialogOpen(true);
   };
 
+  const handleMoveUp = (conceito: Conceito, conceitosSubarea: Conceito[]) => {
+    const sortedConceitos = [...conceitosSubarea].sort((a, b) => a.ordem - b.ordem);
+    const currentIndex = sortedConceitos.findIndex((c) => c.id === conceito.id);
+    
+    if (currentIndex > 0) {
+      const previousConceito = sortedConceitos[currentIndex - 1];
+      reorderMutation.mutate({ conceito1: conceito, conceito2: previousConceito });
+    }
+  };
+
+  const handleMoveDown = (conceito: Conceito, conceitosSubarea: Conceito[]) => {
+    const sortedConceitos = [...conceitosSubarea].sort((a, b) => a.ordem - b.ordem);
+    const currentIndex = sortedConceitos.findIndex((c) => c.id === conceito.id);
+    
+    if (currentIndex < sortedConceitos.length - 1) {
+      const nextConceito = sortedConceitos[currentIndex + 1];
+      reorderMutation.mutate({ conceito1: conceito, conceito2: nextConceito });
+    }
+  };
+
+  const handleMoveAreaUp = async (area: string, areasComOrdem: Array<{ area: string; ordem: number }>) => {
+    const currentIndex = areasComOrdem.findIndex(a => a.area === area);
+    if (currentIndex > 0) {
+      const areaAtual = areasComOrdem[currentIndex];
+      const areaAnterior = areasComOrdem[currentIndex - 1];
+      
+      // Troca as ordens
+      await Promise.all([
+        reorderAreaMutation.mutateAsync({ area: areaAtual.area, novaOrdem: areaAnterior.ordem }),
+        reorderAreaMutation.mutateAsync({ area: areaAnterior.area, novaOrdem: areaAtual.ordem }),
+      ]);
+      
+      toast({
+        title: "Área movida",
+        description: `"${area}" foi movida para cima`,
+      });
+    }
+  };
+
+  const handleMoveAreaDown = async (area: string, areasComOrdem: Array<{ area: string; ordem: number }>) => {
+    const currentIndex = areasComOrdem.findIndex(a => a.area === area);
+    if (currentIndex < areasComOrdem.length - 1) {
+      const areaAtual = areasComOrdem[currentIndex];
+      const areaProxima = areasComOrdem[currentIndex + 1];
+      
+      // Troca as ordens
+      await Promise.all([
+        reorderAreaMutation.mutateAsync({ area: areaAtual.area, novaOrdem: areaProxima.ordem }),
+        reorderAreaMutation.mutateAsync({ area: areaProxima.area, novaOrdem: areaAtual.ordem }),
+      ]);
+      
+      toast({
+        title: "Área movida",
+        description: `"${area}" foi movida para baixo`,
+      });
+    }
+  };
+
+  const handleMoveSubareaUp = async (area: string, subarea: string, subareasComOrdem: Array<{ subarea: string; ordem: number }>) => {
+    const currentIndex = subareasComOrdem.findIndex(s => s.subarea === subarea);
+    if (currentIndex > 0) {
+      const subareaAtual = subareasComOrdem[currentIndex];
+      const subareaAnterior = subareasComOrdem[currentIndex - 1];
+      
+      // Troca as ordens
+      await Promise.all([
+        reorderSubareaMutation.mutateAsync({ area, subarea: subareaAtual.subarea, novaOrdem: subareaAnterior.ordem }),
+        reorderSubareaMutation.mutateAsync({ area, subarea: subareaAnterior.subarea, novaOrdem: subareaAtual.ordem }),
+      ]);
+      
+      toast({
+        title: "Subárea movida",
+        description: `"${subarea}" foi movida para cima`,
+      });
+    }
+  };
+
+  const handleMoveSubareaDown = async (area: string, subarea: string, subareasComOrdem: Array<{ subarea: string; ordem: number }>) => {
+    const currentIndex = subareasComOrdem.findIndex(s => s.subarea === subarea);
+    if (currentIndex < subareasComOrdem.length - 1) {
+      const subareaAtual = subareasComOrdem[currentIndex];
+      const subareaProxima = subareasComOrdem[currentIndex + 1];
+      
+      // Troca as ordens
+      await Promise.all([
+        reorderSubareaMutation.mutateAsync({ area, subarea: subareaAtual.subarea, novaOrdem: subareaProxima.ordem }),
+        reorderSubareaMutation.mutateAsync({ area, subarea: subareaProxima.subarea, novaOrdem: subareaAtual.ordem }),
+      ]);
+      
+      toast({
+        title: "Subárea movida",
+        description: `"${subarea}" foi movida para baixo`,
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate(formData);
@@ -249,6 +427,50 @@ const AdminConceitos = () => {
     
     return resultado;
   }, [conceitos]);
+
+  // Ordenar áreas com base no campo ordem_area
+  const areasComOrdem = useMemo(() => {
+    const areasMap = new Map<string, number>();
+    
+    conceitos.forEach((conceito) => {
+      if (!areasMap.has(conceito.area)) {
+        areasMap.set(conceito.area, conceito.ordem_area ?? 0);
+      }
+    });
+    
+    return Array.from(areasMap.entries())
+      .map(([area, ordem]) => ({ area, ordem }))
+      .sort((a, b) => {
+        if (a.ordem !== b.ordem) {
+          return a.ordem - b.ordem;
+        }
+        return a.area.localeCompare(b.area);
+      });
+  }, [conceitos]);
+
+  // Função para ordenar subáreas com base no campo ordem_subarea
+  const getSubareasComOrdem = (area: string, subareas: Record<string, Conceito[]>) => {
+    const subareasMap = new Map<string, number>();
+    
+    Object.entries(subareas).forEach(([subarea, conceitosSubarea]) => {
+      if (conceitosSubarea.length > 0) {
+        subareasMap.set(subarea, conceitosSubarea[0].ordem_subarea ?? 0);
+      }
+    });
+    
+    return Array.from(subareasMap.entries())
+      .map(([subarea, ordem]) => ({ subarea, ordem }))
+      .sort((a, b) => {
+        // "Sem Subárea" vai para o final
+        if (a.subarea === "Sem Subárea") return 1;
+        if (b.subarea === "Sem Subárea") return -1;
+        
+        if (a.ordem !== b.ordem) {
+          return a.ordem - b.ordem;
+        }
+        return a.subarea.localeCompare(b.subarea);
+      });
+  };
 
   return (
     <div className="space-y-6">
@@ -283,112 +505,208 @@ const AdminConceitos = () => {
         </div>
       ) : (
         <Accordion type="multiple" className="space-y-4">
-          {Object.entries(hierarquia)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([area, subareas]) => {
-              const totalConceitos = Object.values(subareas).flat().length;
-              return (
-                <AccordionItem
-                  key={area}
-                  value={area}
-                  className="border border-border rounded-lg overflow-hidden"
-                >
-                  <AccordionTrigger className="px-4 py-3 bg-muted hover:bg-muted/80 hover:no-underline">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <div className="flex items-center gap-3">
-                        <h2 className="font-semibold text-lg">{area}</h2>
-                        <Badge variant="secondary" className="text-xs">
-                          {totalConceitos} {totalConceitos === 1 ? 'conceito' : 'conceitos'}
-                        </Badge>
+          {areasComOrdem.map((areaInfo, areaIndex) => {
+            const area = areaInfo.area;
+            const subareas = hierarquia[area];
+            const totalConceitos = Object.values(subareas).flat().length;
+            const isFirstArea = areaIndex === 0;
+            const isLastArea = areaIndex === areasComOrdem.length - 1;
+            
+            return (
+              <AccordionItem
+                key={area}
+                value={area}
+                className="border border-border rounded-lg overflow-hidden"
+              >
+                <AccordionTrigger className="px-4 py-3 bg-muted hover:bg-muted/80 hover:no-underline">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center gap-3">
+                      {/* Botões de reordenamento de área */}
+                      <div className="flex flex-col gap-0.5 opacity-60 hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveAreaUp(area, areasComOrdem);
+                          }}
+                          disabled={isFirstArea || reorderAreaMutation.isPending}
+                          title="Mover área para cima"
+                        >
+                          <ArrowUp className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveAreaDown(area, areasComOrdem);
+                          }}
+                          disabled={isLastArea || reorderAreaMutation.isPending}
+                          title="Mover área para baixo"
+                        >
+                          <ArrowDown className="w-3 h-3" />
+                        </Button>
                       </div>
+                      
+                      <h2 className="font-semibold text-lg">{area}</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {totalConceitos} {totalConceitos === 1 ? 'conceito' : 'conceitos'}
+                      </Badge>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-0">
-                    <Accordion type="multiple" className="divide-y divide-border">
-                      {Object.entries(subareas)
-                        .sort(([a], [b]) => {
-                          // "Sem Subárea" vai para o final
-                          if (a === "Sem Subárea") return 1;
-                          if (b === "Sem Subárea") return -1;
-                          return a.localeCompare(b);
-                        })
-                        .map(([subarea, conceitosSubarea]) => (
-                          <AccordionItem
-                            key={`${area}-${subarea}`}
-                            value={`${area}-${subarea}`}
-                            className="border-0"
-                          >
-                            <AccordionTrigger className="px-4 py-2.5 hover:bg-muted/50 hover:no-underline">
-                              <div className="flex items-center justify-between w-full pr-4">
-                                <div className="flex items-center gap-2">
-                                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                                  <h3 className="font-medium text-sm">{subarea}</h3>
-                                  <Badge variant="outline" className="text-xs">
-                                    {conceitosSubarea.length}
-                                  </Badge>
-                                </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <Accordion type="multiple" className="divide-y divide-border">
+                    {getSubareasComOrdem(area, subareas).map((subareaInfo, subareaIndex) => {
+                      const subarea = subareaInfo.subarea;
+                      const conceitosSubarea = subareas[subarea];
+                      const subareasComOrdem = getSubareasComOrdem(area, subareas);
+                      const isFirstSubarea = subareaIndex === 0;
+                      const isLastSubarea = subareaIndex === subareasComOrdem.length - 1;
+                      
+                      return (
+                        <AccordionItem
+                          key={`${area}-${subarea}`}
+                          value={`${area}-${subarea}`}
+                          className="border-0"
+                        >
+                          <AccordionTrigger className="px-4 py-2.5 hover:bg-muted/50 hover:no-underline">
+                            <div className="flex items-center justify-between w-full pr-4">
+                              <div className="flex items-center gap-2">
+                                {/* Botões de reordenamento de subárea */}
+                                {subarea !== "Sem Subárea" && (
+                                  <div className="flex flex-col gap-0.5 opacity-60 hover:opacity-100 transition-opacity">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-4 w-4 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMoveSubareaUp(area, subarea, subareasComOrdem);
+                                      }}
+                                      disabled={isFirstSubarea || reorderSubareaMutation.isPending}
+                                      title="Mover subárea para cima"
+                                    >
+                                      <ArrowUp className="w-2.5 h-2.5" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-4 w-4 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMoveSubareaDown(area, subarea, subareasComOrdem);
+                                      }}
+                                      disabled={isLastSubarea || reorderSubareaMutation.isPending}
+                                      title="Mover subárea para baixo"
+                                    >
+                                      <ArrowDown className="w-2.5 h-2.5" />
+                                    </Button>
+                                  </div>
+                                )}
+                                
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                <h3 className="font-medium text-sm">{subarea}</h3>
+                                <Badge variant="outline" className="text-xs">
+                                  {conceitosSubarea.length}
+                                </Badge>
                               </div>
-                            </AccordionTrigger>
+                            </div>
+                          </AccordionTrigger>
                             <AccordionContent className="p-0">
                               <div className="divide-y divide-border bg-background/50">
                                 {conceitosSubarea
                                   .sort((a, b) => a.ordem - b.ordem)
-                                  .map((conceito) => (
-                                    <div
-                                      key={conceito.id}
-                                      className="px-4 py-3 flex items-start gap-4 hover:bg-muted/30 transition-colors"
-                                    >
-                                      <div className="flex-1 min-w-0">
-                                        <h4 className="font-medium text-sm">{conceito.titulo}</h4>
-                                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                          {conceito.nivel && (
-                                            <Badge
-                                              variant="outline"
-                                              className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
-                                            >
-                                              {conceito.nivel}
-                                            </Badge>
-                                          )}
-                                          <span className="text-xs text-muted-foreground">
-                                            #{conceito.ordem}
-                                          </span>
+                                  .map((conceito, index) => {
+                                    const sortedConceitos = [...conceitosSubarea].sort((a, b) => a.ordem - b.ordem);
+                                    const isFirst = index === 0;
+                                    const isLast = index === sortedConceitos.length - 1;
+                                    
+                                    return (
+                                      <div
+                                        key={conceito.id}
+                                        className="px-4 py-3 flex items-start gap-3 hover:bg-muted/30 transition-colors group"
+                                      >
+                                        {/* Botões de Reordenamento */}
+                                        <div className="flex flex-col gap-0.5 pt-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 p-0"
+                                            onClick={() => handleMoveUp(conceito, conceitosSubarea)}
+                                            disabled={isFirst || reorderMutation.isPending}
+                                            title="Mover para cima"
+                                          >
+                                            <ArrowUp className="w-3.5 h-3.5" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 p-0"
+                                            onClick={() => handleMoveDown(conceito, conceitosSubarea)}
+                                            disabled={isLast || reorderMutation.isPending}
+                                            title="Mover para baixo"
+                                          >
+                                            <ArrowDown className="w-3.5 h-3.5" />
+                                          </Button>
+                                        </div>
+                                        
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-medium text-sm">{conceito.titulo}</h4>
+                                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                            {conceito.nivel && (
+                                              <Badge
+                                                variant="outline"
+                                                className={`text-xs ${getNivelStyles(conceito.nivel).bg} ${getNivelStyles(conceito.nivel).text} ${getNivelStyles(conceito.nivel).border}`}
+                                              >
+                                                {conceito.nivel}
+                                              </Badge>
+                                            )}
+                                            <span className="text-xs text-muted-foreground">
+                                              #{conceito.ordem}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-1 flex-shrink-0">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => handlePreview(conceito)}
+                                            title="Visualizar conteúdo"
+                                          >
+                                            <Eye className="w-3.5 h-3.5" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => handleEdit(conceito)}
+                                            title="Editar"
+                                          >
+                                            <Pencil className="w-3.5 h-3.5" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => handleDelete(conceito.id)}
+                                            title="Deletar"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                                          </Button>
                                         </div>
                                       </div>
-                                      <div className="flex gap-1 flex-shrink-0">
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-8 w-8"
-                                          onClick={() => handlePreview(conceito)}
-                                          title="Visualizar conteúdo"
-                                        >
-                                          <Eye className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-8 w-8"
-                                          onClick={() => handleEdit(conceito)}
-                                          title="Editar"
-                                        >
-                                          <Pencil className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-8 w-8"
-                                          onClick={() => handleDelete(conceito.id)}
-                                          title="Deletar"
-                                        >
-                                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  ))}
+                                    );
+                                  })}
                               </div>
                             </AccordionContent>
                           </AccordionItem>
-                        ))}
+                        );
+                      })}
                     </Accordion>
                   </AccordionContent>
                 </AccordionItem>
