@@ -40,7 +40,7 @@ const Index = () => {
 
   // Use Supabase data (notícias e artigos são populados pelos workflows)
   const noticias = noticiasData.slice(0, 6); // Últimas 6 notícias
-  const artigos = artigosData.slice(0, 5); // 5 artigos
+  const artigos = artigosData.slice(0, 6); // 6 artigos
   // Cursos e materiais ainda usam fallback hardcoded
   const cursos = (cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded).slice(0, 6); // 6 cursos
   const materiais = (materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded).slice(0, 6); // 6 materiais
