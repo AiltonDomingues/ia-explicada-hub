@@ -213,7 +213,7 @@ const ConceitosPage = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-20">
                 <div className="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-3 border-b border-border">
+                  <div className="hero-gradient-bg px-4 py-3 border-b border-border">
                     <h3 className="font-semibold text-foreground flex items-center gap-2">
                       <Book className="w-4 h-4" />
                       Índice de Conceitos
@@ -368,8 +368,8 @@ const ConceitosPage = () => {
             <div className="lg:col-span-2">
               {selectedConceito ? (
                 <div className="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
-                  {/* Header do conceito com gradiente */}
-                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-5 border-b border-border">
+                  {/* Header do conceito */}
+                  <div className="hero-gradient-bg px-6 py-5 border-b border-border">
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <Badge className="bg-primary/20 text-primary border-primary/30 font-medium">
                         {selectedConceito.area}
