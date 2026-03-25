@@ -50,6 +50,7 @@ const AdminFerramentas = () => {
     preco: "Freemium" as "Gratuito" | "Freemium" | "Pago" | "Trial Grátis",
     url: "",
     logo: "",
+    preview_image_url: "",
     tags: "",
     verificada: false,
     destaque: false,
@@ -163,6 +164,7 @@ const AdminFerramentas = () => {
       preco: "Freemium",
       url: "",
       logo: "",
+      preview_image_url: "",
       tags: "",
       verificada: false,
       destaque: false,
@@ -300,6 +302,20 @@ const AdminFerramentas = () => {
                   onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
                   placeholder="https://..."
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="preview_image_url">Preview Image URL (opcional)</Label>
+                <Input
+                  id="preview_image_url"
+                  type="url"
+                  value={formData.preview_image_url}
+                  onChange={(e) => setFormData({ ...formData, preview_image_url: e.target.value })}
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  URL de uma imagem/screenshot da ferramenta para preview
+                </p>
               </div>
 
               <div>

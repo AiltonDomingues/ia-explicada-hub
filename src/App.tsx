@@ -11,6 +11,7 @@ import Materiais from "./pages/Materiais.tsx";
 import Conceitos from "./pages/Conceitos.tsx";
 import Eventos from "./pages/Eventos.tsx";
 import Ferramentas from "./pages/Ferramentas.tsx";
+import FerramentaDetalhes from "./pages/FerramentaDetalhes.tsx";
 import Sobre from "./pages/Sobre.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/conceitos" element={<Conceitos />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/ferramentas" element={<Ferramentas />} />
+          <Route path="/ferramentas/:id" element={<FerramentaDetalhes />} />
           <Route path="/sobre" element={<Sobre />} />
           
           <Route path="/admin/login" element={<AdminLogin />} />

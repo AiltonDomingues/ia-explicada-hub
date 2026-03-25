@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Ferramenta } from "@/lib/supabase";
 
 interface CategoriaCardProps {
@@ -122,18 +123,31 @@ const CategoriaCard = ({ nome, icone, ferramentas, totalFerramentas }: Categoria
 // Componente auxiliar para cada ferramenta com estado próprio
 const FerramentaItem = ({ ferramenta, index }: { ferramenta: Ferramenta; index: number }) => {
   const [imageError, setImageError] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseEnter = () => {
+    setTooltipVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setTooltipVisible(false);
+  };
 
   return (
-    <a
-      href={ferramenta.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2 py-1.5 rounded-md hover:bg-accent/50 transition-colors group"
-    >
-            {/* Número */}
-            <span className="flex-shrink-0 w-5 text-xs font-medium text-muted-foreground">
-              {index + 1}.
-            </span>
+    <>
+      <Link
+        to={`/ferramentas/${ferramenta.id}`}
+        className="flex items-center gap-2 py-1.5 rounded-md hover:bg-muted/30 transition-colors group"
+      >
+        {/* Número */}
+        <span className="flex-shrink-0 w-5 text-xs font-medium text-muted-foreground">
+          {index + 1}.
+        </span>
 
         {/* Logo/Ícone */}
         {ferramenta.logo && !imageError ? (
@@ -152,21 +166,46 @@ const FerramentaItem = ({ ferramenta, index }: { ferramenta: Ferramenta; index: 
           </div>
         )}
 
-            {/* Nome da Ferramenta */}
-            <span className="flex-1 text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
-              {ferramenta.nome}
-            </span>
+        {/* Nome da Ferramenta */}
+        <span 
+          className="flex-1 text-sm font-medium text-foreground group-hover:text-foreground transition-colors truncate cursor-help"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {ferramenta.nome}
+        </span>
 
-            {/* Badge de Preço */}
-            {ferramenta.preco === "Gratuito" && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-400 text-yellow-900 font-bold flex-shrink-0">
-                $
-              </span>
-            )}
+        {/* Ícone de Link Externo - leva ao site oficial */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.open(ferramenta.url, '_blank', 'noopener,noreferrer');
+          }}
+          className="p-1 rounded hover:bg-muted/50 transition-colors"
+          title="Visitar site oficial"
+          type="button"
+        >
+          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-foreground transition-colors flex-shrink-0" />
+        </button>
+      </Link>
 
-        {/* Ícone de Link Externo */}
-        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary/60 transition-colors flex-shrink-0" />
-    </a>
+      {/* Tooltip customizado que segue o mouse */}
+      {tooltipVisible && (
+        <div
+          className="fixed pointer-events-none z-[9999] transition-opacity duration-200"
+          style={{
+            left: `${tooltipPosition.x + 12}px`,
+            top: `${tooltipPosition.y + 12}px`,
+          }}
+        >
+          <div className="bg-white dark:bg-card text-foreground px-3 py-2 rounded-lg shadow-xl border-2 border-primary/30 backdrop-blur-sm max-w-xs">
+            <p className="text-xs leading-relaxed font-normal">{ferramenta.descricao}</p>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

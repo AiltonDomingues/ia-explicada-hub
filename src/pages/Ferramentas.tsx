@@ -23,17 +23,20 @@ const FerramentasPage = () => {
   usePageTitle("Ferramentas de IA");
   
   const { data: ferramentasData = [], isLoading } = useFerramentas();
-  const precos = ["Todos os Preços", "Gratuito", "Freemium", "Pago", "Trial Grátis"];
   
   const [search, setSearch] = useState("");
-  const [preco, setPreco] = useState("Todos os Preços");
-  const [apenasVerificadas, setApenasVerificadas] = useState(false);
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas as Categorias");
 
   // Filtrar e agrupar ferramentas por categoria
   const categoriasComFerramentas = useMemo(() => {
     if (isLoading) return [];
     
-    return categorias.map((categoria) => {
+    // Filtrar por categoria selecionada
+    const categoriasFiltradas = categoriaFiltro === "Todas as Categorias" 
+      ? categorias 
+      : categorias.filter(c => c.nome === categoriaFiltro);
+    
+    return categoriasFiltradas.map((categoria) => {
       // Pegar ferramentas dessa categoria
       let ferramentasCategoria = ferramentasData
         .filter((f) => f.categoria === categoria.nome)
@@ -44,16 +47,14 @@ const FerramentasPage = () => {
           return (a.ranking || 999) - (b.ranking || 999);
         });
       
-      // Aplicar filtros
+      // Aplicar filtro de busca
       ferramentasCategoria = ferramentasCategoria.filter((f) => {
         const matchSearch = 
           f.nome.toLowerCase().includes(search.toLowerCase()) ||
           f.descricao.toLowerCase().includes(search.toLowerCase()) ||
           f.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
-        const matchPreco = preco === "Todos os Preços" || f.preco === preco;
-        const matchVerificada = !apenasVerificadas || f.verificada;
         
-        return matchSearch && matchPreco && matchVerificada;
+        return matchSearch;
       });
       
       // Limitar a Top 10
@@ -63,7 +64,7 @@ const FerramentasPage = () => {
         totalFiltradas: ferramentasCategoria.length
       };
     }).filter(cat => cat.ferramentas.length > 0); // Só mostrar categorias com ferramentas
-  }, [search, preco, apenasVerificadas, ferramentasData, isLoading]);
+  }, [search, categoriaFiltro, ferramentasData, isLoading]);
 
   const totalFerramentas = categoriasComFerramentas.reduce(
     (acc, cat) => acc + cat.ferramentas.length,
@@ -103,9 +104,9 @@ const FerramentasPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="flex flex-col gap-3">
-          {/* Linha 1: Busca */}
-          <div className="relative max-w-2xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto w-full">
+          {/* Busca */}
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
@@ -116,37 +117,34 @@ const FerramentasPage = () => {
             />
           </div>
 
-          {/* Linha 2: Filtros */}
-          <div className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto w-full justify-center">
-            <Select value={preco} onValueChange={setPreco}>
-              <SelectTrigger className="w-full sm:w-[200px] bg-card border-border">
-                <SelectValue placeholder="Preço" />
-              </SelectTrigger>
-              <SelectContent>
-                {precos.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <button
-              onClick={() => setApenasVerificadas(!apenasVerificadas)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                apenasVerificadas
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card border border-border hover:bg-accent"
-              }`}
-            >
-              Apenas Verificadas
-            </button>
-          </div>
+          {/* Filtro de Categoria */}
+          <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
+            <SelectTrigger className="w-full sm:w-[240px] bg-card border-border">
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todas as Categorias">Todas as Categorias</SelectItem>
+              {categorias.map((cat) => (
+                <SelectItem key={cat.nome} value={cat.nome}>
+                  {cat.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Encontradas <span className="text-primary font-bold">{totalFerramentas}</span> ferramentas em{" "}
-          <span className="text-primary font-bold">{categoriasComFerramentas.length}</span> categorias
+          {categoriaFiltro === "Todas as Categorias" ? (
+            <>
+              Encontradas <span className="text-primary font-bold">{totalFerramentas}</span> ferramentas em{" "}
+              <span className="text-primary font-bold">{categoriasComFerramentas.length}</span> categorias
+            </>
+          ) : (
+            <>
+              Encontradas <span className="text-primary font-bold">{totalFerramentas}</span> ferramentas na categoria{" "}
+              <span className="text-primary font-bold">{categoriaFiltro}</span>
+            </>
+          )}
         </p>
       </div>
 
