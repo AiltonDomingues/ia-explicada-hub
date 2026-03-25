@@ -226,7 +226,7 @@ const AdminFerramentas = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="z-[300]">
                       {categorias.map((cat) => (
                         <SelectItem key={cat.nome} value={cat.nome}>
                           {cat.nome}
@@ -259,7 +259,7 @@ const AdminFerramentas = () => {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="z-[300]">
                       <SelectItem value="Gratuito">Gratuito</SelectItem>
                       <SelectItem value="Freemium">Freemium</SelectItem>
                       <SelectItem value="Pago">Pago</SelectItem>
@@ -368,7 +368,7 @@ const AdminFerramentas = () => {
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Categoria" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className="z-[300]">
             <SelectItem value="all">Todas categorias</SelectItem>
             {categorias.map((cat) => (
               <SelectItem key={cat.nome} value={cat.nome}>
@@ -381,7 +381,7 @@ const AdminFerramentas = () => {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Preço" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className="z-[300]">
             <SelectItem value="all">Todos preços</SelectItem>
             <SelectItem value="Gratuito">Gratuito</SelectItem>
             <SelectItem value="Freemium">Freemium</SelectItem>
