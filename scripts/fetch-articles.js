@@ -1,5 +1,5 @@
-const https = require('https');
-const { createClient } = require('@supabase/supabase-js');
+import https from 'https';
+import { createClient } from '@supabase/supabase-js';
 
 // Semantic Scholar API config
 const SS_API_BASE = 'https://api.semanticscholar.org/graph/v1';

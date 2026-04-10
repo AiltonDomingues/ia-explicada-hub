@@ -1,8 +1,8 @@
-require('dotenv').config();
-const Parser = require('rss-parser');
-const { createClient } = require('@supabase/supabase-js');
-const https = require('https');
-const http = require('http');
+import 'dotenv/config';
+import Parser from 'rss-parser';
+import { createClient } from '@supabase/supabase-js';
+import https from 'https';
+import http from 'http';
 
 // RSS Feeds from Brazilian AI-focused news sites
 const RSS_FEEDS = [
