@@ -211,7 +211,7 @@ const Index = () => {
                 className="grid md:grid-cols-3 gap-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/conceitos#roadmaps">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Map className="w-6 h-6 text-primary" />
@@ -224,7 +224,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/conceitos">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-primary" />
@@ -237,7 +237,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/materiais">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Rocket className="w-6 h-6 text-primary" />
@@ -262,7 +262,7 @@ const Index = () => {
                 className="grid md:grid-cols-3 gap-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/conceitos">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Target className="w-6 h-6 text-primary" />
@@ -275,7 +275,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/cursos">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <GraduationCap className="w-6 h-6 text-primary" />
@@ -288,7 +288,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/materiais">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <FolderKanban className="w-6 h-6 text-primary" />
@@ -313,7 +313,7 @@ const Index = () => {
                 className="grid md:grid-cols-3 gap-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/ferramentas">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Zap className="w-6 h-6 text-primary" />
@@ -326,7 +326,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/artigos">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-primary" />
@@ -339,7 +339,7 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="#">
+                  <Link to="/materiais">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Rocket className="w-6 h-6 text-primary" />

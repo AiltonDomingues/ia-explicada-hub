@@ -10,16 +10,67 @@ interface FerramentaCardProps {
 
 const getCategoryColor = (categoria: string) => {
   const colors: Record<string, { bg: string; text: string }> = {
+    // Criação de Conteúdo Visual
     "Geradores de Imagem": { bg: "bg-pink-500/10", text: "text-pink-600 dark:text-pink-400" },
-    "Chat & Assistentes": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
     "Geradores de Vídeo": { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
-    "Text-to-Speech": { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400" },
-    "Escrita & SEO": { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400" },
-    "Código & Desenvolvimento": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
-    "Produtividade": { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
-    "Educação": { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400" },
-    "Marketing": { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400" },
-    "Design": { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600 dark:text-fuchsia-400" },
+    "Edição de Imagem": { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600 dark:text-fuchsia-400" },
+    "Edição de Vídeo": { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400" },
+    "Face Swap & DeepFake": { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400" },
+    "Criação de Logos": { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400" },
+    "Texto para Vídeo": { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    "Modelos 3D": { bg: "bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    
+    // Texto e Escrita
+    "Escrita & SEO": { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+    "Geradores de Texto": { bg: "bg-yellow-500/10", text: "text-yellow-600 dark:text-yellow-400" },
+    "E-mail": { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400" },
+    "Resumidor": { bg: "bg-lime-500/10", text: "text-lime-600 dark:text-lime-400" },
+    "Gerador de Histórias": { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+    
+    // Áudio e Voz
+    "Texto para Fala": { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400" },
+    "Edição de Áudio": { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+    "Música": { bg: "bg-teal-500/10", text: "text-teal-600 dark:text-teal-400" },
+    "Transcrição": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
+    
+    // Chat e Assistentes
+    "Chat & Assistentes IA": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
+    "Assistentes de Vida": { bg: "bg-sky-500/10", text: "text-sky-600 dark:text-sky-400" },
+    "Memória": { bg: "bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    "Agentes de IA": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
+    
+    // Tecnologia e Desenvolvimento
+    "Assistente de Código": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
+    "Ferramentas para Devs": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
+    "Sites & Design": { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600 dark:text-fuchsia-400" },
+    "Apresentações": { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400" },
+    "Automação": { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    
+    // Negócios e Produtividade
+    "Produtividade": { bg: "bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    "Marketing": { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400" },
+    "Redes Sociais": { bg: "bg-pink-500/10", text: "text-pink-600 dark:text-pink-400" },
+    "E-commerce": { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+    "Recursos Humanos": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
+    "Finanças": { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400" },
+    "Imobiliário": { bg: "bg-teal-500/10", text: "text-teal-600 dark:text-teal-400" },
+    
+    // Dados e Análise
+    "Dados & Analytics": { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    "Mecanismos de Busca": { bg: "bg-cyan-500/10", text: "text-cyan-600 dark:text-cyan-400" },
+    "Arquivos & Planilhas": { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400" },
+    
+    // Educação e Pesquisa
+    "Educação": { bg: "bg-yellow-500/10", text: "text-yellow-600 dark:text-yellow-400" },
+    "Pesquisa & Ciência": { bg: "bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    
+    // Especialidades
+    "Saúde": { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400" },
+    "Assistentes Jurídicos": { bg: "bg-slate-500/10", text: "text-slate-600 dark:text-slate-400" },
+    "Moda": { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600 dark:text-fuchsia-400" },
+    "Viagens": { bg: "bg-sky-500/10", text: "text-sky-600 dark:text-sky-400" },
+    "Tecnologia Assistiva": { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+    "Tradução": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
   };
   return colors[categoria] || { bg: "bg-primary/10", text: "text-primary" };
 };

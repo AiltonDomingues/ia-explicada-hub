@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Book, ChevronRight, Search, Map as MapIcon, ArrowDown, Circle } from "lucide-react";
+import { Book, ChevronRight, Search, Map as MapIcon, ArrowDown, Circle, Brain } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -7,6 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import MateriaisComplementares from "@/components/MateriaisComplementares";
 import RoadmapCard from "@/components/RoadmapCard";
+import AIWheelDiagram from "@/components/AIWheelDiagram";
 import { useConceitos } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Conceito } from "@/lib/supabase";
@@ -437,6 +438,26 @@ const ConceitosPage = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Seção de Áreas da IA */}
+      <div className="bg-gradient-to-br from-primary/5 via-background to-primary/5 border-y border-border py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Brain className="w-8 h-8 text-primary" />
+              <h2 className="text-3xl font-bold">
+                Explore as <span className="text-primary">Áreas da IA</span>
+              </h2>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Descubra as diferentes disciplinas e especializações dentro da Inteligência Artificial.
+              Cada área tem suas próprias técnicas, aplicações e conceitos fundamentais.
+            </p>
+          </div>
+
+          <AIWheelDiagram />
+        </div>
       </div>
 
       {/* Seção de Roadmaps */}
