@@ -27,6 +27,8 @@ const AdminLogin = () => {
       setError(error.message);
       setLoading(false);
     } else {
+      // Aguardar um momento para carregar o perfil e verificar permissões
+      // A verificação real acontece no ProtectedRoute
       navigate("/admin");
     }
   };

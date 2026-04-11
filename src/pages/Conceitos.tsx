@@ -1,17 +1,16 @@
 import { useState, useMemo, useEffect } from "react";
-import { Book, ChevronRight, Search, Map as MapIcon, ArrowDown, Circle, Brain } from "lucide-react";
+import { Book, ChevronRight, Search, ArrowDown, Circle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import MateriaisComplementares from "@/components/MateriaisComplementares";
-import RoadmapCard from "@/components/RoadmapCard";
-import AIWheelDiagram from "@/components/AIWheelDiagram";
-import { useConceitos } from "@/hooks/useSupabase";
+
+import { useConceitos, useProfile } from "@/hooks/useSupabase";
+import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Conceito } from "@/lib/supabase";
-import { roadmaps } from "@/data/roadmaps";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -62,27 +61,38 @@ const getNivelStyles = (nivel: string) => {
   };
 };
 
+// Mapeamento de nivel_ia do perfil (5 níveis) para valores do filtro de conteúdo (3 níveis)
+const getNivelInicial = (userNivel?: string): string => {
+  const mapa: Record<string, string> = {
+    'iniciante': 'Iniciante',
+    'explorador': 'Iniciante',      // Explorador = usa ferramentas prontas (ainda iniciante)
+    'intermediario': 'Intermediário',
+    'avancado': 'Avançado',
+    'especialista': 'Avançado'       // Especialista agrupa em Avançado
+  };
+  return userNivel && mapa[userNivel] ? mapa[userNivel] : "Todos os Níveis";
+};
+
 const ConceitosPage = () => {
   usePageTitle("Conceitos");
+  const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
   const { data: conceitos = [], isLoading } = useConceitos();
   const [searchQuery, setSearchQuery] = useState("");
   const [nivelFilter, setNivelFilter] = useState("Todos os Níveis");
   const [selectedConceito, setSelectedConceito] = useState<Conceito | null>(null);
 
-  // Scroll para seção de roadmaps se houver hash na URL
-  useEffect(() => {
-    if (window.location.hash === '#roadmaps') {
-      // Pequeno delay para garantir que o DOM está pronto
-      setTimeout(() => {
-        const roadmapsSection = document.getElementById('roadmaps');
-        if (roadmapsSection) {
-          roadmapsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
-  }, []);
+  // Garantir que os 3 níveis padrão sempre estejam disponíveis
+  const niveis = ["Todos os Níveis", "Iniciante", "Intermediário", "Avançado"];
 
-  const niveis = ["Todos os Níveis", ...Array.from(new Set(conceitos.filter(c => c.nivel).map(c => c.nivel!)))];
+  // Pré-selecionar filtro de nível baseado no perfil do usuário (se ativado)
+  useEffect(() => {
+    if (profile?.nivel_ia && profile?.auto_filtrar_por_nivel !== false) {
+      const nivelInicial = getNivelInicial(profile.nivel_ia);
+      setNivelFilter(nivelInicial);
+      console.log('[Conceitos] Filtro aplicado:', nivelInicial, 'baseado em:', profile.nivel_ia);
+    }
+  }, [profile?.nivel_ia, profile?.auto_filtrar_por_nivel]);
 
   // Filtrar conceitos (flat) por busca e nível
   const filteredFlat = useMemo(() => {
@@ -189,20 +199,6 @@ const ConceitosPage = () => {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            onClick={() => {
-              const roadmapsSection = document.getElementById('roadmaps');
-              if (roadmapsSection) {
-                roadmapsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }}
-            variant="outline"
-            className="w-full sm:w-auto whitespace-nowrap"
-          >
-            <MapIcon className="mr-2 h-4 w-4" />
-            Ver Roadmaps
-            <ArrowDown className="ml-2 h-4 w-4" />
-          </Button>
         </div>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Encontrados <span className="text-primary font-bold">{filteredFlat.length}</span> conceitos
@@ -438,49 +434,6 @@ const ConceitosPage = () => {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Seção de Áreas da IA */}
-      <div className="bg-gradient-to-br from-primary/5 via-background to-primary/5 border-y border-border py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Brain className="w-8 h-8 text-primary" />
-              <h2 className="text-3xl font-bold">
-                Explore as <span className="text-primary">Áreas da IA</span>
-              </h2>
-            </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Descubra as diferentes disciplinas e especializações dentro da Inteligência Artificial.
-              Cada área tem suas próprias técnicas, aplicações e conceitos fundamentais.
-            </p>
-          </div>
-
-          <AIWheelDiagram />
-        </div>
-      </div>
-
-      {/* Seção de Roadmaps */}
-      <div id="roadmaps" className="bg-muted/30 border-y border-border py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <MapIcon className="w-8 h-8 text-primary" />
-              <h2 className="text-3xl font-bold">
-                Roadmaps de <span className="text-primary">Aprendizado</span>
-              </h2>
-            </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Guias estruturados para sua jornada em IA. Siga o caminho do iniciante ao avançado em cada área
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {roadmaps.map((roadmap) => (
-              <RoadmapCard key={roadmap.id} roadmap={roadmap} />
-            ))}
-          </div>
-        </div>
       </div>
 
       <Footer />

@@ -1,16 +1,17 @@
-import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Database, GitBranch, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
-import { useNoticias, useArtigos, useCursos, useMateriais, useConceitos } from "@/hooks/useSupabase";
+import { Newspaper, FileText, GraduationCap, FolderOpen, Book, Database, GitBranch, CheckCircle2, XCircle, Clock, ExternalLink, Users, TrendingUp } from "lucide-react";
+import { useNoticias, useBlogPosts, useCursos, useMateriais, useConceitos, useUserStats } from "@/hooks/useSupabase";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useGitHubWorkflows } from "@/hooks/useGitHub";
 
 const AdminDashboard = () => {
   usePageTitle("Admin - Dashboard");
   const { data: noticias } = useNoticias();
-  const { data: artigos } = useArtigos();
+  const { data: blogPosts } = useBlogPosts();
   const { data: cursos } = useCursos();
   const { data: materiais } = useMateriais();
   const { data: conceitos } = useConceitos();
   const { data: workflows, isLoading: workflowsLoading } = useGitHubWorkflows();
+  const { data: userStats } = useUserStats();
 
   // Função para calcular tamanho estimado em KB
   const calculateSize = (data: any) => {
@@ -29,11 +30,11 @@ const AdminDashboard = () => {
       size: calculateSize(noticias),
     },
     {
-      title: "Artigos",
+      title: "Blog",
       icon: FileText,
       color: "bg-green-500",
-      count: artigos?.length || 0,
-      size: calculateSize(artigos),
+      count: blogPosts?.length || 0,
+      size: calculateSize(blogPosts),
     },
     {
       title: "Cursos",
@@ -155,6 +156,102 @@ const AdminDashboard = () => {
           <p className="text-3xl font-bold">{((totalSize / 1024 / 500) * 100).toFixed(2)}%</p>
         </div>
       </div>
+
+      {/* Estatísticas de Usuários */}
+      {userStats && (
+        <div className="mb-8">
+          <h2 className="text-xl mb-4">Usuários</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-blue-500/10 p-2 rounded-lg">
+                  <Users className="w-5 h-5 text-blue-500" />
+                </div>
+                <h3 className="text-sm font-medium text-muted-foreground">Total de Usuários</h3>
+              </div>
+              <p className="text-3xl font-bold">{userStats.totalUsers}</p>
+            </div>
+
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-green-500/10 p-2 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                </div>
+                <h3 className="text-sm font-medium text-muted-foreground">Novos (Hoje)</h3>
+              </div>
+              <p className="text-3xl font-bold">{userStats.todayUsers}</p>
+            </div>
+
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-purple-500/10 p-2 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-purple-500" />
+                </div>
+                <h3 className="text-sm font-medium text-muted-foreground">Novos (7 dias)</h3>
+              </div>
+              <p className="text-3xl font-bold">{userStats.weekUsers}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Distribuição por Nível */}
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <h3 className="font-medium mb-4">Por Nível de Experiência</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Iniciante</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.iniciante}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Explorador</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.explorador}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Intermediário</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.intermediario}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Avançado</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.avancado}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Especialista</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.especialista}</span>
+                </div>
+                <div className="flex items-center justify-between border-t pt-3">
+                  <span className="text-sm text-muted-foreground">Não informado</span>
+                  <span className="text-sm font-medium">{userStats.nivelCounts.naoInformado}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Top 5 Interesses */}
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <h3 className="font-medium mb-4">Top 5 Áreas de Interesse</h3>
+              <div className="space-y-3">
+                {userStats.topInteresses.map((item, index) => (
+                  <div key={item.interesse} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm text-muted-foreground capitalize">
+                        {item.interesse.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium">{item.count} usuários</span>
+                  </div>
+                ))}
+                {userStats.topInteresses.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhum interesse registrado ainda
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Detalhamento por Área */}
       <div className="mb-8">

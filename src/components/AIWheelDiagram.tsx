@@ -501,13 +501,6 @@ const AIWheelDiagram = () => {
           </div>
         </div>
       </div>
-
-      {/* Legenda */}
-      <div className="mt-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Passe o mouse sobre cada área para ver descrição completa e exemplos de aplicação prática
-        </p>
-      </div>
     </div>
   );
 };

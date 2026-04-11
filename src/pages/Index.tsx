@@ -77,7 +77,7 @@ const Index = () => {
           </motion.div>
 
           {/* Main Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Card 1: Iniciante */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -208,10 +208,10 @@ const Index = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="grid md:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="/conceitos#roadmaps">
+                  <Link to="/explore">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Map className="w-6 h-6 text-primary" />
@@ -259,10 +259,10 @@ const Index = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="grid md:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="/conceitos">
+                  <Link to="/explore">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Target className="w-6 h-6 text-primary" />
@@ -310,7 +310,7 @@ const Index = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="grid md:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6"
               >
                 <Card className="hover:shadow-lg transition-shadow">
                   <Link to="/ferramentas">
@@ -326,14 +326,14 @@ const Index = () => {
                   </Link>
                 </Card>
                 <Card className="hover:shadow-lg transition-shadow">
-                  <Link to="/artigos">
+                  <Link to="/blog">
                     <CardContent className="p-6">
                       <div className="w-12 h-12 mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-primary" />
                       </div>
-                      <h4 className="font-bold mb-2">Casos de Uso</h4>
+                      <h4 className="font-bold mb-2">Blog & Guias</h4>
                       <p className="text-sm text-muted-foreground">
-                        Exemplos reais de aplicação por indústria
+                        Artigos, casos de uso e tutoriais práticos
                       </p>
                     </CardContent>
                   </Link>

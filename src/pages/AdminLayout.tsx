@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Home, Newspaper, FileText, GraduationCap, FolderOpen, Book, Calendar, Users, LogOut, Wrench } from "lucide-react";
+import { Home, Newspaper, FileText, GraduationCap, FolderOpen, Book, Calendar, Users, LogOut, Wrench, UserCircle } from "lucide-react";
 
 const AdminLayout = () => {
   const { user, signOut } = useAuth();
@@ -15,13 +15,14 @@ const AdminLayout = () => {
   const navItems = [
     { to: "/admin", label: "Dashboard", icon: Home },
     { to: "/admin/noticias", label: "Notícias", icon: Newspaper },
-    { to: "/admin/artigos", label: "Artigos", icon: FileText },
+    { to: "/admin/artigos", label: "Blog", icon: FileText },
     { to: "/admin/cursos", label: "Cursos", icon: GraduationCap },
     { to: "/admin/materiais", label: "Materiais", icon: FolderOpen },
     { to: "/admin/conceitos", label: "Conceitos", icon: Book },
     { to: "/admin/eventos", label: "Eventos", icon: Calendar },
     { to: "/admin/creators", label: "Creators", icon: Users },
     { to: "/admin/ferramentas", label: "Ferramentas", icon: Wrench },
+    { to: "/admin/usuarios", label: "Usuários", icon: UserCircle },
   ];
 
   return (

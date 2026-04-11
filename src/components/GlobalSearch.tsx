@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, FileText, Newspaper, GraduationCap, BookOpen, X, Book, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useNoticias, useArtigos, useCursos, useMateriais, useConceitos, useEventos } from "@/hooks/useSupabase";
+import { useNoticias, useBlogPosts, useCursos, useMateriais, useConceitos, useEventos } from "@/hooks/useSupabase";
 
 interface SearchResult {
   id: string;
-  type: 'noticia' | 'artigo' | 'curso' | 'material' | 'conceito' | 'evento';
+  type: 'noticia' | 'blog' | 'curso' | 'material' | 'conceito' | 'evento';
   titulo: string;
   descricao?: string;
   categoria: string;
@@ -24,7 +24,7 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
 
   // Fetch all content
   const { data: noticias = [] } = useNoticias();
-  const { data: artigos = [] } = useArtigos();
+  const { data: blogPosts = [] } = useBlogPosts();
   const { data: cursos = [] } = useCursos();
   const { data: materiais = [] } = useMateriais();
   const { data: conceitos = [] } = useConceitos();
@@ -71,21 +71,22 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       }
     });
 
-    // Search in artigos
-    artigos.forEach((a) => {
-      const matchTitle = a.titulo.toLowerCase().includes(searchTerm);
-      const matchResumo = a.resumo?.toLowerCase().includes(searchTerm);
-      const matchAutor = a.autor.toLowerCase().includes(searchTerm);
-      const matchTags = a.tags?.some((tag: string) => tag.toLowerCase().includes(searchTerm));
+    // Search in blog posts
+    blogPosts.forEach((post) => {
+      const matchTitle = post.titulo.toLowerCase().includes(searchTerm);
+      const matchDesc = post.descricao.toLowerCase().includes(searchTerm);
+      const matchAutor = post.autor_original.toLowerCase().includes(searchTerm);
+      const matchFonte = post.fonte.toLowerCase().includes(searchTerm);
+      const matchTags = post.tags?.some((tag: string) => tag.toLowerCase().includes(searchTerm));
 
-      if (matchTitle || matchResumo || matchAutor || matchTags) {
+      if (matchTitle || matchDesc || matchAutor || matchFonte || matchTags) {
         allResults.push({
-          id: a.id,
-          type: 'artigo',
-          titulo: a.titulo,
-          descricao: a.resumo?.substring(0, 100) + '...' || '',
-          categoria: a.categoria,
-          link: a.link
+          id: post.id,
+          type: 'blog',
+          titulo: post.titulo,
+          descricao: post.descricao.substring(0, 100) + '...' || '',
+          categoria: post.categoria,
+          link: post.url_conteudo
         });
       }
     });
@@ -164,13 +165,13 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
     });
 
     return allResults;
-  }, [query, noticias, artigos, cursos, materiais, conceitos, eventos]);
+  }, [query, noticias, blogPosts, cursos, materiais, conceitos, eventos]);
 
   // Group results by type
   const groupedResults = useMemo(() => {
     const groups = {
       noticia: results.filter(r => r.type === 'noticia'),
-      artigo: results.filter(r => r.type === 'artigo'),
+      blog: results.filter(r => r.type === 'blog'),
       curso: results.filter(r => r.type === 'curso'),
       material: results.filter(r => r.type === 'material'),
       conceito: results.filter(r => r.type === 'conceito'),
@@ -181,7 +182,7 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
 
   const handleResultClick = (result: SearchResult) => {
     if (result.link) {
-      if (result.type === 'artigo') {
+      if (result.type === 'blog') {
         // External link
         window.open(result.link, '_blank');
       } else {
@@ -192,7 +193,7 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
       // Navigate to appropriate page
       const pages: Record<string, string> = {
         noticia: '/noticias',
-        artigo: '/artigos',
+        blog: '/artigos',
         curso: '/cursos',
         material: '/materiais',
         conceito: '/conceitos',
@@ -207,7 +208,7 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'noticia': return <Newspaper className="w-4 h-4 text-blue-500" />;
-      case 'artigo': return <FileText className="w-4 h-4 text-purple-500" />;
+      case 'blog': return <FileText className="w-4 h-4 text-purple-500" />;
       case 'curso': return <GraduationCap className="w-4 h-4 text-green-500" />;
       case 'material': return <BookOpen className="w-4 h-4 text-orange-500" />;
       case 'conceito': return <Book className="w-4 h-4 text-cyan-500" />;
@@ -219,7 +220,7 @@ const GlobalSearch = ({ variant = 'icon' }: GlobalSearchProps) => {
   const getTypeName = (type: string) => {
     const names: Record<string, string> = {
       noticia: 'Notícias',
-      artigo: 'Artigos',
+      blog: 'Blog',
       curso: 'Cursos',
       material: 'Materiais',
       conceito: 'Conceitos',

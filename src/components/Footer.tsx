@@ -6,10 +6,12 @@ const Footer = () => {
 
   const navigation = [
     { name: "Notícias", path: "/noticias" },
-    { name: "Artigos", path: "/artigos" },
+    { name: "Explore", path: "/explore" },
+    { name: "Blog", path: "/blog" },
     { name: "Cursos", path: "/cursos" },
     { name: "Materiais", path: "/materiais" },
     { name: "Conceitos", path: "/conceitos" },
+    { name: "Ferramentas", path: "/ferramentas" },
     { name: "Eventos", path: "/eventos" },
     { name: "Sobre", path: "/sobre" },
   ];
@@ -38,7 +40,7 @@ const Footer = () => {
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Seu portal completo sobre Inteligência Artificial. 
-              Notícias, artigos aprofundados, cursos e materiais didáticos 
+              Notícias, blog com curadoria, cursos e materiais didáticos 
               para você dominar o mundo da IA.
             </p>
           </div>
@@ -101,9 +103,17 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-slate-800 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-            <p>
-              © {currentYear} IA Explicada HUB. Todos os direitos reservados.
-            </p>
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+              <p>© {currentYear} IA Explicada HUB. Todos os direitos reservados.</p>
+              <div className="flex gap-4">
+                <Link to="/termos" className="hover:text-teal-400 transition-colors">
+                  Termos de Serviço
+                </Link>
+                <Link to="/privacidade" className="hover:text-teal-400 transition-colors">
+                  Privacidade
+                </Link>
+              </div>
+            </div>
             <p className="flex items-center gap-1">
               Feito com <Heart className="w-4 h-4 text-red-500 fill-red-500" /> para a comunidade de IA
             </p>

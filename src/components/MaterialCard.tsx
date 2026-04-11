@@ -1,5 +1,9 @@
-import { FileText, Video, Code, BookOpen, Database } from "lucide-react";
+import { FileText, Video, Code, BookOpen, Database, Bookmark } from "lucide-react";
 import type { Material } from "@/data/materiais";
+import { useAuth } from "@/hooks/useAuth";
+import { useFavoritos, useAddFavorito, useRemoveFavorito } from "@/hooks/useSupabase";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const tipoIcons: Record<string, React.ElementType> = {
   PDF: FileText,
@@ -45,15 +49,83 @@ const getNivelStyles = (nivel: string) => {
 
 interface MaterialCardProps {
   material: Material;
+  showSaveButton?: boolean;
 }
 
-const MaterialCard = ({ material }: MaterialCardProps) => {
+const MaterialCard = ({ material, showSaveButton = true }: MaterialCardProps) => {
   const Icon = tipoIcons[material.tipo] || FileText;
   const nivelStyles = getNivelStyles(material.nivel);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { data: favoritos = [] } = useFavoritos(user?.id, 'material');
+  const addFavorito = useAddFavorito();
+  const removeFavorito = useRemoveFavorito();
+
+  const isSalvo = favoritos.some(f => f.item_id === material.id?.toString());
+
+  const handleToggleSalvar = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Faça login para salvar materiais",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (isSalvo) {
+        await removeFavorito.mutateAsync({
+          userId: user.id,
+          tipo: 'material',
+          itemId: material.id?.toString() || '',
+        });
+        toast({
+          title: "Removido dos salvos",
+          description: "Material removido da sua lista",
+        });
+      } else {
+        await addFavorito.mutateAsync({
+          userId: user.id,
+          tipo: 'material',
+          itemId: material.id?.toString() || '',
+        });
+        toast({
+          title: "Salvo com sucesso",
+          description: "Material adicionado aos seus salvos",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao salvar material",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <div className="card-base rounded-2xl bg-card p-5 flex flex-col h-full">
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+    <div className="card-base rounded-2xl bg-card p-5 flex flex-col h-full relative">
+      {/* Botão de Salvar */}
+      {showSaveButton && user && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-3 right-3 h-8 w-8 z-10"
+          onClick={handleToggleSalvar}
+        >
+          <Bookmark 
+            className={`w-4 h-4 transition-colors ${
+              isSalvo ? 'fill-primary text-primary' : 'text-muted-foreground hover:text-primary'
+            }`}
+          />
+        </Button>
+      )}
+      
+      <div className={`flex items-center justify-between mb-3 flex-wrap gap-2 ${showSaveButton && user ? 'pr-8' : ''}`}>
         <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary font-medium">
           {material.categoria}
         </span>

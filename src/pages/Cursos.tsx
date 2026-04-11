@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -7,22 +7,47 @@ import ScrollToTop from "@/components/ScrollToTop";
 import PageHeader from "@/components/PageHeader";
 import CursoCard from "@/components/CursoCard";
 import { cursos as cursosHardcoded } from "@/data/cursos";
-import { useCursos } from "@/hooks/useSupabase";
+import { useCursos, useProfile } from "@/hooks/useSupabase";
+import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { containerVariants, itemVariants } from "@/lib/animations";
 
+// Mapeamento de nivel_ia do perfil (5 níveis) para valores do filtro de conteúdo (3 níveis)
+const getNivelInicial = (userNivel?: string): string => {
+  const mapa: Record<string, string> = {
+    'iniciante': 'Iniciante',
+    'explorador': 'Iniciante',      // Explorador = usa ferramentas prontas (ainda iniciante)
+    'intermediario': 'Intermediário',
+    'avancado': 'Avançado',
+    'especialista': 'Avançado'       // Especialista agrupa em Avançado
+  };
+  return userNivel && mapa[userNivel] ? mapa[userNivel] : "Todos os Níveis";
+};
+
 const CursosPage = () => {
   usePageTitle("Cursos");
+  const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
   const { data: cursosData } = useCursos();
   const cursos = cursosData && cursosData.length > 0 ? cursosData : cursosHardcoded;
   
-  const niveis = ["Todos os Níveis", ...Array.from(new Set(cursos.map((c) => c.nivel)))];
+  // Garantir que os 3 níveis padrão sempre estejam disponíveis
+  const niveis = ["Todos os Níveis", "Iniciante", "Intermediário", "Avançado"];
   const categorias = ["Todas as Categorias", ...Array.from(new Set(cursos.map((c) => c.categoria)))];
   const [search, setSearch] = useState("");
   const [nivel, setNivel] = useState("Todos os Níveis");
   const [categoria, setCategoria] = useState("Todas as Categorias");
+
+  // Pré-selecionar filtro de nível baseado no perfil do usuário (se ativado)
+  useEffect(() => {
+    if (profile?.nivel_ia && profile?.auto_filtrar_por_nivel !== false) {
+      const nivelInicial = getNivelInicial(profile.nivel_ia);
+      setNivel(nivelInicial);
+      console.log('[Cursos] Filtro aplicado:', nivelInicial, 'baseado em:', profile.nivel_ia);
+    }
+  }, [profile?.nivel_ia, profile?.auto_filtrar_por_nivel]);
 
   const filtered = useMemo(() => {
     let result = cursos.filter((c) => {

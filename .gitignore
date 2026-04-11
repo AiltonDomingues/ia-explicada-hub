@@ -27,6 +27,8 @@ AUTOMATION.md
 *_SECRET.md
 notes.md
 NOTES.md
+SETUP_*.md
+setup_*.md
 
 # Database backups
 *.sql

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Users, ArrowDown } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -10,20 +10,37 @@ import CreatorCard from "@/components/CreatorCard";
 import { Button } from "@/components/ui/button";
 import { materiais as materiaisHardcoded } from "@/data/materiais";
 import { creators as creatorsHardcoded } from "@/data/creators";
-import { useMateriais, useCreators } from "@/hooks/useSupabase";
+import { useMateriais, useCreators, useProfile } from "@/hooks/useSupabase";
+import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { containerVariants, itemVariants } from "@/lib/animations";
 
+// Mapeamento de nivel_ia do perfil para valores do filtro
+// Mapeamento de nivel_ia do perfil (5 níveis) para valores do filtro de conteúdo (3 níveis)
+const getNivelInicial = (userNivel?: string): string => {
+  const mapa: Record<string, string> = {
+    'iniciante': 'Iniciante',
+    'explorador': 'Iniciante',      // Explorador = usa ferramentas prontas (ainda iniciante)
+    'intermediario': 'Intermediário',
+    'avancado': 'Avançado',
+    'especialista': 'Avançado'       // Especialista agrupa em Avançado
+  };
+  return userNivel && mapa[userNivel] ? mapa[userNivel] : "Todos os Níveis";
+};
+
 const MateriaisPage = () => {
   usePageTitle("Materiais");
+  const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
   const { data: materiaisData } = useMateriais();
   const { data: creatorsData } = useCreators();
   const materiais = materiaisData && materiaisData.length > 0 ? materiaisData : materiaisHardcoded;
   const creators = creatorsData && creatorsData.length > 0 ? creatorsData : creatorsHardcoded;
   
-  const niveis = ["Todos os Níveis", ...Array.from(new Set(materiais.map((m) => m.nivel)))];
+  // Garantir que os 3 níveis padrão sempre estejam disponíveis
+  const niveis = ["Todos os Níveis", "Iniciante", "Intermediário", "Avançado"];
   const tipos = ["Todos os Tipos", ...Array.from(new Set(materiais.map((m) => m.tipo)))];
   const categorias = ["Todas as Categorias", ...Array.from(new Set(materiais.map((m) => m.categoria).filter(Boolean)))];
   const especialidades = ["Todas as Especialidades", ...Array.from(new Set(creators.map((c) => c.especialidade)))];
@@ -32,6 +49,15 @@ const MateriaisPage = () => {
   const [tipo, setTipo] = useState("Todos os Tipos");
   const [categoria, setCategoria] = useState("Todas as Categorias");
   const [especialidade, setEspecialidade] = useState("Todas as Especialidades");
+
+  // Pré-selecionar filtro de nível baseado no perfil do usuário (se ativado)
+  useEffect(() => {
+    if (profile?.nivel_ia && profile?.auto_filtrar_por_nivel !== false) {
+      const nivelInicial = getNivelInicial(profile.nivel_ia);
+      setNivel(nivelInicial);
+      console.log('[Materiais] Filtro aplicado:', nivelInicial, 'baseado em:', profile.nivel_ia);
+    }
+  }, [profile?.nivel_ia, profile?.auto_filtrar_por_nivel]);
 
   const filtered = useMemo(() => {
     return materiais.filter((m) => {
@@ -63,9 +89,10 @@ const MateriaisPage = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
-            <div className="relative flex-1">
+        <div className="flex flex-col gap-3 items-center">
+          {/* Primeira linha: Busca + Botão Creators */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-4xl items-center">
+            <div className="relative flex-1 w-full sm:min-w-[400px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
@@ -75,6 +102,20 @@ const MateriaisPage = () => {
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
+            <Button
+              variant="default"
+              size="default"
+              onClick={() => document.getElementById('criadores')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="gap-2 whitespace-nowrap"
+            >
+              <Users className="w-4 h-4" />
+              Descubra Creators
+              <ArrowDown className="w-3 h-3" />
+            </Button>
+          </div>
+          
+          {/* Segunda linha: Filtros */}
+          <div className="flex flex-col sm:flex-row gap-3 flex-wrap justify-center">
             <Select value={nivel} onValueChange={setNivel}>
               <SelectTrigger className="w-[220px] bg-card border-border">
                 <SelectValue placeholder="Nível" />
@@ -112,16 +153,6 @@ const MateriaisPage = () => {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            variant="default"
-            size="default"
-            onClick={() => document.getElementById('criadores')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            className="gap-2"
-          >
-            <Users className="w-4 h-4" />
-            Descubra Creators
-            <ArrowDown className="w-3 h-3" />
-          </Button>
         </div>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Encontrados <span className="text-primary font-bold">{filtered.length}</span> materiais
